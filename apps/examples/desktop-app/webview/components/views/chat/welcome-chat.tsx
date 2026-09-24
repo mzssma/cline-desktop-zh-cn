@@ -15,6 +15,7 @@ import { useAccount } from "@/contexts/account-context";
 import { useWorkspace } from "@/contexts/workspace-context";
 import { isAgendaTaskExpired, useAgendaTasks } from "@/hooks/use-agenda-tasks";
 import { openPersonalGitHubInstallUrl } from "@/lib/cline-integrations";
+import { t } from "@/lib/i18n";
 import {
 	type CloudBranchListOptions,
 	type CloudBranchListResult,
@@ -268,7 +269,7 @@ export function WelcomeScreen({
 				label: task.title,
 				description:
 					task.description ||
-					`${task.type === "follow-up" ? "Follow-up" : task.type === "reminder" ? "Reminder" : "Suggestion"} · P${task.priority}`,
+					`${task.type === "follow-up" ? t("Follow-up") : task.type === "reminder" ? t("Reminder") : t("Suggestion")} · P${task.priority}`,
 				value: task.instructions,
 			})),
 		[quickActionTasks],
@@ -385,7 +386,7 @@ export function WelcomeScreen({
 				>
 					{active ? (
 						<div className="cline-view-enter">
-							<h1 className="sr-only">What would you like to build?</h1>
+							<h1 className="sr-only">{t("What would you like to build?")}</h1>
 							<AgentWelcomeHero />
 
 							<div className="mt-11 flex min-w-0 items-center gap-2">
@@ -418,7 +419,7 @@ export function WelcomeScreen({
 								/>
 								{signInError ? (
 									<p className="mt-2 text-xs text-destructive">
-										Sign in failed: {signInError}
+										{t("Sign in failed")}: {signInError}
 									</p>
 								) : null}
 							</div>
@@ -484,7 +485,7 @@ export function WelcomeScreen({
 								}}
 							/>
 							<AgendaTaskReviewDialog
-								confirmLabel="Approve and start"
+								confirmLabel={t("Approve and start")}
 								onConfirm={async (task) => {
 									await handleTaskAction(task);
 									setReviewTask(null);
@@ -506,8 +507,9 @@ export function WelcomeScreen({
 					{active && cloudModeActive && !showCloudOnboarding ? (
 						<p className="mt-3 flex items-center justify-center gap-1.5 text-center text-xs text-muted-foreground">
 							<Cloud aria-hidden="true" className="size-3 shrink-0" />
-							Cloud sessions run on a secure sandbox, work on a branch, and keep
-							going even when you close the app.
+							{t(
+								"Cloud sessions run on a secure sandbox, work on a branch, and keep going even when you close the app.",
+							)}
 						</p>
 					) : null}
 				</div>

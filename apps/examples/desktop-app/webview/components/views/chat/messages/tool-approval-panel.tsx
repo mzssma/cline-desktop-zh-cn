@@ -2,6 +2,7 @@
 
 import { AgentApprovalCard } from "@cline/ui";
 import { Clock3, ShieldAlert } from "lucide-react";
+import { t } from "@/lib/i18n";
 
 export type ToolApprovalRequestItem = {
 	requestId: string;
@@ -18,7 +19,7 @@ export type ToolApprovalRequestItem = {
 export function formatApprovalTimestamp(raw: string): string {
 	const parsed = new Date(raw);
 	if (Number.isNaN(parsed.getTime())) {
-		return "Pending now";
+		return t("Pending now");
 	}
 	return parsed.toLocaleString();
 }
@@ -54,10 +55,10 @@ export function ToolApprovalPanel({
 		<section className="rounded-xl border border-amber-400/40 bg-amber-500/5 p-3">
 			<div className="flex items-center gap-2 text-sm font-medium text-foreground">
 				<ShieldAlert className="h-4 w-4 text-amber-500" />
-				Tool approval required
+				{t("Tool approval required")}
 			</div>
 			<p className="mt-1 text-xs text-muted-foreground">
-				Review each tool call and approve or reject it before execution.
+				{t("Review each tool call and approve or reject it before execution.")}
 			</p>
 			<div className="mt-3 flex flex-col gap-2">
 				{items.map((item) => {
@@ -67,9 +68,9 @@ export function ToolApprovalPanel({
 						<AgentApprovalCard
 							description={
 								<>
-									Request {item.requestId}
+									{t("Request {id}", { id: item.requestId })}
 									{item.iteration != null
-										? ` · Iteration ${item.iteration}`
+										? ` · ${t("Iteration {num}", { num: item.iteration })}`
 										: ""}
 								</>
 							}

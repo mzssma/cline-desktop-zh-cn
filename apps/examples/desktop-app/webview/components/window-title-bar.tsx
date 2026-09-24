@@ -11,6 +11,7 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 import { isTauriAvailable } from "@/lib/desktop-client";
+import { t } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 type WindowTitleBarContextValue = {
@@ -92,7 +93,7 @@ export function WindowControls() {
 			}}
 		>
 			<button
-				aria-label="Minimize"
+				aria-label={t("Minimize")}
 				className="flex w-12 items-center justify-center text-foreground hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
 				onClick={() => void appWindow.minimize()}
 				type="button"
@@ -100,7 +101,7 @@ export function WindowControls() {
 				<Minus aria-hidden="true" className="size-4" strokeWidth={1.5} />
 			</button>
 			<button
-				aria-label={isMaximized ? "Restore" : "Maximize"}
+				aria-label={isMaximized ? t("Restore") : t("Maximize")}
 				className="flex w-12 items-center justify-center text-foreground hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
 				onClick={() => void appWindow.toggleMaximize()}
 				type="button"
@@ -115,7 +116,7 @@ export function WindowControls() {
 				)}
 			</button>
 			<button
-				aria-label="Close"
+				aria-label={t("Close")}
 				className="flex w-12 items-center justify-center text-foreground hover:bg-red-600 hover:text-white focus-visible:bg-red-600 focus-visible:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white"
 				onClick={() => void appWindow.close()}
 				type="button"

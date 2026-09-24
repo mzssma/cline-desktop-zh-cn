@@ -59,6 +59,7 @@ import {
 import type { ProviderModel } from "@/lib/provider-schema";
 import { startStreamingTranscription } from "@/lib/streaming-transcription";
 import { cn } from "@/lib/utils";
+import { t } from "@/lib/i18n";
 import { PullRequestBar } from "./pull-request-bar";
 import { TokenUsageRing } from "./token-usage-ring";
 import { WorkspaceSelector as WorkspaceSelectorImpl } from "./workspace-selector";
@@ -1358,18 +1359,28 @@ function ChatInputBarImpl({
 							}
 							placeholder={
 								speechInputProcessing
-									? "Transcribing voice input…"
+									? t("Transcribing voice input…")
 									: needsCloudRepository
-										? "Choose a repository"
+										? t("Choose a repository")
 										: isBusy && variant !== "welcome"
 											? promptsInQueue.length > 0
-												? "Agent is working... submit to queue another message, or Enter to send the first message from the queue"
-												: "Agent is working... submit to queue another message"
+												? t(
+														"Agent is working... submit to queue another message, or Enter to send the first message from the queue",
+													)
+												: t(
+														"Agent is working... submit to queue another message",
+													)
 											: executionTarget === "cloud"
-												? "Describe what Cline should do in this repository."
+												? t(
+														"Describe what Cline should do in this repository.",
+													)
 												: variant === "welcome"
-													? "Ask to make changes, @mention files, reference #PRs, or run /commands."
-													: "Enter your question or type / for commands or @ for context"
+													? t(
+															"Ask to make changes, @mention files, reference #PRs, or run /commands.",
+														)
+													: t(
+															"Enter your question or type / for commands or @ for context",
+														)
 							}
 							readOnly={speechInputActive || readOnly}
 							ref={promptInputRef}
@@ -1392,18 +1403,18 @@ function ChatInputBarImpl({
 									aria-live="polite"
 									className="max-w-40 text-right text-[11px] leading-4 text-muted-foreground"
 								>
-									Repository required
+									{t("Repository required")}
 								</span>
 							) : null}
 							{canAbort && (
 								<button
-									aria-label="Stop agent"
+									aria-label={t("Stop agent")}
 									className={cn(
 										"bg-foreground p-1.5 text-background hover:bg-destructive",
 										variant === "welcome" ? "rounded-md" : "rounded-full",
 									)}
 									onClick={onAbort}
-									title="Stop the agent (Esc)"
+									title={t("Stop the agent (Esc)")}
 									type="button"
 								>
 									<CircleStop className="size-3" />
@@ -1437,7 +1448,7 @@ function ChatInputBarImpl({
 							) : null}
 							{(!isBusy || canSend) && (
 								<button
-									aria-label="Send message"
+									aria-label={t("Send message")}
 									className={cn(
 										"p-1.5 disabled:cursor-not-allowed disabled:opacity-50",
 										variant === "welcome"
@@ -1448,8 +1459,8 @@ function ChatInputBarImpl({
 									onClick={handleSend}
 									title={
 										needsCloudRepository
-											? "Choose a repository"
-											: "Send (Enter)"
+											? t("Choose a repository")
+											: t("Send (Enter)")
 									}
 									type="button"
 								>
@@ -1492,14 +1503,16 @@ function ChatInputBarImpl({
 				<div className="flex min-w-0 flex-auto flex-wrap items-center gap-2 max-[560px]:flex-nowrap">
 					<button
 						aria-label={
-							executionTarget === "cloud" ? "Attach images" : "Attach files"
+							executionTarget === "cloud"
+								? t("Attach images")
+								: t("Attach files")
 						}
 						title={
 							executionTarget === "cloud"
-								? "Attach images"
+								? t("Attach images")
 								: imagesUnsupported
-									? "Attach files (this model doesn’t support images)"
-									: "Attach files"
+									? t("Attach files (this model doesn’t support images)")
+									: t("Attach files")
 						}
 						className="rounded-md p-2 text-muted-foreground hover:bg-surface-hover"
 						onClick={() => fileInputRef.current?.click()}
@@ -1533,7 +1546,7 @@ function ChatInputBarImpl({
 							}}
 							type="button"
 						>
-							Plan
+							{t("Plan")}
 						</button>
 						<button
 							aria-pressed={mode === "act"}
@@ -1548,7 +1561,7 @@ function ChatInputBarImpl({
 							}}
 							type="button"
 						>
-							Act
+							{t("Act")}
 						</button>
 					</div>
 					<div className="min-w-0 shrink-0">
@@ -1579,26 +1592,30 @@ function ChatInputBarImpl({
 						value={EFFORT_LEVELS[effortIndex]?.value ?? "low"}
 					>
 						<SelectTrigger
-							aria-label="Thinking level"
+							aria-label={t("Thinking level")}
 							className="gap-1.5 border-0 px-2 text-sm shadow-none data-[size=sm]:h-7 [&>svg:last-child]:hidden max-[560px]:size-7 max-[560px]:justify-center max-[560px]:p-0 bg-transparent! hover:bg-surface-hover!"
 							size="sm"
 							title={
 								cloudSettingsLocked
-									? "Thinking level is fixed when a cloud session starts"
+									? t(
+											"Thinking level is fixed when a cloud session starts",
+										)
 									: modelSupportsReasoning === false
-										? "The selected model does not report reasoning support"
+										? t(
+												"The selected model does not report reasoning support",
+											)
 										: undefined
 							}
 						>
 							<Brain className="size-3" />
 							<span className="max-[560px]:sr-only">
-								<SelectValue>{effortLabel}</SelectValue>
+								<SelectValue>{t(effortLabel)}</SelectValue>
 							</span>
 						</SelectTrigger>
 						<SelectContent align="start">
 							{EFFORT_LEVELS.map((option) => (
 								<SelectItem key={option.value} value={option.value}>
-									{option.label}
+									{t(option.label)}
 								</SelectItem>
 							))}
 						</SelectContent>
@@ -1888,7 +1905,7 @@ const ModelSelector = memo(function ModelSelector({
 				? {
 						sections: [
 							...(modelPicker.sections ?? []),
-							{ id: "current", label: "Current model" },
+							{ id: "current", label: t("Current model") },
 						],
 					}
 				: {}),
@@ -2125,11 +2142,11 @@ const ModelSelector = memo(function ModelSelector({
 				label: providerNames[value]?.trim() || value,
 				value,
 			})),
-			...(onOpenModelSettings
+					...(onOpenModelSettings
 				? [
 						{
 							icon: <Plus className="size-3 shrink-0 text-muted-foreground" />,
-							label: "Set up another provider",
+							label: t("Set up another provider"),
 							value: ADD_PROVIDER_OPTION_VALUE,
 						},
 					]
@@ -2142,15 +2159,15 @@ const ModelSelector = memo(function ModelSelector({
 			?.label ?? resolvedModel;
 	const renderProviderSelect = (triggerClassName: string) => (
 		<SearchCombobox
-			ariaLabel="Provider"
+			ariaLabel={t("Provider")}
 			className={triggerClassName}
 			disabled={isBusy || providers.length === 0}
-			emptyText="No providers found."
+			emptyText={t("No providers found.")}
 			onValueChange={handleProviderSelect}
 			options={providerOptions}
-			placeholder="Provider"
+			placeholder={t("Provider")}
 			placement="top"
-			searchPlaceholder="Search providers"
+			searchPlaceholder={t("Search providers")}
 			value={resolvedProvider}
 		/>
 	);
@@ -2159,10 +2176,10 @@ const ModelSelector = memo(function ModelSelector({
 		closeMobileMenu = false,
 	) => (
 		<SearchCombobox
-			ariaLabel="Model"
+			ariaLabel={t("Model")}
 			className={triggerClassName}
 			disabled={isBusy || visibleModelPicker.options.length === 0}
-			emptyText="No models found."
+			emptyText={t("No models found.")}
 			onOpen={refreshActiveProviderModels}
 			onValueChange={(value) => {
 				handleModelSelect(value);
@@ -2170,9 +2187,9 @@ const ModelSelector = memo(function ModelSelector({
 			}}
 			options={visibleModelPicker.options}
 			panelWidth="20rem"
-			placeholder="Model"
+			placeholder={t("Model")}
 			placement="top"
-			searchPlaceholder="Search models"
+			searchPlaceholder={t("Search models")}
 			sections={visibleModelPicker.sections}
 			value={resolvedModel}
 		/>
@@ -2183,11 +2200,11 @@ const ModelSelector = memo(function ModelSelector({
 			<button
 				aria-expanded={mobileOpen}
 				aria-haspopup="dialog"
-				aria-label="Model and provider"
+				aria-label={t("Model and provider")}
 				className="hidden size-7 items-center justify-center rounded-md text-foreground hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 max-[560px]:inline-flex"
 				disabled={isBusy || providers.length === 0}
 				onClick={() => setMobileOpen((current) => !current)}
-				title={`${providerNames[resolvedProvider]?.trim() || resolvedProvider || "Provider"} / ${selectedModelLabel || "Model"}`}
+				title={`${providerNames[resolvedProvider]?.trim() || resolvedProvider || t("Provider")} / ${selectedModelLabel || t("Model")}`}
 				type="button"
 			>
 				<Cpu className="size-3.5" />
@@ -2196,7 +2213,7 @@ const ModelSelector = memo(function ModelSelector({
 			{mobileOpen ? (
 				<>
 					<button
-						aria-label="Close model selector"
+						aria-label={t("Close model selector")}
 						className="fixed inset-0 z-40 hidden cursor-default opacity-0 max-[560px]:block"
 						onClick={() => setMobileOpen(false)}
 						type="button"
@@ -2204,7 +2221,7 @@ const ModelSelector = memo(function ModelSelector({
 					<div className="absolute bottom-full left-0 z-50 mb-2 hidden w-64 max-w-[calc(100vw-2rem)] space-y-3 rounded-lg border border-border bg-popover p-3 shadow-xl animate-in fade-in-0 zoom-in-95 slide-in-from-bottom-1 motion-reduce:animate-none max-[560px]:block">
 						<div className="space-y-1">
 							<div className="text-xs font-medium text-muted-foreground">
-								Provider
+								{t("Provider")}
 							</div>
 							{renderProviderSelect(
 								"w-full max-w-none justify-between text-sm",
@@ -2212,7 +2229,7 @@ const ModelSelector = memo(function ModelSelector({
 						</div>
 						<div className="space-y-1">
 							<div className="text-xs font-medium text-muted-foreground">
-								Model
+								{t("Model")}
 							</div>
 							{renderModelSelect(
 								"w-full max-w-none justify-between text-sm",

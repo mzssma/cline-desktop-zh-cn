@@ -42,6 +42,7 @@ import {
 } from "@/lib/cloud-repositories";
 import { scrollCurrentOptionIntoView } from "@/lib/scroll-current-option";
 import { cn } from "@/lib/utils";
+import { t } from "@/lib/i18n";
 import type { WorkIn } from "@/lib/work-in-selection";
 import {
 	looksLikeFolderPath,
@@ -681,7 +682,7 @@ function WorkspacePicker({
 	};
 
 	const workspaceLabel = isChatWorkspace
-		? "Chat"
+		? t("Chat")
 		: workspaceName(workspaceRoot);
 
 	return (
@@ -705,7 +706,7 @@ function WorkspacePicker({
 							setSearch(value);
 							setError(null);
 						}}
-						placeholder="Search workspaces, or type a folder path"
+						placeholder={t("Search workspaces, or type a folder path")}
 						value={search}
 					/>
 					<div className="p-1.5">
@@ -718,7 +719,7 @@ function WorkspacePicker({
 							>
 								<Folder className="size-3 shrink-0 text-muted-foreground" />
 								<span className="truncate text-xs text-foreground">
-									Open folder “{search.trim()}”
+									{t('Open folder "{folder}"', { folder: search.trim() })}
 								</span>
 							</Button>
 						)}
@@ -772,7 +773,7 @@ function WorkspacePicker({
 							variant="ghost"
 						>
 							<Plus className="size-3" />
-							{picking ? "Opening folder picker..." : "Open folder..."}
+							{picking ? t("Opening folder picker...") : t("Open folder...")}
 						</Button>
 						<Button
 							className="w-full justify-start text-xs text-muted-foreground"
@@ -782,7 +783,7 @@ function WorkspacePicker({
 							variant="ghost"
 						>
 							<FilePlus2 className="size-3" />
-							{selectingChat ? "Switching to chat..." : "Just chat"}
+							{selectingChat ? t("Switching to chat...") : t("Just chat")}
 						</Button>
 						{error && (
 							<div className="mt-1 rounded-md bg-destructive/10 px-2 py-1.5 text-xs text-destructive">
@@ -877,13 +878,13 @@ function BranchPicker({
 				<div className={PANEL_CLASS}>
 					<SearchInput
 						onChange={setSearch}
-						placeholder="Search branches"
+						placeholder={t("Search branches")}
 						value={search}
 					/>
 					<div className="p-1.5">
 						{loading ? (
 							<div className="px-2 py-4 text-xs text-muted-foreground">
-								Loading...
+								{t("Loading...")}
 							</div>
 						) : (
 							<div
@@ -892,7 +893,7 @@ function BranchPicker({
 							>
 								{filteredBranches.length === 0 ? (
 									<div className="px-2 py-2 text-xs text-muted-foreground">
-										No branches found
+										{t("No branches found")}
 									</div>
 								) : (
 									filteredBranches.map((branch) => (
@@ -949,12 +950,12 @@ function WorktreeToggle({
 						onChange(checked ? "worktree" : "local")
 					}
 				/>
-				Worktree
+				{t("Worktree")}
 			</label>
 			<Tooltip>
 				<TooltipTrigger asChild>
 					<button
-						aria-label="About worktrees"
+						aria-label={t("About worktrees")}
 						className="inline-flex rounded-full text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
 						type="button"
 					>
@@ -962,8 +963,9 @@ function WorktreeToggle({
 					</button>
 				</TooltipTrigger>
 				<TooltipContent className="max-w-64" side="top" sideOffset={6}>
-					Runs the task on a separate copy of this folder on its own branch, so
-					your files stay untouched until you merge.
+					{t(
+						"Runs the task on a separate copy of this folder on its own branch, so your files stay untouched until you merge.",
+					)}
 				</TooltipContent>
 			</Tooltip>
 		</span>
@@ -1144,7 +1146,7 @@ export function WelcomeWorkspaceControls({
 						variant="outline"
 					>
 						<LogIn className="size-3.5" />
-						{signingIn ? "Waiting for browser..." : "Sign in to use Cloud"}
+						{signingIn ? t("Waiting for browser...") : t("Sign in to use Cloud")}
 					</Button>
 				)
 			) : (

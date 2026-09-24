@@ -115,6 +115,7 @@ import {
 	workspaceDisplayName,
 } from "@/lib/sidebar-session-organization";
 import { cn } from "@/lib/utils";
+import { t } from "@/lib/i18n";
 import { TASK_WORKTREE_DELETE_WARNING } from "@/lib/work-in-selection";
 import { isTaskWorktreePath } from "@/lib/workspace-paths";
 
@@ -167,11 +168,11 @@ const SETTINGS_SECTION_ICONS = {
 // "Installed" (it sits under a "Customize" group header / next to the
 // Marketplace row, which supplies the context).
 function settingsSectionLabel(section: SettingsSection): string {
-	return (
+	const raw =
 		CUSTOMIZATION_SECTION_LABELS[
 			section as keyof typeof CUSTOMIZATION_SECTION_LABELS
-		] ?? section
-	);
+		] ?? section;
+	return t(raw);
 }
 
 function SettingsSectionNavigation({
@@ -221,7 +222,7 @@ function SettingsSectionNavigation({
 			<span
 				className={cn("block", collapsed && "flex w-full justify-start")}
 				key={section}
-				title="Configure a model provider to set up voice input"
+				title={t("Configure a model provider to set up voice input")}
 			>
 				{button}
 			</span>
@@ -230,7 +231,7 @@ function SettingsSectionNavigation({
 
 	return (
 		<nav
-			aria-label="Settings sections"
+			aria-label={t("Settings")}
 			className={cn(
 				"flex h-full min-h-0 flex-col overflow-y-auto overflow-x-hidden",
 				collapsed ? "w-full items-start" : "w-full",
@@ -238,7 +239,7 @@ function SettingsSectionNavigation({
 		>
 			{!collapsed ? (
 				<p className="px-2 pb-2 text-sm font-medium text-muted-foreground">
-					Settings
+					{t("Settings")}
 				</p>
 			) : null}
 			{/* Schedules and Customize already have dedicated rows at the top of
@@ -768,11 +769,11 @@ export function AgentSidebar({
 			{isLoadingMore ? (
 				<>
 					<Loader2 className="size-3 animate-spin" />
-					Loading...
+					{t("Loading...")}
 				</>
 			) : (
 				<>
-					Show more
+					{t("Show more")}
 					<ChevronDown className="size-3" />
 				</>
 			)}
@@ -791,24 +792,24 @@ export function AgentSidebar({
 					{!isCollapsed ? (
 						<>
 							<Button
-								aria-label="Previous page"
+								aria-label={t("Previous page")}
 								className="size-8 text-muted-foreground hover:bg-surface-hover hover:text-sidebar-foreground"
 								disabled={!canNavigateBack}
 								onClick={navigateBack}
 								size="icon"
-								title="Previous page"
+								title={t("Previous page")}
 								type="button"
 								variant="ghost"
 							>
 								<ArrowLeft className="size-4.5" />
 							</Button>
 							<Button
-								aria-label="Next page"
+								aria-label={t("Next page")}
 								className="size-8 text-muted-foreground hover:bg-surface-hover hover:text-sidebar-foreground"
 								disabled={!canNavigateForward}
 								onClick={navigateForward}
 								size="icon"
-								title="Next page"
+								title={t("Next page")}
 								type="button"
 								variant="ghost"
 							>
@@ -842,7 +843,7 @@ export function AgentSidebar({
 										isCollapsed && "size-9",
 									)}
 									onClick={openHome}
-									title="Home"
+									title={t("Home")}
 									type="button"
 								>
 									<ClineLogo className="size-5" />
@@ -902,10 +903,10 @@ export function AgentSidebar({
 					{!isCollapsed ? (
 						<div className="flex items-center gap-1">
 							<Button
-								aria-label="Search sessions"
+								aria-label={t("Search sessions")}
 								className="size-8 shrink-0 justify-center px-0"
 								onClick={onOpenSearch}
-								title="Search sessions (Cmd/Ctrl+P)"
+								title={t("Search sessions (Cmd/Ctrl+P)")}
 								type="button"
 								variant="sidebarItem"
 							>
@@ -922,46 +923,46 @@ export function AgentSidebar({
 					>
 						<Button
 							aria-current={newTaskActive ? "page" : undefined}
-							aria-label="New"
+							aria-label={t("New")}
 							className={cn(
 								newTaskActive && "bg-surface-hover text-sidebar-foreground",
 							)}
 							onClick={openHome}
-							title="Start a new session"
+							title={t("Start a new session")}
 							type="button"
 							variant="sidebarItem"
 						>
 							<Plus className="size-4 shrink-0" />
-							<span className="truncate">Session</span>
+							<span className="truncate">{t("Session")}</span>
 						</Button>
 						<Button
-							aria-label="Schedule"
+							aria-label={t("Schedule")}
 							className={cn(
 								view === "settings" &&
 									settingsSection === "Schedules" &&
 									"bg-surface-hover text-sidebar-foreground",
 							)}
 							onClick={() => openSettingsSection("Schedules")}
-							title="Schedules"
+							title={t("Schedules")}
 							type="button"
 							variant="sidebarItem"
 						>
 							<Clock3 className="size-4 shrink-0" />
-							<span className="truncate">Schedule</span>
+							<span className="truncate">{t("Schedule")}</span>
 						</Button>
 						<Button
-							aria-label="Customize"
+							aria-label={t("Customize")}
 							className={cn(
 								customizeSectionOpen &&
 									"bg-surface-hover-lighter text-sidebar-foreground",
 							)}
 							onClick={() => openSettingsSection("Customize")}
-							title="Customize Cline with plugins, rules, and more"
+							title={t("Customize Cline with plugins, rules, and more")}
 							type="button"
 							variant="sidebarItem"
 						>
 							<Blocks className="size-4 shrink-0" />
-							<span className="truncate">Customize</span>
+							<span className="truncate">{t("Customize")}</span>
 						</Button>
 						{customizeSectionOpen
 							? CUSTOMIZATION_SECTIONS.map((section) => (
@@ -1001,10 +1002,10 @@ export function AgentSidebar({
 							/>
 						) : null}
 						<Button
-							aria-label="Expand sidebar"
+							aria-label={t("Expand sidebar")}
 							className="mt-auto size-9 justify-center px-0"
 							onClick={() => setOpen(true)}
-							title="Expand sidebar"
+							title={t("Expand sidebar")}
 							type="button"
 							variant="sidebar"
 						>
@@ -1031,7 +1032,7 @@ export function AgentSidebar({
 									onClick={openSessions}
 									type="button"
 								>
-									{sortMode === "time" ? "Sessions" : "Projects"}
+									{sortMode === "time" ? t("Sessions") : t("Projects")}
 								</button>
 								<div className="flex shrink-0 items-center gap-0.5">
 									{sortToggle}
@@ -1065,7 +1066,7 @@ export function AgentSidebar({
 									    "No sessions found" would read as lost history. */}
 									{!hasLoadedHistory && threads.length === 0 ? (
 										<div className="p-4 text-sm text-muted-foreground">
-											Loading session history...
+											{t("Loading session history...")}
 										</div>
 									) : (
 										<>
@@ -1076,7 +1077,7 @@ export function AgentSidebar({
 															<CategorySection
 																collapsed={collapsedSections.has("pinned")}
 																count={pinnedThreads.length}
-																label="Pinned"
+																label={t("Pinned")}
 																onToggle={() => toggleSection("pinned")}
 															>
 																{pinnedThreads.map((thread) =>
@@ -1088,7 +1089,7 @@ export function AgentSidebar({
 															<CategorySection
 																collapsed={collapsedSections.has("scheduled")}
 																count={scheduledRows.length}
-																label="Scheduled"
+																label={t("Scheduled")}
 																onToggle={() => toggleSection("scheduled")}
 															>
 																{scheduledRows
@@ -1108,7 +1109,7 @@ export function AgentSidebar({
 																		type="button"
 																		variant="sidebarText"
 																	>
-																		Show more
+																		{t("Show more")}
 																		<ChevronDown className="size-3" />
 																	</Button>
 																) : null}
@@ -1118,7 +1119,7 @@ export function AgentSidebar({
 															<CategorySection
 																collapsed={collapsedSections.has("tasks")}
 																count={taskThreads.length}
-																label="Tasks"
+																label={t("Tasks")}
 																onToggle={() => toggleSection("tasks")}
 															>
 																{taskThreads
@@ -1139,7 +1140,7 @@ export function AgentSidebar({
 														projectVisibleCounts[project.id] ??
 														INITIAL_VISIBLE_THREAD_COUNT;
 													const projectRows = groupScheduledThreads(
-														project.threads,
+ 														project.threads,
 													);
 													return (
 														<ProjectSection
@@ -1157,7 +1158,9 @@ export function AgentSidebar({
 																	variant="sidebarText"
 																>
 																	<span className="min-w-0 truncate">
-																		Show more in {project.label}
+																		{t("Show more in {project}", {
+																			project: project.label,
+																		})}
 																	</span>
 																	<ChevronDown className="size-3" />
 																</Button>
@@ -1171,7 +1174,7 @@ export function AgentSidebar({
 												? filteredThreads.length === 0
 												: projectGroups.length === 0) && (
 												<div className="px-2 py-4 text-sm text-muted-foreground">
-													No sessions found in history.
+													{t("No sessions found in history.")}
 												</div>
 											)}
 										</>
@@ -1193,11 +1196,11 @@ export function AgentSidebar({
 												{isLoadingMore ? (
 													<>
 														<Loader2 className="size-3 animate-spin" />
-														Loading...
+														{t("Loading...")}
 													</>
 												) : (
 													<>
-														Show more
+														{t("Show more")}
 														<ChevronDown className="size-3" />
 													</>
 												)}
@@ -1218,7 +1221,7 @@ export function AgentSidebar({
 					{user && !isCollapsed ? (
 						<div className="flex min-w-0 items-center gap-2">
 							<button
-								aria-label="Account settings"
+								aria-label={t("Account settings")}
 								className={cn(
 									"flex min-w-0 flex-1 items-center gap-2.5 rounded-md p-2 text-left text-sidebar-foreground hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring",
 									view === "settings" &&
@@ -1244,7 +1247,7 @@ export function AgentSidebar({
 								</span>
 							</button>
 							<Button
-								aria-label="Settings"
+								aria-label={t("Settings")}
 								className={cn(
 									"size-9 shrink-0 justify-center px-0",
 									view === "settings" &&
@@ -1252,7 +1255,7 @@ export function AgentSidebar({
 										"bg-surface-hover text-sidebar-foreground",
 								)}
 								onClick={openSettings}
-								title="Settings"
+								title={t("Settings")}
 								type="button"
 								variant="sidebarItem"
 							>
@@ -1261,7 +1264,7 @@ export function AgentSidebar({
 						</div>
 					) : (
 						<Button
-							aria-label="Settings"
+							aria-label={t("Settings")}
 							className={cn(
 								"min-w-0 justify-start",
 								isCollapsed && "size-9 justify-center px-0",
@@ -1269,12 +1272,12 @@ export function AgentSidebar({
 									"bg-surface-hover text-sidebar-foreground",
 							)}
 							onClick={openSettings}
-							title="Settings"
+							title={t("Settings")}
 							type="button"
 							variant="sidebarItem"
 						>
 							<Settings className="size-4" />
-							{!isCollapsed ? "Settings" : null}
+							{!isCollapsed ? t("Settings") : null}
 						</Button>
 					)}
 				</div>
@@ -1289,11 +1292,19 @@ export function AgentSidebar({
 			>
 				<AlertDialogContent>
 					<AlertDialogHeader>
-						<AlertDialogTitle>Delete session?</AlertDialogTitle>
+						<AlertDialogTitle>{t("Delete session?")}</AlertDialogTitle>
 						<AlertDialogDescription>
 							{deleteConfirmThread?.origin === "cloud"
-								? `This deletes "${normalizeTitle(deleteConfirmThread?.title ?? "this session")}" and its cloud workspace.`
-								: `This removes "${normalizeTitle(deleteConfirmThread?.title ?? "this session")}" from local history.`}
+								? t('This deletes "{title}" and its cloud workspace.', {
+										title: normalizeTitle(
+											deleteConfirmThread?.title ?? t("this session"),
+										),
+									})
+								: t('This removes "{title}" from local history.', {
+										title: normalizeTitle(
+											deleteConfirmThread?.title ?? t("this session"),
+										),
+									})}
 							{deleteConfirmThread?.origin !== "cloud" &&
 							isTaskWorktreePath(deleteConfirmThread?.workspacePath ?? "")
 								? ` ${TASK_WORKTREE_DELETE_WARNING}`
@@ -1302,7 +1313,7 @@ export function AgentSidebar({
 					</AlertDialogHeader>
 					<AlertDialogFooter>
 						<AlertDialogCancel disabled={pendingAction?.action === "delete"}>
-							Cancel
+							{t("Cancel")}
 						</AlertDialogCancel>
 						<AlertDialogAction
 							className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
@@ -1319,10 +1330,10 @@ export function AgentSidebar({
 							{pendingAction?.action === "delete" ? (
 								<>
 									<Loader2 className="size-4 animate-spin" />
-									Deleting...
+									{t("Deleting...")}
 								</>
 							) : (
-								"Delete"
+								t("Delete")
 							)}
 						</AlertDialogAction>
 					</AlertDialogFooter>
@@ -1742,7 +1753,7 @@ function SessionContextMenuContent({
 			{allowPin ? (
 				<ContextMenuItem disabled={pending} onSelect={onTogglePin}>
 					<Pin className={cn("size-4", pinned && "fill-current")} />
-					{pinned ? "Unpin" : "Pin"}
+					{pinned ? t("Unpin") : t("Pin")}
 				</ContextMenuItem>
 			) : null}
 			<ContextMenuItem disabled={pending} onSelect={onRename}>
@@ -1751,7 +1762,7 @@ function SessionContextMenuContent({
 				) : (
 					<Pencil className="size-4" />
 				)}
-				{pendingAction === "rename" ? "Renaming..." : "Rename"}
+				{pendingAction === "rename" ? t("Renaming...") : t("Rename")}
 			</ContextMenuItem>
 			{allowFork ? (
 				<ContextMenuItem disabled={pending} onSelect={onFork}>
@@ -1760,7 +1771,7 @@ function SessionContextMenuContent({
 					) : (
 						<GitFork className="size-4" />
 					)}
-					{pendingAction === "fork" ? "Forking..." : "Fork"}
+					{pendingAction === "fork" ? t("Forking...") : t("Fork")}
 				</ContextMenuItem>
 			) : null}
 			<ContextMenuItem
@@ -1773,7 +1784,7 @@ function SessionContextMenuContent({
 				) : (
 					<Trash2 className="size-4" />
 				)}
-				{pendingAction === "delete" ? "Deleting..." : "Delete"}
+				{pendingAction === "delete" ? t("Deleting...") : t("Delete")}
 			</ContextMenuItem>
 		</ContextMenuContent>
 	);

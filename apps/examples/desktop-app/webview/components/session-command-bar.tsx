@@ -15,6 +15,7 @@ import {
 	CommandList,
 } from "@/components/ui/command";
 import { desktopClient } from "@/lib/desktop-client";
+import { t } from "@/lib/i18n";
 
 type SessionSearchHit = {
 	sessionId: string;
@@ -121,7 +122,7 @@ export function SessionCommandBar({
 	return (
 		<CommandDialog
 			className="h-[min(38rem,calc(100vh-2rem))] w-[min(56rem,calc(100vw-2rem))] max-w-none sm:max-w-none"
-			description="Search messages across all Cline sessions"
+			description={t("Search messages across all Cline sessions")}
 			onOpenChange={onOpenChange}
 			open={open}
 			// Hits arrive filtered and ranked by the FTS index; letting cmdk
@@ -129,11 +130,11 @@ export function SessionCommandBar({
 			// text lives outside the truncated snippet.
 			shouldFilter={false}
 			showCloseButton={false}
-			title="Search session history"
+			title={t("Search session history")}
 		>
 			<CommandInput
 				onValueChange={handleQueryChange}
-				placeholder="Search all session history…"
+				placeholder={t("Search all session history…")}
 				value={query}
 			/>
 			<CommandList
@@ -143,14 +144,14 @@ export function SessionCommandBar({
 				{searching ? (
 					<div className="flex items-center justify-center gap-2 py-8 text-sm text-muted-foreground">
 						<Loader2 className="size-4 animate-spin" />
-						Searching sessions…
+						{t("Searching sessions…")}
 					</div>
 				) : null}
 				{!searching && query.trim() ? (
-					<CommandEmpty>No matching session history.</CommandEmpty>
+					<CommandEmpty>{t("No matching session history.")}</CommandEmpty>
 				) : null}
 				{!searching && hits.length > 0 ? (
-					<CommandGroup heading="Session history">
+					<CommandGroup heading={t("Session history")}>
 						{visibleHits.map((hit) => (
 							<CommandItem
 								className="items-start py-3"

@@ -61,6 +61,7 @@ import {
 	setStoredHubTheme,
 } from "@/lib/theme";
 import { cn } from "@/lib/utils";
+import { t } from "@/lib/i18n";
 import { MarketplaceExplorerView } from "../marketplace-explorer-view";
 import { PageFrame, PageHeader } from "../page-layout";
 import { AccountView } from "./account-view";
@@ -982,29 +983,37 @@ function GeneralSettingsContent({
 	return (
 		<PageFrame>
 			<PageHeader
-				description="Manage desktop preferences for this browser and CLI environment."
-				title="Settings"
+				description={t(
+					"Manage desktop preferences for this browser and CLI environment.",
+				)}
+				title={t("Settings")}
 			/>
 			<section className="max-w-344">
 				<NotificationSettings />
 				<div className="flex py-4 items-center justify-between gap-5 border-b max-[720px]:flex-col max-[720px]:items-stretch max-[720px]:py-4">
 					<div className="flex flex-col gap-1">
-						<p className="text-base font-semibold text-foreground">Dark mode</p>
+						<p className="text-base font-semibold text-foreground">
+							{t("Dark mode")}
+						</p>
 						<p className="text-sm text-muted-foreground">
-							Keep the desktop interface in dark mode on this browser.
+							{t("Keep the desktop interface in dark mode on this browser.")}
 						</p>
 					</div>
 					<Switch
-						aria-label="Dark mode"
+						aria-label={t("Dark mode")}
 						checked={theme === "dark"}
 						onCheckedChange={updateTheme}
 					/>
 				</div>
 				<div className="flex items-center justify-between gap-5 border-b py-4 max-[720px]:flex-col max-[720px]:items-stretch">
 					<div className="flex flex-col gap-1">
-						<p className="text-base font-semibold text-foreground">Font size</p>
+						<p className="text-base font-semibold text-foreground">
+							{t("Font size")}
+						</p>
 						<p className="text-sm text-muted-foreground">
-							Adjust the size of text and interface elements throughout the app.
+							{t(
+								"Adjust the size of text and interface elements throughout the app.",
+							)}
 						</p>
 					</div>
 					<div className="flex w-64 shrink-0 items-center gap-3 max-[720px]:w-full">
@@ -1040,7 +1049,7 @@ function GeneralSettingsContent({
 							<Plus />
 						</Button>
 						<output
-							aria-label="Selected font size"
+							aria-label={t("Selected font size")}
 							className="w-10 shrink-0 text-right font-mono text-sm tabular-nums text-foreground"
 						>
 							{fontSize}px
@@ -1050,16 +1059,16 @@ function GeneralSettingsContent({
 				<div className="flex py-4 items-center justify-between gap-5 border-b max-[720px]:flex-col max-[720px]:items-stretch max-[720px]:py-4">
 					<div className="flex flex-col gap-1">
 						<p className="text-base font-semibold text-foreground">
-							Accent color
+							{t("Accent color")}
 						</p>
 						<p className="text-sm text-muted-foreground">
-							Tint buttons, links, and highlights across the app.
+							{t("Tint buttons, links, and highlights across the app.")}
 						</p>
 					</div>
 					<div className="flex shrink-0 items-center gap-2">
 						{ACCENT_OPTIONS.map((option) => (
 							<button
-								aria-label={option.label}
+								aria-label={t(option.label)}
 								aria-pressed={accent === option.id}
 								className={cn(
 									"size-7 rounded-full border border-foreground/10 transition-transform hover:scale-110",
@@ -1069,7 +1078,7 @@ function GeneralSettingsContent({
 								key={option.id}
 								onClick={() => updateAccent(option.id)}
 								style={{ backgroundColor: option.swatch }}
-								title={option.label}
+								title={t(option.label)}
 								type="button"
 							/>
 						))}
@@ -1077,9 +1086,18 @@ function GeneralSettingsContent({
 				</div>
 				<div className="flex items-center justify-between gap-5 border-b py-4 max-[720px]:flex-col max-[720px]:items-stretch">
 					<div className="flex flex-col gap-1">
-						<p className="text-base font-semibold text-foreground">App icon</p>
+						<p className="text-base font-semibold text-foreground">
+							{t("App icon")}
+						</p>
 						<p className="text-sm text-muted-foreground">
-							Pick the icon Cline shows in the {appIconLocation}.
+							{t("Pick the icon Cline shows in the {location}.", {
+								location:
+									appIconLocation === "Dock"
+										? t("Dock")
+										: appIconLocation === "Taskbar"
+											? t("Taskbar")
+											: t("desktop"),
+							})}
 						</p>
 						{appIconError ? (
 							<p className="mt-2 text-xs text-destructive" role="alert">
@@ -1126,12 +1144,12 @@ function GeneralSettingsContent({
 				<div className="flex py-4 items-center justify-between gap-5 border-b max-[720px]:flex-col max-[720px]:items-stretch max-[720px]:py-4">
 					<div className="flex flex-col gap-1">
 						<p className="text-base font-semibold text-foreground">
-							Web search
+							{t("Web search")}
 						</p>
 						<p className="text-sm text-muted-foreground">
-							Let the model search the web during a task. Only providers with
-							built-in web search honor this setting; other providers ignore it.
-							Applies to new sessions.
+							{t(
+								"Let the model search the web during a task. Only providers with built-in web search honor this setting; other providers ignore it. Applies to new sessions.",
+							)}
 						</p>
 						{webSearchReadyProviders ===
 						null ? null : webSearchReadyProviders.length > 0 ? (
@@ -1161,7 +1179,7 @@ function GeneralSettingsContent({
 						) : null}
 					</div>
 					<Switch
-						aria-label="Web search"
+						aria-label={t("Web search")}
 						checked={webSearchEnabled}
 						disabled={webSearchLoading || webSearchSaving}
 						onCheckedChange={(checked) => void updateWebSearchEnabled(checked)}
@@ -1170,12 +1188,12 @@ function GeneralSettingsContent({
 				<div className="flex py-4 items-center justify-between gap-5 border-b max-[720px]:flex-col max-[720px]:items-stretch max-[720px]:py-4">
 					<div className="flex flex-col gap-1">
 						<p className="text-base font-semibold text-foreground">
-							Keep CLI up to date
+							{t("Keep CLI up to date")}
 						</p>
 						<p className="text-sm text-muted-foreground">
-							Automatically update the cline terminal command, which shares your
-							sessions and settings with this app. The app itself updates
-							separately.
+							{t(
+								"Automatically update the cline terminal command, which shares your sessions and settings with this app. The app itself updates separately.",
+							)}
 						</p>
 						{autoUpdateError ? (
 							<p className="mt-2 text-xs text-destructive" role="alert">
@@ -1184,7 +1202,7 @@ function GeneralSettingsContent({
 						) : null}
 					</div>
 					<Switch
-						aria-label="Keep CLI up to date"
+						aria-label={t("Keep CLI up to date")}
 						checked={autoUpdateEnabled}
 						disabled={autoUpdateLoading || autoUpdateSaving}
 						onCheckedChange={(checked) => void updateAutoUpdateEnabled(checked)}
@@ -1232,9 +1250,11 @@ function GeneralSettingsContent({
 				) : null}
 				<div className="flex py-4 items-center justify-between gap-5 border-b max-[720px]:flex-col max-[720px]:items-stretch max-[720px]:py-4">
 					<div className="flex flex-col gap-1">
-						<p className="text-base font-semibold text-foreground">Telemetry</p>
+						<p className="text-base font-semibold text-foreground">
+							{t("Telemetry")}
+						</p>
 						<p className="text-sm text-muted-foreground">
-							Enable error and usage reports to help improve Cline.
+							{t("Enable error and usage reports to help improve Cline.")}
 						</p>
 						{telemetryError ? (
 							<p className="mt-2 text-xs text-destructive" role="alert">
@@ -1243,7 +1263,7 @@ function GeneralSettingsContent({
 						) : null}
 					</div>
 					<Switch
-						aria-label="Telemetry"
+						aria-label={t("Telemetry")}
 						checked={!telemetryOptOut}
 						disabled={telemetryLoading || telemetrySaving}
 						onCheckedChange={(checked) => void updateTelemetryOptOut(!checked)}
@@ -1252,11 +1272,12 @@ function GeneralSettingsContent({
 				<div className="flex py-4 items-center justify-between gap-5 border-b max-[720px]:flex-col max-[720px]:items-stretch max-[720px]:py-4">
 					<div className="flex flex-col gap-1">
 						<p className="text-base font-semibold text-foreground">
-							New user experience
+							{t("New user experience")}
 						</p>
 						<p className="text-sm text-muted-foreground">
-							Replay the first-run experience new users see when they open Cline
-							for the first time.
+							{t(
+								"Replay the first-run experience new users see when they open Cline for the first time.",
+							)}
 						</p>
 					</div>
 					<Button
@@ -1267,17 +1288,18 @@ function GeneralSettingsContent({
 						variant="outline"
 					>
 						<RotateCcw className="size-3" />
-						Replay
+						{t("Replay")}
 					</Button>
 				</div>
 				<div className="flex py-4 items-center justify-between gap-5 border-b max-[720px]:flex-col max-[720px]:items-stretch max-[720px]:py-4">
 					<div className="flex flex-col gap-1">
 						<p className="text-base font-semibold text-foreground">
-							Diagnostics
+							{t("Diagnostics")}
 						</p>
 						<p className="text-sm text-muted-foreground">
-							Export app info, recent logs, and the metadata of sessions you
-							choose as a file you can attach when reporting a problem.
+							{t(
+								"Export app info, recent logs, and the metadata of sessions you choose as a file you can attach when reporting a problem.",
+							)}
 						</p>
 					</div>
 					<Button
@@ -1286,12 +1308,14 @@ function GeneralSettingsContent({
 						variant="outline"
 					>
 						<Download className="size-3" />
-						Export…
+						{t("Export…")}
 					</Button>
 				</div>
 				<div className="flex py-4 items-center justify-between gap-5 max-[720px]:flex-col max-[720px]:items-stretch max-[720px]:py-4">
 					<div className="flex flex-col gap-1">
-						<p className="text-base font-semibold text-foreground">About</p>
+						<p className="text-base font-semibold text-foreground">
+							{t("About")}
+						</p>
 						<p className="text-sm text-muted-foreground">
 							{productNameForVersion(appVersion)}
 							{appVersion ? ` v${appVersion}` : ""}
