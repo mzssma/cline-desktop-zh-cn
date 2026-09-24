@@ -24,6 +24,7 @@ import {
 } from "@/lib/session-agents";
 import { sessionStatusColor, sessionStatusTone } from "@/lib/session-status";
 import { cn } from "@/lib/utils";
+import { t } from "@/lib/i18n";
 import { Button } from "./ui/button";
 import {
 	DropdownMenu,
@@ -93,7 +94,7 @@ function AgentHeaderImpl({
 	const statusTone = sessionStatusTone(status);
 	const statusColor = sessionStatusColor(status);
 	const threadTitle = useMemo(
-		() => normalizeTitle(title?.trim()) || "New Session",
+		() => normalizeTitle(title?.trim()) || t("New Session"),
 		[title],
 	);
 
@@ -201,7 +202,7 @@ function AgentHeaderImpl({
 				<DropdownMenu>
 					<DropdownMenuTrigger asChild>
 						<Button
-							aria-label="Session actions"
+							aria-label={t("Session actions")}
 							className="shrink-0 text-muted-foreground transition-colors hover:text-foreground"
 							id="show-more-btn"
 							variant="ghost"
@@ -218,7 +219,7 @@ function AgentHeaderImpl({
 							onClick={triggerDeleteSession}
 						>
 							<Trash2 className="size-4" />
-							<span>{deletingSession ? "Deleting..." : "Delete session"}</span>
+							<span>{deletingSession ? t("Deleting...") : t("Delete session")}</span>
 						</DropdownMenuItem>
 					</DropdownMenuContent>
 				</DropdownMenu>
@@ -264,7 +265,7 @@ function AgentHeaderImpl({
 						/>
 					) : (
 						<Button
-							aria-label="New session"
+							aria-label={t("New session")}
 							className="flex items-center gap-1 rounded-md text-sm text-muted-foreground hover:bg-surface-hover hover:text-foreground transition-colors"
 							onClick={() => onNewThread?.()}
 							size="icon-sm"
@@ -301,10 +302,10 @@ function SubagentSessionBadge({
 	onOpenParentSession?: (parentSessionId: string) => void | Promise<void>;
 }) {
 	const parentTitle = parentSession.title?.trim();
-	const label = "Main Agent Session";
+	const label = t("Main Agent Session");
 	const hint = parentTitle
-		? `Back to the main agent session: ${parentTitle}`
-		: "Back to the main agent session";
+		? t("Back to the main agent session: {title}", { title: parentTitle })
+		: t("Back to the main agent session");
 
 	return (
 		<Button
@@ -407,7 +408,7 @@ function AgentActivityStatus({
 				id="agent-activity-panel"
 			>
 				<div className="border-b border-border/70 px-3 py-2">
-					<div className="text-sm font-medium text-foreground">Agents</div>
+					<div className="text-sm font-medium text-foreground">{t("Agents")}</div>
 					<div className="mt-0.5 text-[11px] text-muted-foreground">
 						{label}
 					</div>
@@ -444,7 +445,7 @@ function AgentRoster({
 		return (
 			<div className="flex items-center gap-2 px-3 py-4 text-xs text-muted-foreground">
 				<Loader2 aria-hidden="true" className="size-3.5 animate-spin" />
-				Loading agents...
+				{t("Loading agents...")}
 			</div>
 		);
 	}
@@ -489,7 +490,7 @@ function AgentRoster({
 					className="border-t border-border/70 px-3 py-2 text-[11px] text-muted-foreground"
 					id="agent-roster-stale"
 				>
-					Could not refresh — showing the last known agents. {error}
+					{t("Could not refresh — showing the last known agents.")} {error}
 				</div>
 			) : null}
 		</>
@@ -536,7 +537,7 @@ function AgentRosterRow({
 			<button
 				className="flex w-full min-w-0 items-start gap-2 px-3 py-2 text-left transition-colors hover:bg-surface-hover"
 				onClick={onSelect}
-				title="Open this agent's session"
+				title={t("Open this agent's session")}
 				type="button"
 			>
 				<StateIcon
@@ -551,7 +552,7 @@ function AgentRosterRow({
 				    min-w-0 lets the clamp/truncate win over the text's intrinsic size. */}
 				<span className="flex min-w-0 flex-1 flex-col">
 					<span className="line-clamp-2 wrap-break-word text-xs font-medium text-foreground">
-						{task || "Untitled task"}
+						{task || t("Untitled task")}
 					</span>
 					<span className="mt-0.5 flex min-w-0 items-center gap-1.5 text-[11px] text-muted-foreground">
 						{agent.kind === "teamtask" ? (
@@ -565,8 +566,8 @@ function AgentRosterRow({
 						>
 							{lastAction ||
 								(isRunning
-									? "Starting up..."
-									: `No activity recorded (${state})`)}
+									? t("Starting up...")
+									: t("No activity recorded ({state})", { state }))}
 						</span>
 					</span>
 				</span>

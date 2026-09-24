@@ -151,45 +151,45 @@ function CloudRepositoryPicker({
 				<div
 					className={PANEL_CLASS}
 					role="dialog"
-					aria-label="Cloud repository"
+					aria-label={t("Cloud repository")}
 				>
 					{result?.connected !== false ? (
 						<SearchInput
 							onChange={setQuery}
-							placeholder="Search repositories…"
+							placeholder={t("Search repositories…")}
 							value={query}
 						/>
 					) : null}
 					<div className="max-h-72 overflow-y-auto p-1.5">
 						{status === "loading" ? (
-							<PickerStatus icon="loading" message="Loading repositories…" />
+							<PickerStatus icon="loading" message={t("Loading repositories…")} />
 						) : status === "error" ? (
-							<PickerStatus message="Could not load repositories.">
+							<PickerStatus message={t("Could not load repositories.")}>
 								<Button
 									onClick={() => setReloadKey((current) => current + 1)}
 									size="sm"
 									variant="ghost"
 								>
 									<RefreshCcw aria-hidden="true" className="size-3" />
-									Retry
+									{t("Retry")}
 								</Button>
 							</PickerStatus>
 						) : result?.connected === false ? (
-							<PickerStatus message="Connect GitHub to select a repository.">
+							<PickerStatus message={t("Connect GitHub to select a repository.")}>
 								<Button
 									onClick={() => void onOpenExternalUrl(result.connectUrl)}
 									size="sm"
 									variant="ghost"
 								>
-									Connect GitHub
+									{t("Connect GitHub")}
 								</Button>
 							</PickerStatus>
 						) : filteredRepositories.length === 0 ? (
 							<PickerStatus
 								message={
 									repositories.length === 0
-										? "No connected repositories."
-										: "No repositories found."
+										? t("No connected repositories.")
+										: t("No repositories found.")
 								}
 							/>
 						) : (
@@ -408,8 +408,10 @@ function CloudBranchPicker({
 				onClick={onToggle}
 				title={
 					status === "unavailable"
-						? `Using the repository default branch${branch ? `: ${branch}` : ""}`
-						: branch || "Select a branch"
+						? branch
+							? t("Using the repository default branch: {branch}", { branch })
+							: t("Using the repository default branch")
+						: branch || t("Select a branch")
 				}
 				type="button"
 			>
@@ -420,17 +422,17 @@ function CloudBranchPicker({
 				<span className="max-w-48 truncate">
 					{status === "unavailable"
 						? branch
-							? `${branch} (default)`
-							: "Default branch"
-						: branch || "Select branch…"}
+							? `${branch} (${t("default")})`
+							: t("Default branch")
+						: branch || t("Select branch…")}
 				</span>
 			</button>
 
 			{open && repositoryId && status !== "unavailable" ? (
-				<div className={PANEL_CLASS} role="dialog" aria-label="Cloud branch">
+				<div className={PANEL_CLASS} role="dialog" aria-label={t("Cloud branch")}>
 					<SearchInput
 						onChange={setQuery}
-						placeholder="Search branches…"
+						placeholder={t("Search branches…")}
 						value={query}
 					/>
 					<div
@@ -450,11 +452,11 @@ function CloudBranchPicker({
 									variant="ghost"
 								>
 									<RefreshCcw aria-hidden="true" className="size-3" />
-									Retry
+									{t("Retry")}
 								</Button>
 							</PickerStatus>
 						) : branches.length === 0 ? (
-							<PickerStatus message="No branches found." />
+							<PickerStatus message={t("No branches found.")} />
 						) : (
 							branches.map((item) => (
 								<Button
@@ -480,7 +482,7 @@ function CloudBranchPicker({
 								className="px-3 py-2 text-center text-xs text-muted-foreground"
 								ref={loadMoreRef}
 							>
-								{loadingMore ? "Loading more branches…" : null}
+								{loadingMore ? t("Loading more branches…") : null}
 							</div>
 						) : null}
 						{loadMoreError ? (
@@ -490,7 +492,7 @@ function CloudBranchPicker({
 								onClick={() => void loadMore()}
 								variant="ghost"
 							>
-								Could not load more branches — Retry
+								{t("Could not load more branches — Retry")}
 							</Button>
 						) : null}
 					</div>
@@ -730,8 +732,8 @@ function WorkspacePicker({
 							{filteredWorkspaces.length === 0 ? (
 								<div className="px-2 py-2 text-xs text-muted-foreground">
 									{looksLikeFolderPath(search)
-										? "Press the option above to open this folder"
-										: "No workspaces found — type a full folder path to add one"}
+										? t("Press the option above to open this folder")
+										: t("No workspaces found — type a full folder path to add one")}
 								</div>
 							) : (
 								filteredWorkspaces.map((path) => {

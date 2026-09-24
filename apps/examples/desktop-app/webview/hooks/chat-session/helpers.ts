@@ -15,6 +15,7 @@ import type {
 import { isGitHubRepositoryUrl } from "@/lib/cloud-repositories";
 import { normalizeProviderId } from "@/lib/provider-id";
 import type { SessionHistoryStatus } from "@/lib/session-history";
+import { t } from "@/lib/i18n";
 import { OAUTH_MANAGED_PROVIDERS } from "./constants";
 
 type RpcMessageLike = {
@@ -260,12 +261,17 @@ export function resolveCredentialError(
 export function resolveCredentialFailureHint(providerId: string): string {
 	const cli = resolveProviderLocalCli(providerId);
 	if (cli) {
-		return `Sign in again with the \`${cli.command}\` CLI in a terminal, then try again.`;
+		return t(
+			"Sign in again with the `{command}` CLI in a terminal, then try again.",
+			{ command: cli.command },
+		);
 	}
 	if (normalizeProviderId(providerId) === "cline") {
-		return "Sign in to Cline again in Settings → Account, then try again.";
+		return t("Sign in to Cline again in Settings → Account, then try again.");
 	}
-	return "Check your model connection in Settings → API Providers (or sign in with Cline), then try again.";
+	return t(
+		"Check your model connection in Settings → API Providers (or sign in with Cline), then try again.",
+	);
 }
 
 /**

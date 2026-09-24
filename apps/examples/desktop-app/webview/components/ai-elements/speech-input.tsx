@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/tooltip";
 import type { StreamingSpeechSession } from "@/lib/streaming-transcription";
 import { isTranscriptionNetworkError } from "@/lib/transcription-network-error";
+import { t } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 interface SpeechRecognition extends EventTarget {
@@ -536,7 +537,7 @@ export function SpeechInput({
 				</TooltipTrigger>
 				{canShowStopHint ? (
 					<TooltipContent side="top" sideOffset={8}>
-						Click Stop to transcribe your recording.
+						{t("Click Stop to transcribe your recording.")}
 					</TooltipContent>
 				) : null}
 			</Tooltip>

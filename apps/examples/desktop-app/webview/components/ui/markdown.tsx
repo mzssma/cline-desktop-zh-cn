@@ -12,6 +12,7 @@ import {
 	Streamdown,
 } from "streamdown";
 import { openExternalUrl } from "@/lib/desktop-client";
+import { t } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import {
 	AlertDialog,
@@ -41,17 +42,17 @@ export function MarkdownLinkSafetyModal({
 		>
 			<AlertDialogContent>
 				<AlertDialogHeader>
-					<AlertDialogTitle>Open external link?</AlertDialogTitle>
+					<AlertDialogTitle>{t("Open external link?")}</AlertDialogTitle>
 					<AlertDialogDescription>
-						You are about to leave Cline and visit this address.
+						{t("You are about to leave Cline and visit this address.")}
 					</AlertDialogDescription>
 				</AlertDialogHeader>
 				<div className="max-h-32 overflow-y-auto wrap-break-word rounded-md bg-muted p-3 font-mono text-sm">
 					{url}
 				</div>
 				<AlertDialogFooter>
-					<AlertDialogCancel>Cancel</AlertDialogCancel>
-					<AlertDialogAction onClick={onConfirm}>Open link</AlertDialogAction>
+					<AlertDialogCancel>{t("Cancel")}</AlertDialogCancel>
+					<AlertDialogAction onClick={onConfirm}>{t("Open link")}</AlertDialogAction>
 				</AlertDialogFooter>
 			</AlertDialogContent>
 		</AlertDialog>
@@ -283,7 +284,8 @@ function MarkdownImage({ alt, height, src, title, width }: MarkdownImageProps) {
 
 	return (
 		<span data-streamdown="blocked-image" role="note">
-			External image blocked for privacy{label ? `: ${label}` : ""}
+			{t("External image blocked for privacy")}
+			{label ? `: ${label}` : ""}
 		</span>
 	);
 }

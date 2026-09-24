@@ -328,7 +328,7 @@ export function AddProviderContent({
 							onClick={() => navigator.clipboard.writeText(form.apiKey)}
 							variant="ghost"
 							className="rounded-md p-1 transition-colors"
-							aria-label="Copy API key"
+							aria-label={t("Copy API key")}
 						>
 							<Copy className="h-4 w-4" />
 						</Button>
@@ -419,7 +419,7 @@ export function AddProviderContent({
 										<Button
 											onClick={() => removeHeader(key)}
 											className="rounded-md p-2 text-muted-foreground hover:text-destructive transition-colors"
-											aria-label="Remove header"
+											aria-label={t("Remove header")}
 										>
 											<Trash2 className="h-4 w-4" />
 										</Button>
@@ -477,7 +477,7 @@ export function AddProviderContent({
 						onClick={onBack}
 						variant="secondary"
 						className="rounded-md p-1.5"
-						aria-label="Back to providers"
+						aria-label={t("Back to providers")}
 					>
 						<ArrowLeft className="size-4" />
 						{t("Providers")}

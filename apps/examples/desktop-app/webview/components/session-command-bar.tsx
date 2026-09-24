@@ -180,19 +180,22 @@ export function SessionCommandBar({
 						))}
 						{visibleHitCount < hits.length ? (
 							<div className="py-2 text-center text-[11px] text-muted-foreground">
-								Showing {visibleHitCount} of {hits.length} results
+								{t("Showing {count} of {total} results", {
+									count: visibleHitCount,
+									total: hits.length,
+								})}
 							</div>
 						) : null}
 					</CommandGroup>
 				) : null}
 				{!query.trim() ? (
 					<div className="px-4 py-8 text-center text-sm text-muted-foreground">
-						Search messages, commands, errors, and file paths.
+						{t("Search messages, commands, errors, and file paths.")}
 					</div>
 				) : null}
 			</CommandList>
 			<div className="flex items-center justify-between border-t px-3 py-2 text-[11px] text-muted-foreground">
-				<span>Navigate with ↑↓ and open with ↵</span>
+				<span>{t("Navigate with ↑↓ and open with ↵")}</span>
 				<kbd className="rounded border bg-muted px-1.5 py-0.5 font-sans">
 					Cmd/Ctrl+P
 				</kbd>

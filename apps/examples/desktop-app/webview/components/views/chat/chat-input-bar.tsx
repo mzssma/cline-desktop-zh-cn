@@ -484,12 +484,12 @@ function ChatInputBarImpl({
 	);
 	const reportUnsupportedImages = useCallback(() => {
 		toast({
-			title: "This model doesn’t support image input",
+			title: t("This model doesn’t support image input"),
 			description:
-				"Choose a model that supports images or remove the images before sending." +
+				t("Choose a model that supports images or remove the images before sending.") +
 				(executionTarget === "cloud"
 					? ""
-					: " Other files can still be attached."),
+					: t(" Other files can still be attached.")),
 		});
 	}, [executionTarget]);
 	const handleAttachFiles = useCallback(
@@ -500,9 +500,9 @@ function ChatInputBarImpl({
 					: files;
 			if (supportedFiles.length !== files.length) {
 				toast({
-					title: "Unsupported cloud attachment",
+					title: t("Unsupported cloud attachment"),
 					description:
-						"Choose PNG, JPEG, GIF, or WebP images, or switch to Local to attach other files.",
+						t("Choose PNG, JPEG, GIF, or WebP images, or switch to Local to attach other files."),
 				});
 			}
 			const allowed = imagesUnsupported
@@ -537,7 +537,7 @@ function ChatInputBarImpl({
 		} catch (error) {
 			toast({
 				variant: "destructive",
-				title: "Could not steer queued message",
+				title: t("Could not steer queued message"),
 				description: error instanceof Error ? error.message : String(error),
 			});
 		} finally {
@@ -554,9 +554,9 @@ function ChatInputBarImpl({
 		const prompt = promptInput.trim();
 		if (!prompt) {
 			toast({
-				title: "Add a message to go with your attachments",
+				title: t("Add a message to go with your attachments"),
 				description:
-					"Describe what you want Cline to do with the attached files before sending.",
+					t("Describe what you want Cline to do with the attached files before sending."),
 			});
 			return;
 		}
@@ -757,9 +757,9 @@ function ChatInputBarImpl({
 		});
 		toast({
 			variant: "destructive",
-			title: "Speech input failed",
+			title: t("Speech input failed"),
 			description: isMicrophoneError
-				? "Check the microphone permission for Cline and try again."
+				? t("Check the microphone permission for Cline and try again.")
 				: message,
 		});
 	}, []);
@@ -1145,7 +1145,7 @@ function ChatInputBarImpl({
 									))}
 									{slashLoading && (
 										<div className="px-3 py-1 text-[10px] text-muted-foreground">
-											Loading...
+											{t("Loading...")}
 										</div>
 									)}
 								</>
@@ -1160,7 +1160,7 @@ function ChatInputBarImpl({
 						>
 							{mentionFiles.length === 0 ? (
 								<div className="px-3 py-2 text-sm text-muted-foreground">
-									{mentionLoading ? "Searching files..." : "No matching files"}
+									{mentionLoading ? t("Searching files...") : t("No matching files")}
 								</div>
 							) : (
 								<>
@@ -1184,7 +1184,7 @@ function ChatInputBarImpl({
 									))}
 									{mentionLoading && (
 										<div className="px-3 py-1 text-[10px] text-muted-foreground">
-											Updating...
+											{t("Updating...")}
 										</div>
 									)}
 								</>
@@ -1217,7 +1217,7 @@ function ChatInputBarImpl({
 								className="flex shrink-0 items-center gap-1.5 self-center text-xs text-muted-foreground"
 							>
 								<Spinner className="size-3.5" />
-								<span className="sr-only">Transcribing voice input</span>
+								<span className="sr-only">{t("Transcribing voice input")}</span>
 							</output>
 						)}
 						<textarea
@@ -1432,9 +1432,9 @@ function ChatInputBarImpl({
 									onError={handleSpeechInputError}
 									onNetworkFallback={() =>
 										toast({
-											title: "Switched to browser speech recognition",
+											title: t("Switched to browser speech recognition"),
 											description:
-												"The voice provider could not be reached. Click the microphone and repeat any missing speech. Browser recognition may also require internet access.",
+												t("The voice provider could not be reached. Click the microphone and repeat any missing speech. Browser recognition may also require internet access."),
 										})
 									}
 									onProcessingChange={setSpeechInputProcessing}
@@ -1472,8 +1472,7 @@ function ChatInputBarImpl({
 				</div>
 				{unsupportedDraftImageCount > 0 && (
 					<output className="block px-2 text-sm text-destructive">
-						This model doesn’t support the attached images. Remove them or
-						choose a model that supports images before sending.
+						{t("This model doesn’t support the attached images. Remove them or choose a model that supports images before sending.")}
 					</output>
 				)}
 				{attachments.length > 0 && (

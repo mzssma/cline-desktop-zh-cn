@@ -1131,12 +1131,12 @@ export function CustomizationSectionView({
 					</Badge>
 					{item.agentPlugin === true ? (
 						<Badge variant="outline" className="shrink-0 text-muted-foreground">
-							Agent Plugin
+							{t("Agent Plugin")}
 						</Badge>
 					) : null}
 					{context?.matchedEntries?.length ? (
 						<Badge variant="outline" className="shrink-0 text-muted-foreground">
-							Marketplace
+							{t("Marketplace")}
 						</Badge>
 					) : null}
 					<Switch
@@ -1220,11 +1220,11 @@ export function CustomizationSectionView({
 					</h3>
 					<ScopeBadge scope={scope} />
 					<Badge variant="outline" className="shrink-0 text-muted-foreground">
-						{plugin.agentPlugin === true ? "Agent Plugin" : "Cline Plugin"}
+						{plugin.agentPlugin === true ? t("Agent Plugin") : t("Cline Plugin")}
 					</Badge>
 					{context?.matchedEntries?.length ? (
 						<Badge variant="outline" className="shrink-0 text-muted-foreground">
-							Marketplace
+							{t("Marketplace")}
 						</Badge>
 					) : null}
 					<Switch
@@ -1339,7 +1339,7 @@ export function CustomizationSectionView({
 					</Badge>
 					{context?.matchedEntries?.length ? (
 						<Badge variant="outline" className="shrink-0 text-muted-foreground">
-							Marketplace
+							{t("Marketplace")}
 						</Badge>
 					) : null}
 					{server.disabled ? (
@@ -1748,7 +1748,7 @@ export function CustomizationSectionView({
 					<div className="relative mb-6 block">
 						<Search className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
 						<Input
-							aria-label="Search tools"
+							aria-label={t("Search tools")}
 							className="h-10 pl-8"
 							onChange={(event) => setToolsSearchQuery(event.target.value)}
 							placeholder={t("Search tools")}

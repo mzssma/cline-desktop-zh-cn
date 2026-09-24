@@ -11,6 +11,7 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
+import { t } from "@/lib/i18n";
 
 export function AgendaTaskReviewDialog({
 	task,
@@ -39,76 +40,75 @@ export function AgendaTaskReviewDialog({
 						<DialogHeader>
 							<DialogTitle>{task.title}</DialogTitle>
 							<DialogDescription>
-								Review the exact revision before it can start a new agent
-								session.
+								{t("Review the exact revision before it can start a new agent session.")}
 							</DialogDescription>
 						</DialogHeader>
 						<div className="min-h-0 space-y-4 overflow-y-auto pr-1">
 							<div className="grid grid-cols-2 gap-x-4 gap-y-2 rounded-md border bg-muted/20 p-3 text-xs">
-								<ReviewField label="Revision" value={String(task.revision)} />
-								<ReviewField label="Priority" value={`P${task.priority}`} />
-								<ReviewField label="Type" value={task.type} />
-								<ReviewField label="Mode" value={task.mode ?? "act"} />
+								<ReviewField label={t("Revision")} value={String(task.revision)} />
+								<ReviewField label={t("Priority")} value={`P${task.priority}`} />
+								<ReviewField label={t("Type")} value={task.type} />
+								<ReviewField label={t("Mode")} value={task.mode ?? "act"} />
 								<ReviewField
-									label="Scope"
+									label={t("Scope")}
 									value={
 										task.scope === "workspace"
 											? (task.workspaceRoot ?? "workspace")
-											: "General / chat workspace"
+											: t("General / chat workspace")
 									}
 								/>
 								<ReviewField
-									label="Expires"
+									label={t("Expires")}
 									value={new Date(task.expiresAt).toLocaleString()}
 								/>
 								<ReviewField
-									label="Available"
+									label={t("Available")}
 									value={new Date(task.availableAt).toLocaleString()}
 								/>
 								<ReviewField
-									label="Assignee"
-									value={task.assignee ?? "Default agent"}
+									label={t("Assignee")}
+									value={task.assignee ?? t("Default agent")}
 								/>
 								<ReviewField
-									label="Model"
+									label={t("Model")}
 									value={
 										task.modelSelection
 											? `${task.modelSelection.providerId}/${task.modelSelection.modelId ?? "default"}`
-											: "Cline default"
+											: t("Cline default")
 									}
 								/>
 								{task.cwd ? (
-									<ReviewField label="Working directory" value={task.cwd} />
+									<ReviewField label={t("Working directory")} value={task.cwd} />
 								) : null}
 								<ReviewField
-									label="Run limits"
+									label={t("Run limits")}
 									value={
 										[
 											task.maxIterations
-												? `${task.maxIterations} iterations`
+												? t("{count} iterations", { count: task.maxIterations })
 												: undefined,
 											task.timeoutSeconds
-												? `${task.timeoutSeconds}s timeout`
+												? t("{count}s timeout", { count: task.timeoutSeconds })
 												: undefined,
 										]
 											.filter(Boolean)
-											.join(" · ") || "Hub defaults"
+											.join(" · ") || t("Hub defaults")
 									}
 								/>
 							</div>
 							{task.description ? (
-								<ReviewText label="Description" value={task.description} />
+								<ReviewText label={t("Description")} value={task.description} />
 							) : null}
-							<ReviewText label="Instructions" value={task.instructions} />
+							<ReviewText label={t("Instructions")} value={task.instructions} />
 							{task.systemPrompt ? (
 								<ReviewText
-									label="System prompt override"
+									label={t("System prompt override")}
 									value={task.systemPrompt}
 								/>
 							) : null}
 							{task.resourcePaths.length > 0 ? (
 								<div className="space-y-1.5">
-									<h4 className="text-xs font-medium">Files</h4>
+									<h4 className="text-xs font-medium">{t("Files")}</h4>
 									<ul className="space-y-1 rounded-md border bg-muted/20 p-3 font-mono text-[11px]">
 										{task.resourcePaths.map((path) => (
 											<li className="break-all" key={path}>
@@ -129,7 +129,7 @@ export function AgendaTaskReviewDialog({
 								type="button"
 								variant={onReject ? "destructive" : "outline"}
 							>
-								{onReject ? rejectLabel : "Not now"}
+								{onReject ? rejectLabel : t("Not now")}
 							</Button>
 							<Button
 								disabled={pending}

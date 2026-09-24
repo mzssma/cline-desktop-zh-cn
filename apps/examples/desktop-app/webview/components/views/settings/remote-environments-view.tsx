@@ -371,7 +371,7 @@ export function RemoteEnvironmentsContent() {
 			<PageHeader
 				actions={
 					<Button
-						aria-label="Refresh remote environments"
+						aria-label={t("Refresh remote environments")}
 						disabled={isLoading || isBusy}
 						onClick={() => void loadProfiles()}
 						variant="ghost"
@@ -600,19 +600,19 @@ export function RemoteEnvironmentsContent() {
 							</div>
 							<div className="grid grid-cols-2 gap-x-5 gap-y-3 max-[620px]:grid-cols-1">
 								<StatusBadge
-									label="Environment"
+									label={t("Environment")}
 									value={draft.id === activeProfileId ? "active" : "inactive"}
 								/>
 								<StatusBadge
-									label="Connection"
+									label={t("Connection")}
 									value={selectedRuntime.connection}
 								/>
 								<StatusBadge
-									label="Connection test"
+									label={t("Connection test")}
 									value={selectedRuntime.test}
 								/>
 								<StatusBadge
-									label="Cline setup"
+									label={t("Cline setup")}
 									value={selectedRuntime.bootstrap}
 								/>
 							</div>

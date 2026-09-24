@@ -2,6 +2,7 @@ import {
 	isCredentialFailure,
 	resolveCredentialFailureHint,
 } from "@/hooks/chat-session/helpers";
+import { t } from "@/lib/i18n";
 
 /** The same presentation for live failures and restored transcript errors. */
 export function formatRunError(detail: string, providerId = ""): string {
@@ -13,8 +14,8 @@ export function formatRunError(detail: string, providerId = ""): string {
 		description
 			? description.startsWith("The run failed")
 				? description
-				: `The run failed: ${description}`
-			: "The run failed before a response was produced.",
+				: `${t("The run failed:")} ${description}`
+			: t("The run failed before a response was produced."),
 		looksCredentialRelated && !description.includes(guidance) ? guidance : "",
 	]
 		.filter(Boolean)

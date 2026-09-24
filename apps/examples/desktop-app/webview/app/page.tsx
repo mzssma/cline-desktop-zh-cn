@@ -57,6 +57,7 @@ import { useSessionHistory } from "@/hooks/use-session-history";
 import { toast } from "@/hooks/use-toast";
 import { applyAppZoomAction, syncAppFontSize } from "@/lib/app-font-size";
 import { syncAppIcon } from "@/lib/app-icon";
+import { t } from "@/lib/i18n";
 import type { ChatSessionConfig } from "@/lib/chat-schema";
 import { openPersonalGitHubInstallUrl } from "@/lib/cline-integrations";
 import { cloudRepositoryLabel } from "@/lib/cloud-repositories";
@@ -510,8 +511,8 @@ export default function Home() {
 				toast({
 					title:
 						environmentId === LOCAL_WORKSPACE_ENVIRONMENT_ID
-							? "Unable to switch to Local"
-							: "Unable to connect to SSH host",
+							? t("Unable to switch to Local")
+							: t("Unable to connect to SSH host"),
 					description: error instanceof Error ? error.message : String(error),
 					variant: "destructive",
 				});
@@ -770,7 +771,7 @@ export default function Home() {
 				handleOpenSession(session);
 			} catch (error) {
 				toast({
-					title: "Unable to open run",
+					title: t("Unable to open run"),
 					description: humanizeCloudSessionError(
 						error instanceof Error ? error.message : String(error),
 					),
@@ -1756,11 +1757,11 @@ function ChatThreadPane({
 			if (supportedFiles.length !== files.length) {
 				toast({
 					title: isCloudSession
-						? "Unsupported cloud attachment"
-						: "Unsupported image format",
+						? t("Unsupported cloud attachment")
+						: t("Unsupported image format"),
 					description: isCloudSession
-						? "Choose PNG, JPEG, GIF, or WebP images, or switch to Local to attach other files."
-						: "Convert the image to PNG, JPEG, GIF, or WebP before attaching it.",
+						? t("Choose PNG, JPEG, GIF, or WebP images, or switch to Local to attach other files.")
+						: t("Convert the image to PNG, JPEG, GIF, or WebP before attaching it."),
 				});
 			}
 			setPendingAttachments((current) => {
@@ -1779,7 +1780,7 @@ function ChatThreadPane({
 				}
 				const error = isCloudSession && cloudImageAttachmentError(next);
 				if (error) {
-					toast({ title: "Cloud attachment limit", description: error });
+					toast({ title: t("Cloud attachment limit"), description: error });
 					return current;
 				}
 				return next;
@@ -1971,8 +1972,8 @@ function ChatThreadPane({
 			if (!deleted) {
 				toast({
 					variant: "destructive",
-					title: "Delete failed",
-					description: "The session could not be removed from local history.",
+					title: t("Delete failed"),
+					description: t("The session could not be removed from local history."),
 				});
 				return;
 			}
@@ -1997,10 +1998,10 @@ function ChatThreadPane({
 			const description =
 				error instanceof Error
 					? error.message
-					: "The session could not be removed from local history.";
+					: t("The session could not be removed from local history.");
 			toast({
 				variant: "destructive",
-				title: "Delete failed",
+				title: t("Delete failed"),
 				description,
 			});
 		} finally {
@@ -2279,7 +2280,7 @@ function ChatThreadPane({
 				);
 			} catch (error) {
 				toast({
-					title: "Rename failed",
+					title: t("Rename failed"),
 					description: humanizeCloudSessionError(
 						error instanceof Error ? error.message : String(error),
 					),
@@ -2335,14 +2336,25 @@ function ChatThreadPane({
 				<div className="h-5 w-5 animate-spin rounded-full border-2 border-muted-foreground border-t-transparent" />
 				<p className="text-sm text-muted-foreground">
 					{chatTransportState === "unavailable"
-						? "Desktop backend unavailable"
+						? t("Desktop backend unavailable")
 						: chatTransportState !== "connected"
-							? "Connecting..."
-							: "Loading..."}
+							? t("Connecting...")
+							: t("Loading...")}
 				</p>
 				{chatTransportError ? (
 					<p className="max-w-xl px-6 text-center text-xs text-muted-foreground">
-						{chatTransportError}
+						{chatTransportError.startsWith(
+							"Desktop backend transport unavailable at ",
+						)
+							? t("Desktop backend transport unavailable at {endpoint}", {
+									endpoint: chatTransportError.slice(
+										"Desktop backend transport unavailable at ".length,
+									),
+								})
+							: chatTransportError ===
+								  "Desktop backend transport unavailable"
+								? t("Desktop backend transport unavailable")
+								: t(chatTransportError)}
 					</p>
 				) : null}
 			</div>
@@ -2547,27 +2559,27 @@ function ChatThreadPane({
 			>
 				<AlertDialogContent>
 					<AlertDialogHeader>
-						<AlertDialogTitle>Delete Session?</AlertDialogTitle>
+						<AlertDialogTitle>{t("Delete Session?")}</AlertDialogTitle>
 						<AlertDialogDescription>
 							{isCloudSession
-								? "This cloud session and its workspace will be deleted."
-								: "This session will be removed from local history."}
+								? t("This cloud session and its workspace will be deleted.")
+								: t("This session will be removed from local history.")}
 							{!isCloudSession &&
 							isTaskWorktreePath(config.workspaceRoot || config.cwd || "")
-								? ` ${TASK_WORKTREE_DELETE_WARNING}`
+								? ` ${t(TASK_WORKTREE_DELETE_WARNING)}`
 								: null}
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>
 						<AlertDialogCancel disabled={deletingSession}>
-							Cancel
+							{t("Cancel")}
 						</AlertDialogCancel>
 						<AlertDialogAction
 							className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
 							disabled={deletingSession}
 							onClick={() => void handleDeleteSession()}
 						>
-							{deletingSession ? "Deleting..." : "Delete"}
+							{deletingSession ? t("Deleting...") : t("Delete")}
 						</AlertDialogAction>
 					</AlertDialogFooter>
 				</AlertDialogContent>

@@ -342,7 +342,7 @@ export function ProviderListContent({
 					<div className="flex h-9 items-center gap-2 rounded border bg-background px-3">
 						<Search className="size-4 shrink-0 text-muted-foreground" />
 						<Input
-							aria-label="Search model providers"
+							aria-label={t("Search model providers")}
 							className={EMBEDDED_INPUT_CLASS}
 							onChange={(event) => setProviderSearch(event.target.value)}
 							placeholder={t("Search providers")}
@@ -350,7 +350,7 @@ export function ProviderListContent({
 						/>
 						{providerSearch ? (
 							<button
-								aria-label="Clear provider search"
+								aria-label={t("Clear provider search")}
 								className="grid size-5 place-items-center rounded text-muted-foreground hover:text-foreground"
 								onClick={() => setProviderSearch("")}
 								type="button"
@@ -430,10 +430,12 @@ function ConfigFieldRow({
 	return (
 		<div className="grid min-h-18 grid-cols-[minmax(12rem,0.55fr)_minmax(16rem,0.45fr)] items-center gap-6 border-b py-4 max-[900px]:grid-cols-1 max-[900px]:gap-3">
 			<header>
-				<h3 className="text-lg font-semibold text-foreground">{field.label}</h3>
+				<h3 className="text-lg font-semibold text-foreground">
+					{field.label ? t(field.label) : null}
+				</h3>
 				{field.description ? (
 					<p className="mt-1 text-base leading-relaxed text-muted-foreground">
-						{field.description}
+						{t(field.description)}
 					</p>
 				) : null}
 				{field.path === "apiKey" && providerKeyUrl ? (
@@ -442,17 +444,20 @@ function ConfigFieldRow({
 						onClick={() => void openExternalUrl(providerKeyUrl)}
 						type="button"
 					>
-						{provider.docLabel ||
-							t("Get a {name} API key", { name: provider.name })}
+						{provider.docLabel
+							? t(provider.docLabel)
+							: t("Get a {name} API key", { name: provider.name })}
 						<ExternalLink className="size-3.5" />
 					</button>
 				) : null}
 			</header>
 			{field.type === "boolean" ? (
 				<div className="flex items-center justify-end">
-					<span className="text-sm text-muted-foreground">{field.label}</span>
+					<span className="text-sm text-muted-foreground">
+						{field.label ? t(field.label) : null}
+					</span>
 					<Switch
-						aria-label={field.label}
+						aria-label={field.label ? t(field.label) : undefined}
 						checked={Boolean(value)}
 						onCheckedChange={(checked) => onCommit(checked)}
 					/>
@@ -466,7 +471,7 @@ function ConfigFieldRow({
 					<option value="">{t("Not set")}</option>
 					{field.options?.map((option) => (
 						<option key={String(option.value)} value={String(option.value)}>
-							{option.label}
+							{option.label ? t(option.label) : String(option.value)}
 						</option>
 					))}
 				</select>
@@ -479,7 +484,7 @@ function ConfigFieldRow({
 						className={EMBEDDED_INPUT_CLASS}
 						onBlur={() => onCommit(valueText)}
 						onChange={(event) => onDraftChange(event.target.value)}
-						placeholder={field.placeholder}
+						placeholder={field.placeholder ? t(field.placeholder) : undefined}
 						spellCheck={false}
 						type={
 							isSecret && !shown
@@ -495,7 +500,7 @@ function ConfigFieldRow({
 					{isSecret ? (
 						<>
 							<Button
-								aria-label={shown ? "Hide secret" : "Show secret"}
+								aria-label={shown ? t("Hide secret") : t("Show secret")}
 								className="rounded-md p-1 text-muted-foreground hover:text-foreground "
 								onClick={onToggleShown}
 								variant="ghost"
@@ -507,7 +512,9 @@ function ConfigFieldRow({
 								)}
 							</Button>
 							<Button
-								aria-label={`Copy ${field.label}`}
+								aria-label={t("Copy {label}", {
+									label: field.label ? t(field.label) : "",
+								})}
 								className="rounded-md p-1 text-muted-foreground hover:text-foreground "
 								onClick={() => navigator.clipboard.writeText(valueText)}
 								variant="ghost"
@@ -968,7 +975,7 @@ export function ProviderDetailContent({
 				<div className="mb-8 flex items-center gap-3">
 					{isPanel ? null : (
 						<Button
-							aria-label="Back to providers"
+							aria-label={t("Back to providers")}
 							className="rounded-md p-1.5 text-muted-foreground hover:bg-surface-hover hover:text-foreground "
 							onClick={onBack}
 							variant="ghost"
@@ -1004,7 +1011,7 @@ export function ProviderDetailContent({
 								{t("Models")}
 							</h2>
 							<Button
-								aria-label="Refresh models"
+								aria-label={t("Refresh models")}
 								className="size-4 rounded-none p-0 text-muted-foreground transition-colors hover:bg-transparent hover:text-foreground"
 								disabled={modelsLoading}
 								onClick={onLoadModels}
@@ -1017,7 +1024,7 @@ export function ProviderDetailContent({
 						</div>
 						{onUpdateModels ? (
 							<Button
-								aria-label="Add model"
+								aria-label={t("Add model")}
 								className="size-4 rounded-none p-0 text-muted-foreground transition-colors hover:bg-transparent hover:text-foreground"
 								disabled={modelsLoading}
 								onClick={() =>
@@ -1032,7 +1039,7 @@ export function ProviderDetailContent({
 					{isAddingModel ? (
 						<div className="flex items-center gap-2 border-t px-4 py-3">
 							<Input
-								aria-label="New model ID"
+								aria-label={t("New model ID")}
 								autoFocus
 								className="h-9 flex-1 font-mono"
 								onChange={(event) =>
@@ -1077,7 +1084,7 @@ export function ProviderDetailContent({
 							<div className="mx-4 mt-4 flex h-9 items-center gap-2 rounded border bg-background px-3">
 								<Search className="size-4 shrink-0 text-muted-foreground" />
 								<Input
-									aria-label="Search models"
+									aria-label={t("Search models")}
 									className={EMBEDDED_INPUT_CLASS}
 									onChange={(event) =>
 										setModelSearchState({
@@ -1101,7 +1108,7 @@ export function ProviderDetailContent({
 												<div className="flex min-w-0 items-center gap-1.5 px-1 text-sm text-foreground">
 													<span className="truncate">{model.name}</span>
 													{featuredBadges(model).map((badge) => (
-														<span
+ 														<span
 															className="inline-flex shrink-0 items-center rounded bg-surface-hover px-1 py-px font-sans text-[0.625rem] font-medium uppercase tracking-wide text-muted-foreground"
 															key={badge}
 														>
@@ -1110,8 +1117,8 @@ export function ProviderDetailContent({
 													))}
 													{/* Capability icons */}
 													{model.supportsAttachments && (
-														<span
-															aria-label="File support"
+ 														<span
+															aria-label={t("File support")}
 															role="img"
 															title={t("File support")}
 														>
@@ -1122,8 +1129,8 @@ export function ProviderDetailContent({
 														</span>
 													)}
 													{model.supportsVision && (
-														<span
-															aria-label="Image support"
+ 														<span
+															aria-label={t("Image support")}
 															role="img"
 															title={t("Image support")}
 														>
@@ -1137,8 +1144,8 @@ export function ProviderDetailContent({
 													{supportsAudio(model) &&
 														model.operation !== "transcription" &&
 														model.operation !== "realtime" && (
-															<span
-																aria-label="Audio support"
+ 															<span
+																aria-label={t("Audio support")}
 																role="img"
 																title={t("Audio support")}
 															>
@@ -1149,8 +1156,8 @@ export function ProviderDetailContent({
 															</span>
 														)}
 													{model.supportsReasoning && (
-														<span
-															aria-label="Reasoning support"
+ 														<span
+															aria-label={t("Reasoning support")}
 															role="img"
 															title={t("Reasoning support")}
 														>

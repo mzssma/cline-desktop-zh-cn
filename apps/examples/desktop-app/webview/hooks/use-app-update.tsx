@@ -4,6 +4,7 @@ import { useEffect, useSyncExternalStore } from "react";
 import { ToastAction } from "@/components/ui/toast";
 import { toast } from "@/hooks/use-toast";
 import { desktopClient, isTauriAvailable } from "@/lib/desktop-client";
+import { t } from "@/lib/i18n";
 
 export type AppUpdateStatus = {
 	state: "idle" | "checking" | "downloading" | "ready" | "error";
@@ -99,7 +100,7 @@ export async function restartToApplyUpdate(): Promise<boolean> {
 	} catch (error) {
 		toast({
 			variant: "destructive",
-			title: "Restart failed",
+			title: t("Restart failed"),
 			description: error instanceof Error ? error.message : String(error),
 		});
 		return false;
@@ -113,18 +114,19 @@ let notifiedVersion: string | null = null;
 function showUpdateReadyToast(version: string) {
 	notifiedVersion = version;
 	toast({
-		title: `Update ready: v${version}`,
-		description:
+		title: t("Update ready: v{version}", { version }),
+		description: t(
 			"The new version has been downloaded. Restart now, or later from the update button next to the Cline logo.",
+		),
 		duration: Number.POSITIVE_INFINITY,
 		action: (
 			<ToastAction
-				altText="Restart now"
+				altText={t("Restart now")}
 				onClick={() => {
 					void restartToApplyUpdate();
 				}}
 			>
-				Restart now
+				{t("Restart now")}
 			</ToastAction>
 		),
 	});
@@ -137,7 +139,7 @@ function showUpdateReadyToast(version: string) {
  */
 export async function checkForUpdateAndNotify(): Promise<void> {
 	const checking = toast({
-		title: "Checking for updates...",
+		title: t("Checking for updates..."),
 		duration: Number.POSITIVE_INFINITY,
 	});
 	const status = await checkForUpdateNow();
@@ -145,9 +147,10 @@ export async function checkForUpdateAndNotify(): Promise<void> {
 	if (!status) {
 		toast({
 			variant: "destructive",
-			title: "Unable to check for updates",
-			description:
+			title: t("Unable to check for updates"),
+			description: t(
 				"The update check could not be started. Try again in a moment.",
+			),
 		});
 		return;
 	}
@@ -160,14 +163,14 @@ export async function checkForUpdateAndNotify(): Promise<void> {
 		case "error":
 			toast({
 				variant: "destructive",
-				title: "Update check failed",
-				description: status.error ?? "Unknown error",
+				title: t("Update check failed"),
+				description: status.error ?? t("Unknown error"),
 			});
 			return;
 		default:
 			toast({
-				title: "You're up to date",
-				description: "You're already running the latest version of Cline.",
+				title: t("You're up to date"),
+				description: t("You're already running the latest version of Cline."),
 			});
 	}
 }

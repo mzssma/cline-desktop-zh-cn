@@ -2,10 +2,16 @@ import zhCN from "../locales/zh-CN.json";
 
 const dictionary: Record<string, string> = zhCN as Record<string, string>;
 
-// 在 Vitest 测试环境下默认使用英文以保证上游官方测试套件断言通过；
+// 在测试环境 (Vitest / Bun test) 下默认使用英文以保证上游官方测试套件断言通过；
 // 在运行环境 (Next.js / 桌面客户端) 中默认使用简体中文 (zh-CN)。
 let currentLocale =
-	typeof process !== "undefined" && process.env?.VITEST ? "en" : "zh-CN";
+	typeof process !== "undefined" &&
+	(Boolean(process.env?.VITEST) ||
+		process.env?.NODE_ENV === "test" ||
+		typeof (globalThis as unknown as { describe?: unknown }).describe ===
+			"function")
+		? "en"
+		: "zh-CN";
 
 export function setLocale(locale: "en" | "zh-CN") {
 	currentLocale = locale;

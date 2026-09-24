@@ -342,7 +342,7 @@ export function ComposioConnectorsView({
 	if (!status) {
 		return (
 			<output
-				aria-label="Loading connectors"
+				aria-label={t("Loading connectors")}
 				className="flex items-center justify-center py-16"
 			>
 				<Loader2 className="size-6 animate-spin text-muted-foreground" />
@@ -391,7 +391,7 @@ export function ComposioConnectorsView({
 							<Input
 								className="h-8 w-64 pl-8"
 								onChange={(event) => setQuery(event.target.value)}
-								aria-label="Search connectors"
+								aria-label={t("Search connectors")}
 								placeholder={t("Search connectors")}
 								value={query}
 							/>
@@ -402,7 +402,7 @@ export function ComposioConnectorsView({
 
 			{variant === "catalog" && catalogLoading && !catalog ? (
 				<output
-					aria-label="Loading connector catalog"
+					aria-label={t("Loading connector catalog")}
 					className="flex items-center justify-center py-10"
 				>
 					<Loader2 className="size-5 animate-spin text-muted-foreground" />

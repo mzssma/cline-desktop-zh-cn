@@ -176,7 +176,7 @@ export function VoiceInputContent({
 			) : null}
 			{modelErrors.length > 0 ? (
 				<p className="mb-4 text-sm text-destructive" role="alert">
-					{modelErrors.join(" ")} Reopen Voice settings to retry.
+					{modelErrors.join(" ")} {t("Reopen Voice settings to retry.")}
 				</p>
 			) : null}
 		</>
@@ -252,7 +252,7 @@ export function VoiceInputContent({
 						</p>
 					</div>
 					<Switch
-						aria-label="Enable voice input"
+						aria-label={t("Enable voice input")}
 						checked={enabled}
 						disabled={saving}
 						onCheckedChange={(checked) => {
@@ -306,7 +306,7 @@ export function VoiceInputContent({
 									{t("Model")}
 								</p>
 								<div
-									aria-label="Voice input model"
+									aria-label={t("Voice input model")}
 									className="overflow-hidden rounded-lg border"
 									role="radiogroup"
 								>

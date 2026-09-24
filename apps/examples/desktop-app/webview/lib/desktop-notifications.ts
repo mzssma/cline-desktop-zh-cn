@@ -5,6 +5,7 @@ import {
 	requestPermission,
 } from "@tauri-apps/plugin-notification";
 import { desktopClient, isTauriAvailable } from "@/lib/desktop-client";
+import { t } from "@/lib/i18n";
 import { eventEnvironmentId, sessionKey } from "./session-identity";
 
 const DESKTOP_NOTIFICATION_SETTINGS_STORAGE_KEY =
@@ -330,16 +331,17 @@ export function watchDesktopNotifications(): () => void {
 			void notify({
 				eventType: "taskCompletion",
 				sessionId,
-				title: "Task completed",
-				body: "Cline finished working and the result is ready.",
+				title: t("Task completed"),
+				body: t("Cline finished working and the result is ready."),
 			});
 			return;
 		}
 		void notify({
 			eventType: "sessionError",
 			sessionId,
-			title: "Task failed",
-			body: detail || "Cline encountered an error while running this task.",
+			title: t("Task failed"),
+			body:
+				detail || t("Cline encountered an error while running this task."),
 		});
 	};
 
@@ -420,12 +422,12 @@ export function watchDesktopNotifications(): () => void {
 				) {
 					continue;
 				}
-				const toolName = asNonEmptyString(item.toolName) || "A tool";
+				const toolName = asNonEmptyString(item.toolName) || t("A tool");
 				void notify({
 					eventType: "approvalNeeded",
 					sessionId,
-					title: "Approval needed",
-					body: `${toolName} is waiting for your approval.`,
+					title: t("Approval needed"),
+					body: t("{toolName} is waiting for your approval.", { toolName }),
 				});
 			}
 		}),
@@ -450,10 +452,10 @@ export function watchDesktopNotifications(): () => void {
 			void notify({
 				eventType: "questionAsked",
 				sessionId,
-				title: "Cline has a question",
+				title: t("Cline has a question"),
 				body:
 					asNonEmptyString(item.question) ||
-					"Open this task to answer Cline's question.",
+					t("Open this task to answer Cline's question."),
 			});
 		}),
 	];

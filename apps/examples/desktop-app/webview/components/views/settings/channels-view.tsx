@@ -584,11 +584,11 @@ export function ChannelsContent({
 
 	const refreshButton = (
 		<Button
-			aria-label="Refresh channels"
+			aria-label={t("Refresh channels")}
 			disabled={isBusy}
 			onClick={() => void refreshChannels()}
 			size="sm"
-			title="Refresh channels"
+			title={t("Refresh channels")}
 			variant="outline"
 		>
 			<RefreshCw className={cn("size-4", isLoading && "animate-spin")} />

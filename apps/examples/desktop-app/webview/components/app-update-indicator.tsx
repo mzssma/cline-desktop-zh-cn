@@ -12,6 +12,7 @@ import {
 	restartToApplyUpdate,
 	useAppUpdateStatus,
 } from "@/hooks/use-app-update";
+import { t } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 /**
@@ -32,12 +33,12 @@ export function AppUpdateIndicator({ className }: { className?: string }) {
 		<Popover>
 			<PopoverTrigger asChild>
 				<Button
-					aria-label={`Update ready: v${status.version}`}
+					aria-label={t("Update ready: v{version}", { version: status.version })}
 					className={cn(
 						"relative size-8 shrink-0 justify-center px-0 text-blue-500 hover:text-blue-400",
 						className,
 					)}
-					title={`Update ready: v${status.version}`}
+					title={t("Update ready: v{version}", { version: status.version })}
 					type="button"
 					variant="sidebarItem"
 				>
@@ -45,10 +46,13 @@ export function AppUpdateIndicator({ className }: { className?: string }) {
 				</Button>
 			</PopoverTrigger>
 			<PopoverContent align="start" className="w-64 p-3" side="bottom">
-				<p className="text-sm font-medium">Update ready: v{status.version}</p>
+				<p className="text-sm font-medium">
+					{t("Update ready: v{version}", { version: status.version })}
+				</p>
 				<p className="mt-1 text-xs text-muted-foreground">
-					The new version has been downloaded and will be used the next time the
-					app starts. Restart now to switch to it right away.
+					{t(
+						"The new version has been downloaded and will be used the next time the app starts. Restart now to switch to it right away.",
+					)}
 				</p>
 				<Button
 					className="mt-3 w-full"
@@ -67,10 +71,10 @@ export function AppUpdateIndicator({ className }: { className?: string }) {
 					{restarting ? (
 						<>
 							<Loader2 className="size-4 animate-spin" />
-							Restarting...
+							{t("Restarting...")}
 						</>
 					) : (
-						"Restart now"
+						t("Restart now")
 					)}
 				</Button>
 			</PopoverContent>

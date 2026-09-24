@@ -30,6 +30,7 @@ import { formatChatMessageContent } from "../message-content";
 import { isSystemSteeringMessage } from "./group-messages";
 import { MessageImageCarousel } from "./image-carousel";
 import { ReasoningBlock } from "./reasoning-block";
+import { t } from "@/lib/i18n";
 
 function MessageImages({
 	images,
@@ -279,9 +280,9 @@ export const MessageBubble = memo(function MessageBubble({
 					<MessageActions side="end" visible={keepUserActionsVisible}>
 						{onCopyMessage ? (
 							<MessageAction
-								label={wasCopied ? "Copied user message" : "Copy user message"}
+								label={wasCopied ? t("Copied user message") : t("Copy user message")}
 								onClick={() => void onCopyMessage(message.id, displayContent)}
-								title={wasCopied ? "Copied" : "Copy message"}
+								title={wasCopied ? t("Copied") : t("Copy message")}
 							>
 								{wasCopied ? (
 									<Check className="h-3.5 w-3.5" />
@@ -293,11 +294,11 @@ export const MessageBubble = memo(function MessageBubble({
 						{onEditMessage && runCount && displayContent.trim() ? (
 							<MessageAction
 								disabled={editDisabled || editPending}
-								label="Edit user message"
+								label={t("Edit user message")}
 								onClick={() =>
 									void onEditMessage(message.id, displayContent, runCount)
 								}
-								title="Edit message and restart from this point"
+								title={t("Edit message and restart from this point")}
 							>
 								{editPending ? (
 									<Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -309,11 +310,11 @@ export const MessageBubble = memo(function MessageBubble({
 						{checkpoint ? (
 							<MessageAction
 								disabled={restoreDisabled || restorePending}
-								label="Restore checkpoint"
+								label={t("Restore checkpoint")}
 								onClick={() =>
 									void onRestoreCheckpoint?.(message.id, checkpoint.runCount)
 								}
-								title="Restore checkpoint"
+								title={t("Restore checkpoint")}
 							>
 								{restorePending ? (
 									<Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -343,11 +344,11 @@ export const MessageBubble = memo(function MessageBubble({
 						<MessageAction
 							label={
 								wasCopied
-									? "Copied assistant message"
-									: "Copy assistant message"
+									? t("Copied assistant message")
+									: t("Copy assistant message")
 							}
 							onClick={() => void onCopyMessage(message.id, message.content)}
-							title={wasCopied ? "Copied" : "Copy raw assistant output"}
+							title={wasCopied ? t("Copied") : t("Copy raw assistant output")}
 						>
 							{wasCopied ? (
 								<Check className="h-3 w-3" />
@@ -359,9 +360,9 @@ export const MessageBubble = memo(function MessageBubble({
 					{onForkSession ? (
 						<MessageAction
 							disabled={forkDisabled || forkPending}
-							label="Fork session"
+							label={t("Fork session")}
 							onClick={() => void onForkSession(message.id)}
-							title="Fork session - copy full message history into a new session"
+							title={t("Fork session - copy full message history into a new session")}
 						>
 							{forkPending ? (
 								<Loader2 className="h-3 w-3 animate-spin" />

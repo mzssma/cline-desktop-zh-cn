@@ -3,6 +3,7 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { ChatMessageImage } from "@/lib/chat-schema";
+import { t } from "@/lib/i18n";
 
 export function MessageImageCarousel({
 	images,
@@ -25,14 +26,14 @@ export function MessageImageCarousel({
 	return (
 		<div className="relative w-fit max-w-2xl">
 			<button
-				aria-label={`Expand generated image ${safeIndex + 1}`}
+				aria-label={t("Expand generated image {index}", { index: safeIndex + 1 })}
 				className="cursor-zoom-in overflow-hidden rounded-lg border border-border bg-muted text-left transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
 				onClick={() => onExpandImage?.(image)}
 				type="button"
 			>
 				{/* biome-ignore lint/performance/noImgElement: In-memory data URLs do not have dimensions and cannot use Next's optimizer. */}
 				<img
-					alt={`Generated result ${safeIndex + 1}`}
+					alt={t("Generated result {index}", { index: safeIndex + 1 })}
 					className="max-h-56.25 max-w-56.25 object-contain"
 					src={`data:${image.mediaType};base64,${image.data}`}
 				/>
@@ -40,7 +41,7 @@ export function MessageImageCarousel({
 			{images.length > 1 ? (
 				<>
 					<button
-						aria-label="Previous generated image"
+						aria-label={t("Previous generated image")}
 						className="absolute left-1 top-1/2 flex size-7 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-background/85 text-foreground shadow-sm backdrop-blur-sm transition-opacity hover:bg-background disabled:cursor-not-allowed disabled:opacity-35"
 						disabled={safeIndex === 0}
 						onClick={() => setActiveIndex((index) => Math.max(0, index - 1))}
@@ -49,7 +50,7 @@ export function MessageImageCarousel({
 						<ChevronLeft className="size-4" />
 					</button>
 					<button
-						aria-label="Next generated image"
+						aria-label={t("Next generated image")}
 						className="absolute right-1 top-1/2 flex size-7 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-background/85 text-foreground shadow-sm backdrop-blur-sm transition-opacity hover:bg-background disabled:cursor-not-allowed disabled:opacity-35"
 						disabled={safeIndex === lastIndex}
 						onClick={() =>

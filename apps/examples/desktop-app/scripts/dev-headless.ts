@@ -20,6 +20,18 @@ async function reserveAvailablePort(): Promise<number> {
 	});
 }
 
+async function getSidecarPort(): Promise<number> {
+	return await new Promise((resolve) => {
+		const server = createServer();
+		server.once("error", async () => {
+			resolve(await reserveAvailablePort());
+		});
+		server.listen(3126, "127.0.0.1", () => {
+			server.close(() => resolve(3126));
+		});
+	});
+}
+
 function spawn(command: string[], env: Record<string, string>) {
 	const child = Bun.spawn(command, {
 		cwd: import.meta.dir + "/..",
@@ -41,15 +53,26 @@ function stopChildren(): void {
 process.on("SIGINT", stopChildren);
 process.on("SIGTERM", stopChildren);
 
+function freePortsOnWindows(ports: number[]): void {
+	if (process.platform === "win32") {
+		try {
+			const portList = ports.join(",");
+			const cmd = `Get-NetTCPConnection -LocalPort ${portList} -ErrorAction SilentlyContinue | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue }`;
+			Bun.spawnSync(["powershell", "-NoProfile", "-Command", cmd]);
+		} catch {}
+	}
+}
+
 async function main(): Promise<void> {
-	const sidecarPort = await reserveAvailablePort();
+	freePortsOnWindows([3125, 3126]);
+	const sidecarPort = await getSidecarPort();
 	const endpoint = `ws://127.0.0.1:${sidecarPort}/transport?approval_token=${approvalToken}`;
-	const sidecar = spawn(["bun", "run", "sidecar/index.ts"], {
+	const sidecar = spawn([process.execPath, "run", "sidecar/index.ts"], {
 		CLINE_SIDECAR_APPROVAL_TOKEN: approvalToken,
 		CLINE_SIDECAR_PORT: String(sidecarPort),
 	});
 	const web = spawn(
-		["bun", "run", "next", "dev", "webview", "-p", "3125", "--turbo"],
+		[process.execPath, "run", "next", "dev", "webview", "-p", "3125", "--turbo"],
 		{ NEXT_PUBLIC_SIDECAR_WS_ENDPOINT: endpoint },
 	);
 

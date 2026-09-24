@@ -540,9 +540,11 @@ export function SettingsView({
 		>
 			<DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-3xl">
 				<DialogHeader>
-					<DialogTitle>Add Provider</DialogTitle>
+					<DialogTitle>{t("Add Provider")}</DialogTitle>
 					<DialogDescription>
-						Add an OpenAI-compatible provider and choose its available models.
+						{t(
+							"Add an OpenAI-compatible provider and choose its available models.",
+						)}
 					</DialogDescription>
 				</DialogHeader>
 				<AddProviderContent
@@ -557,12 +559,14 @@ export function SettingsView({
 
 	const providerContent = providersLoading ? (
 		<div className="flex h-full items-center justify-center">
-			<p className="text-sm text-muted-foreground">Loading providers...</p>
+			<p className="text-sm text-muted-foreground">{t("Loading providers...")}</p>
 		</div>
 	) : providerCatalogError ? (
 		<div className="flex h-full items-center justify-center">
 			<p className="max-w-xl px-4 text-center text-sm text-destructive">
-				Failed to load providers: {providerCatalogError}
+				{t("Failed to load providers: {error}", {
+					error: providerCatalogError,
+				})}
 			</p>
 		</div>
 	) : selectedProvider ? (
@@ -644,7 +648,7 @@ export function SettingsView({
 		) : (
 			<div className="flex h-full items-center justify-center">
 				<p className="text-sm text-muted-foreground">
-					{activeNav} settings coming soon.
+					{t("{nav} settings coming soon.", { nav: activeNav })}
 				</p>
 			</div>
 		);
@@ -1018,7 +1022,7 @@ function GeneralSettingsContent({
 					</div>
 					<div className="flex w-64 shrink-0 items-center gap-3 max-[720px]:w-full">
 						<Button
-							aria-label="Decrease font size"
+							aria-label={t("Decrease font size")}
 							className="size-7"
 							disabled={fontSize === MIN_APP_FONT_SIZE}
 							onClick={() => updateFontSizePreference(fontSize - 1)}
@@ -1029,7 +1033,7 @@ function GeneralSettingsContent({
 							<Minus />
 						</Button>
 						<Slider
-							aria-label="Font size"
+							aria-label={t("Font size")}
 							aria-valuetext={`${fontSize} pixels`}
 							max={MAX_APP_FONT_SIZE}
 							min={MIN_APP_FONT_SIZE}
@@ -1038,7 +1042,7 @@ function GeneralSettingsContent({
 							value={[fontSize]}
 						/>
 						<Button
-							aria-label="Increase font size"
+							aria-label={t("Increase font size")}
 							className="size-7"
 							disabled={fontSize === MAX_APP_FONT_SIZE}
 							onClick={() => updateFontSizePreference(fontSize + 1)}
@@ -1101,7 +1105,7 @@ function GeneralSettingsContent({
 						</p>
 						{appIconError ? (
 							<p className="mt-2 text-xs text-destructive" role="alert">
-								Failed to change app icon: {appIconError}
+								{t("Failed to change app icon:")} {appIconError}
 							</p>
 						) : null}
 					</div>
@@ -1154,27 +1158,33 @@ function GeneralSettingsContent({
 						{webSearchReadyProviders ===
 						null ? null : webSearchReadyProviders.length > 0 ? (
 							<p className="text-xs text-muted-foreground">
-								Ready to use with {webSearchReadyProviders.join(", ")} on models
-								that support it — no extra setup needed.
+								{t(
+									"Ready to use with {providers} on models that support it — no extra setup needed.",
+									{ providers: webSearchReadyProviders.join(", ") },
+								)}
 							</p>
 						) : (
 							<p className="text-xs text-amber-700 dark:text-amber-300">
-								None of your connected providers include built-in web search, so
-								this setting has no effect yet.{" "}
+								{t(
+									"None of your connected providers include built-in web search, so this setting has no effect yet.",
+								)}{" "}
 								<button
 									className="underline underline-offset-2 hover:text-foreground"
 									onClick={onOpenModelProviders}
 									type="button"
 								>
-									Connect a provider
+									{t("Connect a provider")}
 								</button>{" "}
-								that supports it, such as Anthropic, OpenAI, Google Gemini, or
-								Cline.
+								{t(
+									"that supports it, such as Anthropic, OpenAI, Google Gemini, or Cline.",
+								)}
 							</p>
 						)}
 						{webSearchError ? (
 							<p className="mt-2 text-xs text-destructive" role="alert">
-								Failed to update web search setting: {webSearchError}
+								{t("Failed to update web search setting: {error}", {
+									error: webSearchError,
+								})}
 							</p>
 						) : null}
 					</div>
@@ -1197,7 +1207,7 @@ function GeneralSettingsContent({
 						</p>
 						{autoUpdateError ? (
 							<p className="mt-2 text-xs text-destructive" role="alert">
-								Failed to update CLI auto-update setting: {autoUpdateError}
+								{t("Failed to update CLI auto-update setting:")} {autoUpdateError}
 							</p>
 						) : null}
 					</div>
@@ -1212,34 +1222,31 @@ function GeneralSettingsContent({
 					<div className="flex py-4 items-center justify-between gap-5 border-b max-[720px]:flex-col max-[720px]:items-stretch max-[720px]:py-4">
 						<div className="flex flex-col gap-1">
 							<p className="flex items-center gap-2 text-base font-semibold text-foreground">
-								Cloud sessions
+								{t("Cloud sessions")}
 								<span className="rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-medium uppercase tracking-wide text-primary">
-									Preview
+									{t("Preview")}
 								</span>
 							</p>
 							<p className="text-sm text-muted-foreground">
-								Run Cline on your GitHub repositories in secure cloud sandboxes.
-								Adds a Cloud option to the new-session composer. Requires a
-								Cline account with GitHub connected.
+								{t("Run Cline on your GitHub repositories in secure cloud sandboxes. Adds a Cloud option to the new-session composer. Requires a Cline account with GitHub connected.")}
 							</p>
 							{cloudSessionsError ? (
 								<p className="mt-2 text-xs text-destructive" role="alert">
-									Failed to update cloud sessions setting: {cloudSessionsError}
+									{t("Failed to update cloud sessions setting:")} {cloudSessionsError}
 								</p>
 							) : null}
 							{cloudSessionsEffective !== null &&
 							!cloudSessionsLoading &&
 							cloudSessionsEffective !== cloudSessionsEnabled ? (
 								<p className="mt-2 text-xs text-muted-foreground">
-									Cloud sessions are currently{" "}
-									{cloudSessionsEffective ? "enabled" : "disabled"} by the
-									CLINE_CODE_CLOUD_AGENTS environment override, which takes
-									precedence over this setting.
+									{t("Cloud sessions are currently {state} by the CLINE_CODE_CLOUD_AGENTS environment override, which takes precedence over this setting.", {
+										state: cloudSessionsEffective ? t("enabled") : t("disabled"),
+									})}
 								</p>
 							) : null}
 						</div>
 						<Switch
-							aria-label="Cloud sessions"
+							aria-label={t("Cloud sessions")}
 							checked={cloudSessionsEnabled}
 							disabled={cloudSessionsLoading || cloudSessionsSaving}
 							onCheckedChange={(checked) =>
@@ -1258,7 +1265,7 @@ function GeneralSettingsContent({
 						</p>
 						{telemetryError ? (
 							<p className="mt-2 text-xs text-destructive" role="alert">
-								Failed to update telemetry setting: {telemetryError}
+								{t("Failed to update telemetry setting:")} {telemetryError}
 							</p>
 						) : null}
 					</div>
@@ -1320,7 +1327,7 @@ function GeneralSettingsContent({
 							{productNameForVersion(appVersion)}
 							{appVersion ? ` v${appVersion}` : ""}
 							{isBetaVersion(appVersion)
-								? " — beta builds install side by side with the stable app and update from the beta channel."
+								? ` — ${t("beta builds install side by side with the stable app and update from the beta channel.")}`
 								: ""}
 						</p>
 					</div>
@@ -1329,7 +1336,7 @@ function GeneralSettingsContent({
 							className="shrink-0 uppercase tracking-wide"
 							variant="secondary"
 						>
-							Beta
+							{t("Beta")}
 						</Badge>
 					) : null}
 				</div>

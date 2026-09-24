@@ -271,7 +271,7 @@ export function ImportSessionsDialog({
 								<div className="relative shrink-0">
 									<Search className="-translate-y-1/2 pointer-events-none absolute left-2.5 top-1/2 size-4 text-muted-foreground" />
 									<Input
-										aria-label="Filter sessions"
+										aria-label={t("Filter sessions")}
 										className="h-8 pl-8"
 										onChange={(event) => setQuery(event.target.value)}
 										placeholder={t("Filter by title or folder")}
@@ -280,7 +280,7 @@ export function ImportSessionsDialog({
 								</div>
 								<div className="flex shrink-0 items-center gap-2 border-b pb-2">
 									<Checkbox
-										aria-label="Select all sessions"
+										aria-label={t("Select all sessions")}
 										checked={
 											allVisibleSelected
 												? true

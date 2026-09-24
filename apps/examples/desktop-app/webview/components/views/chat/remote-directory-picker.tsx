@@ -136,7 +136,7 @@ export function RemoteDirectoryPicker({
 
 				<div className="flex min-w-0 items-center gap-2">
 					<Button
-						aria-label="Remote home directory"
+						aria-label={t("Remote home directory")}
 						disabled={loading || currentPath === normalizedHome}
 						onClick={() => setRequestedPath(normalizedHome)}
 						size="icon"
@@ -145,7 +145,7 @@ export function RemoteDirectoryPicker({
 						<Home />
 					</Button>
 					<Button
-						aria-label="Parent remote directory"
+						aria-label={t("Parent remote directory")}
 						disabled={loading || !canGoUp}
 						onClick={() => parentPath && setRequestedPath(parentPath)}
 						size="icon"
@@ -160,7 +160,7 @@ export function RemoteDirectoryPicker({
 						{currentPath}
 					</p>
 					<Button
-						aria-label="Refresh remote directories"
+						aria-label={t("Refresh remote directories")}
 						disabled={loading}
 						onClick={() => setReloadVersion((version) => version + 1)}
 						size="icon"

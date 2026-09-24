@@ -617,7 +617,7 @@ export function AgentSidebar({
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
 				<Button
-					aria-label="Filter sessions"
+					aria-label={t("Filter sessions")}
 					className="m-0! inline-flex size-8 items-center justify-center rounded-md p-0! text-muted-foreground hover:bg-surface-hover hover:text-sidebar-foreground"
 					variant="ghost"
 					size="icon"
@@ -626,7 +626,7 @@ export function AgentSidebar({
 				</Button>
 			</DropdownMenuTrigger>
 			<DropdownMenuContent align="end" className="w-36">
-				<DropdownMenuLabel>Status</DropdownMenuLabel>
+				<DropdownMenuLabel>{t("Status")}</DropdownMenuLabel>
 				<DropdownMenuRadioGroup
 					onValueChange={(value) => {
 						setFilter(value as FilterOption);
@@ -638,14 +638,14 @@ export function AgentSidebar({
 				>
 					{filterOptions.map((opt) => (
 						<DropdownMenuRadioItem key={opt} value={opt}>
-							{opt}
+							{t(opt)}
 						</DropdownMenuRadioItem>
 					))}
 				</DropdownMenuRadioGroup>
 				{sourceOptions.length > 0 ? (
 					<>
 						<DropdownMenuSeparator />
-						<DropdownMenuLabel>Source</DropdownMenuLabel>
+						<DropdownMenuLabel>{t("Source")}</DropdownMenuLabel>
 						<DropdownMenuRadioGroup
 							onValueChange={(value) => {
 								setSourceFilter(value);
@@ -656,7 +656,7 @@ export function AgentSidebar({
 							value={sourceFilter}
 						>
 							<DropdownMenuRadioItem value={ALL_SESSION_SOURCES}>
-								All sources
+								{t("All sources")}
 							</DropdownMenuRadioItem>
 							{sourceOptions.map((source) => (
 								<DropdownMenuRadioItem key={source} value={source}>
@@ -837,7 +837,7 @@ export function AgentSidebar({
 						>
 							<HoverCardTrigger asChild>
 								<button
-									aria-label="Cline home"
+									aria-label={t("Cline home")}
 									className={cn(
 										"flex size-8 shrink-0 items-center justify-center rounded-md text-sidebar-foreground hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring",
 										isCollapsed && "size-9",
@@ -864,7 +864,7 @@ export function AgentSidebar({
 									{productNameForVersion(appVersion)}
 								</p>
 								<p className="mt-0.5 text-xs text-muted-foreground">
-									{appVersion ? `Version ${appVersion}` : "Version unavailable"}
+									{appVersion ? `${t("Version")} ${appVersion}` : t("Version unavailable")}
 								</p>
 								<div className="mt-3 border-border border-t pt-3">
 									<div className="flex items-center gap-2 text-xs">
@@ -883,7 +883,7 @@ export function AgentSidebar({
 									</div>
 									{hubStatus && !hubStatus.connected && (
 										<p className="mt-1 text-[11px] text-destructive">
-											{hubStatus.error ?? "Cline Hub is not connected."}
+											{hubStatus.error ?? t("Cline Hub is not connected.")}
 										</p>
 									)}
 								</div>
@@ -892,7 +892,7 @@ export function AgentSidebar({
 						{!isCollapsed && isBetaVersion(appVersion) ? (
 							<Badge
 								className="ml-0.5 px-1.5 py-0 text-[10px] uppercase tracking-wide"
-								title={`${BETA_PRODUCT_NAME} — beta builds install side by side with the stable app and update from the beta channel`}
+								title={`${BETA_PRODUCT_NAME} — ${t("beta builds install side by side with the stable app and update from the beta channel")}`}
 								variant="secondary"
 							>
 								Beta
@@ -918,7 +918,7 @@ export function AgentSidebar({
 
 				{!isCollapsed ? (
 					<nav
-						aria-label="Sidebar actions"
+						aria-label={t("Sidebar actions")}
 						className="mt-1 flex shrink-0 flex-col gap-0.5 px-2"
 					>
 						<Button
@@ -1457,7 +1457,7 @@ function ScheduleGroupRow({
 						)}
 					/>
 					<Clock3
-						aria-label="Scheduled"
+						aria-label={t("Scheduled")}
 						className="size-3 shrink-0 text-muted-foreground"
 					/>
 					<span className="block min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-sm font-normal leading-tight">
@@ -1472,7 +1472,7 @@ function ScheduleGroupRow({
 						/>
 					) : null}
 					<span>
-						{runCount} {runCount === 1 ? "run" : "runs"}
+						{runCount} {runCount === 1 ? t("run") : t("runs")}
 					</span>
 				</span>
 			</button>
@@ -1579,13 +1579,13 @@ function ThreadItem({
 								<>
 									{thread.origin === "cloud" ? (
 										<Cloud
-											aria-label="Cloud session"
+											aria-label={t("Cloud session")}
 											className="size-3 shrink-0 text-muted-foreground"
 										/>
 									) : null}
 									{thread.isScheduled && !nested ? (
 										<Clock3
-											aria-label="Scheduled"
+											aria-label={t("Scheduled")}
 											className="size-3 shrink-0 text-muted-foreground"
 										/>
 									) : null}
@@ -1593,12 +1593,12 @@ function ThreadItem({
 							}
 							pinnedIndicator={
 								thread.pinned ? (
-									<Pin aria-label="Pinned" className="size-3 fill-current" />
+									<Pin aria-label={t("Pinned")} className="size-3 fill-current" />
 								) : null
 							}
 							action={
 								<Button
-									aria-label={`Delete ${title}`}
+									aria-label={t("Delete {title}", { title })}
 									className="absolute top-1/2 right-1 size-6 -translate-y-1/2 justify-center px-0 text-muted-foreground opacity-0 group-hover/row:opacity-100 hover:text-destructive focus-visible:opacity-100"
 									disabled={pending}
 									onClick={(event) => {
@@ -1606,7 +1606,7 @@ function ThreadItem({
 										onDelete();
 									}}
 									size="icon"
-									title="Delete session"
+									title={t("Delete session")}
 									type="button"
 									variant="ghost"
 								>
@@ -1655,21 +1655,21 @@ export function getSessionOverviewItems(
 	// Updated time is already visible in the sidebar item.
 	const workspacePath = thread.workspacePath || thread.codebase;
 	const items: Array<[string, string | null | undefined, string?]> = [
-		["Schedule", thread.scheduleName],
-		["Run", thread.scheduleRunNumber ? String(thread.scheduleRunNumber) : null],
+		[t("Schedule"), thread.scheduleName],
+		[t("Run"), thread.scheduleRunNumber ? String(thread.scheduleRunNumber) : null],
 		[
-			thread.origin === "cloud" ? "Repository" : "Workspace",
+			thread.origin === "cloud" ? t("Repository") : t("Workspace"),
 			thread.origin === "cloud"
 				? thread.repoUrl
 				: workspaceDisplayName(workspacePath),
 			workspacePath || undefined,
 		],
-		["Branch", thread.gitBranch],
-		["Provider", thread.provider],
-		["Model", thread.model],
-		["Tokens", formatTokenCount(thread.inputTokens, thread.outputTokens)],
-		["Cost", formatCostUsd(thread.totalCostUsd)],
-		["Source", thread.source],
+		[t("Branch"), thread.gitBranch],
+		[t("Provider"), thread.provider],
+		[t("Model"), thread.model],
+		[t("Tokens"), formatTokenCount(thread.inputTokens, thread.outputTokens)],
+		[t("Cost"), formatCostUsd(thread.totalCostUsd)],
+		[t("Source"), thread.source],
 	];
 	return items.filter((item): item is [string, string, string?] =>
 		Boolean(item[1]),

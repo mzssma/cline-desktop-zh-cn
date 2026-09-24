@@ -191,7 +191,7 @@ function useMarketplaceDirectory(): MarketplaceDirectory {
 	}, [catalog]);
 
 	const tagLabels = useMemo(
-		() => new Map(catalog?.tags.map((tag) => [tag.id, tag.label]) ?? []),
+		() => new Map(catalog?.tags.map((tag) => [tag.id, t(tag.label)]) ?? []),
 		[catalog?.tags],
 	);
 
@@ -742,7 +742,7 @@ export function MarketplaceExplorerView() {
 										}
 										type="button"
 									>
-										{tag.label}
+										{t(tag.label)}
 										{active ? (
 											<X className="size-3" />
 										) : (

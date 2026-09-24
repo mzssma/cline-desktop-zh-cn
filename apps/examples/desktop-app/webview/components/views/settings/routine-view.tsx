@@ -1439,7 +1439,7 @@ export function RoutineSchedulesContent({
 									{activeExecution && (
 										<p>
 											<span className="text-muted-foreground/70">{t("Active:")}</span>{" "}
-											{activeExecution.executionId} since{" "}
+											{activeExecution.executionId} {t("since")}{" "}
 											{formatDateTime(activeExecution.startedAt)}
 										</p>
 									)}

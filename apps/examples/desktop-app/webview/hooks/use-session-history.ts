@@ -6,6 +6,7 @@ import { normalizeTitle } from "@/components/utils";
 import { toast } from "@/hooks/use-toast";
 import { humanizeCloudSessionError } from "@/lib/cloud-session-error";
 import { desktopClient } from "@/lib/desktop-client";
+import { t } from "@/lib/i18n";
 import type {
 	SessionHistoryItem,
 	SessionHistoryStatus,
@@ -1550,12 +1551,12 @@ export function useSessionHistory({
 			} catch (error) {
 				toast({
 					variant: "destructive",
-					title: "Rename failed",
+					title: t("Rename failed"),
 					// Cloud failures arrive as a machine envelope; never show it raw.
 					description: humanizeCloudSessionError(
 						error instanceof Error
 							? error.message
-							: "The session title could not be updated.",
+							: t("The session title could not be updated."),
 					),
 				});
 				return false;
@@ -1679,11 +1680,11 @@ export function useSessionHistory({
 			} catch (error) {
 				toast({
 					variant: "destructive",
-					title: "Fork failed",
+					title: t("Fork failed"),
 					description:
 						error instanceof Error
 							? error.message
-							: "The session could not be forked.",
+							: t("The session could not be forked."),
 				});
 				return false;
 			} finally {
@@ -1728,11 +1729,11 @@ export function useSessionHistory({
 			} catch (error) {
 				toast({
 					variant: "destructive",
-					title: "Delete failed",
+					title: t("Delete failed"),
 					description: humanizeCloudSessionError(
 						error instanceof Error
 							? error.message
-							: "The session could not be removed from local history.",
+							: t("The session could not be removed from local history."),
 					),
 				});
 				return false;
@@ -1764,8 +1765,8 @@ export function useSessionHistory({
 				if (!loaded) {
 					toast({
 						variant: "destructive",
-						title: "Could not load more sessions",
-						description: "Session history is unavailable right now.",
+						title: t("Could not load more sessions"),
+						description: t("Session history is unavailable right now."),
 					});
 				}
 				return loaded;

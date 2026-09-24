@@ -1124,7 +1124,7 @@ export function McpServersContent({
 										disabled: !enabled,
 									}))
 								}
-								aria-label="Enable MCP server"
+								aria-label={t("Enable MCP server")}
 							/>
 						</div>
 

@@ -28,7 +28,7 @@ export function AudioModelBadges({ model }: { model: ProviderModel }) {
 			!model.operationModes.includes("streaming") ? (
 				<span
 					role="img"
-					aria-label="Streaming not supported"
+					aria-label={t("Streaming not supported")}
 					title={t("Streaming not supported")}
 					className="shrink-0 text-muted-foreground"
 				>
