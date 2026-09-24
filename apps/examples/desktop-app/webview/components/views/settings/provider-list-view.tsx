@@ -31,6 +31,7 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useOAuthUserCode } from "@/hooks/use-oauth-user-code";
 import { openExternalUrl } from "@/lib/desktop-client";
+import { t } from "@/lib/i18n";
 import {
 	getProviderAuthKind,
 	isProviderConnected,
@@ -128,7 +129,7 @@ function AuthKindHint({ kind }: { kind: ProviderAuthKind }) {
 	return (
 		<span className="inline-flex shrink-0 items-center gap-1 text-xs text-muted-foreground">
 			<Icon aria-hidden="true" className="size-3" />
-			{AUTH_KIND_LABEL[kind]}
+			{t(AUTH_KIND_LABEL[kind])}
 		</span>
 	);
 }
@@ -214,7 +215,7 @@ function ProviderRow({
 			</p>
 			{connected ? (
 				<span className="shrink-0 text-xs font-medium text-muted-foreground">
-					Configured
+					{t("Configured")}
 				</span>
 			) : (
 				<AuthKindHint kind={authKind} />
@@ -316,12 +317,15 @@ export function ProviderListContent({
 								isPanel ? "text-2xl" : "text-3xl",
 							)}
 						>
-							Model Providers
+							{t("Model Providers")}
 						</h1>
 						<p className="mt-3 text-base leading-6 text-muted-foreground">
 							{connectedCount === 0
-								? "Connect a provider to start using models."
-								: `${connectedCount} configured · ${providers.length} available`}
+								? t("Connect a provider to start using models.")
+								: t("{configured} configured · {available} available", {
+										configured: connectedCount,
+										available: providers.length,
+								  })}
 						</p>
 					</div>
 					<Button
@@ -330,7 +334,7 @@ export function ProviderListContent({
 						type="button"
 					>
 						<PlusCircle className="size-4" />
-						Add provider
+						{t("Add provider")}
 					</Button>
 				</div>
 
@@ -341,7 +345,7 @@ export function ProviderListContent({
 							aria-label="Search model providers"
 							className={EMBEDDED_INPUT_CLASS}
 							onChange={(event) => setProviderSearch(event.target.value)}
-							placeholder="Search providers"
+							placeholder={t("Search providers")}
 							value={providerSearch}
 						/>
 						{providerSearch ? (
@@ -360,13 +364,15 @@ export function ProviderListContent({
 				<div className={cn(isPanel ? "max-w-none" : "max-w-2xl")}>
 					{filteredProviders.length === 0 ? (
 						<div className="border-y px-2 py-6 text-base text-muted-foreground">
-							No providers match "{providerSearch.trim()}".
+							{t("No providers match \"{query}\".", {
+								query: providerSearch.trim(),
+							})}
 						</div>
 					) : null}
 
 					{connectedProviders.length > 0 ? (
 						<>
-							<ProviderSectionHeading title="Configured" />
+							<ProviderSectionHeading title={t("Configured")} />
 							{renderRows(connectedProviders)}
 						</>
 					) : null}
@@ -376,10 +382,10 @@ export function ProviderListContent({
 							<ProviderSectionHeading
 								description={
 									connectedProviders.length === 0 && !providerSearchQuery
-										? "Sign in or add an API key to connect."
+										? t("Sign in or add an API key to connect.")
 										: undefined
 								}
-								title="Popular"
+								title={t("Popular")}
 							/>
 							{renderRows(popularProviders)}
 						</>
@@ -387,7 +393,7 @@ export function ProviderListContent({
 
 					{otherProviders.length > 0 ? (
 						<>
-							<ProviderSectionHeading title="All providers" />
+							<ProviderSectionHeading title={t("All providers")} />
 							{renderRows(otherProviders)}
 						</>
 					) : null}
@@ -436,7 +442,8 @@ function ConfigFieldRow({
 						onClick={() => void openExternalUrl(providerKeyUrl)}
 						type="button"
 					>
-						{provider.docLabel || `Get a ${provider.name} API key`}
+						{provider.docLabel ||
+							t("Get a {name} API key", { name: provider.name })}
 						<ExternalLink className="size-3.5" />
 					</button>
 				) : null}
@@ -456,7 +463,7 @@ function ConfigFieldRow({
 					onChange={(event) => onCommit(event.target.value)}
 					value={valueText}
 				>
-					<option value="">Not set</option>
+					<option value="">{t("Not set")}</option>
 					{field.options?.map((option) => (
 						<option key={String(option.value)} value={String(option.value)}>
 							{option.label}
@@ -760,11 +767,12 @@ export function ProviderDetailContent({
 					<div className="flex items-center justify-between gap-4 rounded-lg border px-4 py-3">
 						<div className="min-w-0">
 							<p className="text-sm font-medium text-foreground">
-								Signed in via browser
+								{t("Signed in via browser")}
 							</p>
 							<p className="text-xs text-muted-foreground">
-								This provider authenticates with your account — no API key
-								needed.
+								{t(
+									"This provider authenticates with your account — no API key needed.",
+								)}
 							</p>
 						</div>
 						{onDisconnect ? (
@@ -775,7 +783,7 @@ export function ProviderDetailContent({
 								type="button"
 								variant="outline"
 							>
-								Sign out
+								{t("Sign out")}
 							</Button>
 						) : null}
 					</div>
@@ -783,7 +791,7 @@ export function ProviderDetailContent({
 					<div className="flex flex-col">
 						<div className="mb-2 flex items-center justify-between gap-4">
 							<p className="text-sm text-muted-foreground">
-								Configured with an API key.
+								{t("Configured with an API key.")}
 							</p>
 							{onDisconnect ? (
 								<Button
@@ -793,7 +801,7 @@ export function ProviderDetailContent({
 									type="button"
 									variant="outline"
 								>
-									Disconnect
+									{t("Disconnect")}
 								</Button>
 							) : null}
 						</div>
@@ -802,10 +810,10 @@ export function ProviderDetailContent({
 				) : (
 					<div className="rounded-lg border px-4 py-4">
 						<p className="text-sm font-medium text-foreground">
-							Sign in to {provider.name}
+							{t("Sign in to {name}", { name: provider.name })}
 						</p>
 						<p className="mt-1 text-xs text-muted-foreground">
-							Connects through your browser. No API key needed.
+							{t("Connects through your browser. No API key needed.")}
 						</p>
 						{onOAuthLogin ? (
 							<Button
@@ -820,14 +828,14 @@ export function ProviderDetailContent({
 								) : null}
 								<span>
 									{oauthLoginPending
-										? "Waiting for browser..."
-										: "Sign in with browser"}
+										? t("Waiting for browser...")
+										: t("Sign in with browser")}
 								</span>
 							</Button>
 						) : null}
 						{oauthLoginPending && deviceUserCode ? (
 							<p className="mt-3 text-xs text-muted-foreground">
-								Confirm this code in your browser:{" "}
+								{t("Confirm this code in your browser:")}{" "}
 								<span className="font-mono font-medium text-foreground">
 									{deviceUserCode}
 								</span>
@@ -843,7 +851,7 @@ export function ProviderDetailContent({
 									type="button"
 									variant="ghost"
 								>
-									Use an API key instead
+									{t("Use an API key instead")}
 									<ChevronDown
 										aria-hidden="true"
 										className={cn(
@@ -867,11 +875,12 @@ export function ProviderDetailContent({
 				<div className="flex items-center justify-between gap-4 rounded-lg border px-4 py-3">
 					<div className="min-w-0">
 						<p className="text-sm font-medium text-foreground">
-							Uses your local CLI sign-in
+							{t("Uses your local CLI sign-in")}
 						</p>
 						<p className="text-xs text-muted-foreground">
-							Credentials come from the provider's own CLI on this machine — no
-							API key needed.
+							{t(
+								"Credentials come from the provider's own CLI on this machine — no API key needed.",
+							)}
 						</p>
 					</div>
 					{connected
@@ -883,7 +892,7 @@ export function ProviderDetailContent({
 									type="button"
 									variant="outline"
 								>
-									Disconnect
+									{t("Disconnect")}
 								</Button>
 							)
 						: onConnect && (
@@ -893,7 +902,7 @@ export function ProviderDetailContent({
 									size="sm"
 									type="button"
 								>
-									Connect
+									{t("Connect")}
 								</Button>
 							)}
 				</div>
@@ -909,7 +918,7 @@ export function ProviderDetailContent({
 					{connected ? (
 						<>
 							<p className="text-xs text-muted-foreground">
-								Changes to the fields above are saved automatically.
+								{t("Changes to the fields above are saved automatically.")}
 							</p>
 							{onDisconnect ? (
 								<Button
@@ -919,16 +928,16 @@ export function ProviderDetailContent({
 									type="button"
 									variant="outline"
 								>
-									Disconnect
+									{t("Disconnect")}
 								</Button>
 							) : null}
 						</>
 					) : (
 						<>
 							<p className="text-xs text-muted-foreground">
-								Saving an API key configures this provider automatically. Use
-								Connect if it reads credentials from your environment or a local
-								endpoint.
+								{t(
+									"Saving an API key configures this provider automatically. Use Connect if it reads credentials from your environment or a local endpoint.",
+								)}
 							</p>
 							{onConnect ? (
 								<Button
@@ -938,7 +947,7 @@ export function ProviderDetailContent({
 									type="button"
 									variant="outline"
 								>
-									Connect
+									{t("Connect")}
 								</Button>
 							) : null}
 						</>
@@ -976,7 +985,7 @@ export function ProviderDetailContent({
 						{provider.name}
 					</h1>
 					<span className="inline-flex shrink-0 items-center rounded-full border px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
-						{connected ? "Configured" : "Not configured"}
+						{connected ? t("Configured") : t("Not configured")}
 					</span>
 				</div>
 
@@ -992,7 +1001,7 @@ export function ProviderDetailContent({
 					<div className="flex h-12 items-center justify-between bg-muted/40 px-4">
 						<div className="flex items-center gap-1">
 							<h2 className="mr-1 text-lg font-medium text-muted-foreground">
-								Models
+								{t("Models")}
 							</h2>
 							<Button
 								aria-label="Refresh models"
@@ -1036,7 +1045,7 @@ export function ProviderDetailContent({
 									if (event.key === "Enter") addModel();
 									if (event.key === "Escape") setAddModelState(null);
 								}}
-								placeholder="Model ID"
+								placeholder={t("Model ID")}
 								value={newModelId}
 							/>
 							<Button
@@ -1044,14 +1053,14 @@ export function ProviderDetailContent({
 								onClick={addModel}
 								size="sm"
 							>
-								Add
+								{t("Add")}
 							</Button>
 							<Button
 								onClick={() => setAddModelState(null)}
 								size="sm"
 								variant="ghost"
 							>
-								Cancel
+								{t("Cancel")}
 							</Button>
 						</div>
 					) : null}
@@ -1076,7 +1085,7 @@ export function ProviderDetailContent({
 											value: event.target.value,
 										})
 									}
-									placeholder="Search models by name or ID"
+									placeholder={t("Search models by name or ID")}
 									spellCheck={false}
 									value={modelSearch}
 								/>
@@ -1096,7 +1105,7 @@ export function ProviderDetailContent({
 															className="inline-flex shrink-0 items-center rounded bg-surface-hover px-1 py-px font-sans text-[0.625rem] font-medium uppercase tracking-wide text-muted-foreground"
 															key={badge}
 														>
-															{badge}
+															{t(badge)}
 														</span>
 													))}
 													{/* Capability icons */}
@@ -1104,7 +1113,7 @@ export function ProviderDetailContent({
 														<span
 															aria-label="File support"
 															role="img"
-															title="File support"
+															title={t("File support")}
 														>
 															<FileIcon
 																aria-hidden="true"
@@ -1116,7 +1125,7 @@ export function ProviderDetailContent({
 														<span
 															aria-label="Image support"
 															role="img"
-															title="Image support"
+															title={t("Image support")}
 														>
 															<ImageIcon
 																aria-hidden="true"
@@ -1131,7 +1140,7 @@ export function ProviderDetailContent({
 															<span
 																aria-label="Audio support"
 																role="img"
-																title="Audio support"
+																title={t("Audio support")}
 															>
 																<Mic
 																	aria-hidden="true"
@@ -1143,7 +1152,7 @@ export function ProviderDetailContent({
 														<span
 															aria-label="Reasoning support"
 															role="img"
-															title="Reasoning support"
+															title={t("Reasoning support")}
 														>
 															<Brain
 																aria-hidden="true"
@@ -1161,14 +1170,14 @@ export function ProviderDetailContent({
 													aria-label={`Copy model ID ${model.id}`}
 													className="mt-1 flex max-w-full items-center gap-1.5 px-1 text-left text-xs text-muted-foreground  hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
 													onClick={() => copyModelId(model.id)}
-													title="Copy model ID"
+													title={t("Copy model ID")}
 													type="button"
 												>
 													<span className="min-w-0 truncate">{model.id}</span>
 													<Copy className="size-3 shrink-0" />
 													{copiedModelId === model.id ? (
 														<span className="shrink-0 text-foreground">
-															Copied
+															{t("Copied")}
 														</span>
 													) : null}
 												</button>
@@ -1202,7 +1211,9 @@ export function ProviderDetailContent({
 							) : (
 								<div className="rounded-lg border border-border px-4 py-8 text-center">
 									<p className="text-sm text-muted-foreground">
-										No models match "{modelSearch.trim()}".
+										{t("No models match \"{query}\".", {
+											query: modelSearch.trim(),
+										})}
 									</p>
 								</div>
 							)}
@@ -1211,8 +1222,8 @@ export function ProviderDetailContent({
 						<div className="rounded-lg border border-border px-4 py-8 text-center">
 							<p className="text-sm text-muted-foreground">
 								{modelsLoading
-									? "Loading models..."
-									: "No models available. Click refresh to load models."}
+									? t("Loading models...")
+									: t("No models available. Click refresh to load models.")}
 							</p>
 						</div>
 					)}

@@ -48,6 +48,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { desktopClient } from "@/lib/desktop-client";
+import { t } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import {
 	MarketplaceEntrySetupDetails,
@@ -66,11 +67,18 @@ function serverTypeOf(transportType: McpTransportType): McpServerType {
 	return transportType === "stdio" ? "local" : "remote";
 }
 
-const TRANSPORT_TYPE_LABELS: Record<McpTransportType, string> = {
-	stdio: "Local · stdio",
-	sse: "Remote · SSE (legacy)",
-	streamableHttp: "Remote · Streamable HTTP",
-};
+function getTransportTypeLabel(transportType: McpTransportType): string {
+	switch (transportType) {
+		case "stdio":
+			return t("Local · stdio");
+		case "sse":
+			return t("Remote · SSE (legacy)");
+		case "streamableHttp":
+			return t("Remote · Streamable HTTP");
+		default:
+			return transportType;
+	}
+}
 
 interface McpServer {
 	name: string;
@@ -399,7 +407,7 @@ export function McpServersContent({
 	const buildServerInput = useCallback((form: McpServerFormState) => {
 		const name = form.name.trim();
 		if (!name) {
-			throw new Error("Server name is required.");
+			throw new Error(t("Server name is required."));
 		}
 		const env = form.envEntries.reduce<Record<string, string>>((acc, entry) => {
 			const key = entry.key.trim();
@@ -415,7 +423,7 @@ export function McpServersContent({
 		if (form.transportType === "stdio") {
 			const command = form.command.trim();
 			if (!command) {
-				throw new Error("Command is required for local servers.");
+				throw new Error(t("Command is required for local servers."));
 			}
 			const args = splitCsv(form.argsText);
 			return {
@@ -432,7 +440,7 @@ export function McpServersContent({
 		}
 		const url = form.url.trim();
 		if (!url) {
-			throw new Error("Server URL is required for remote servers.");
+			throw new Error(t("Server URL is required for remote servers."));
 		}
 		return {
 			name,
@@ -579,35 +587,35 @@ export function McpServersContent({
 		<div className="flex flex-col gap-1 text-xs text-muted-foreground">
 			{server.command && (
 				<p>
-					<span className="text-muted-foreground/70">Command:</span>{" "}
+					<span className="text-muted-foreground/70">{t("Command:")}</span>{" "}
 					{server.command}
 				</p>
 			)}
 			{server.args && server.args.length > 0 && (
 				<p>
-					<span className="text-muted-foreground/70">Args:</span>{" "}
+					<span className="text-muted-foreground/70">{t("Args:")}</span>{" "}
 					{server.args.join(", ")}
 				</p>
 			)}
 			{server.cwd && (
 				<p>
-					<span className="text-muted-foreground/70">CWD:</span> {server.cwd}
+					<span className="text-muted-foreground/70">{t("CWD:")}</span> {server.cwd}
 				</p>
 			)}
 			{server.url && (
 				<p>
-					<span className="text-muted-foreground/70">URL:</span> {server.url}
+					<span className="text-muted-foreground/70">{t("URL:")}</span> {server.url}
 				</p>
 			)}
 			{server.env && Object.keys(server.env).length > 0 && (
 				<p>
-					<span className="text-muted-foreground/70">Env:</span>{" "}
+					<span className="text-muted-foreground/70">{t("Env:")}</span>{" "}
 					{stringifyRedactedKeyValuePairs(server.env)}
 				</p>
 			)}
 			{server.headers && Object.keys(server.headers).length > 0 && (
 				<p>
-					<span className="text-muted-foreground/70">Headers:</span>{" "}
+					<span className="text-muted-foreground/70">{t("Headers:")}</span>{" "}
 					{stringifyKeyValuePairs(server.headers)}
 				</p>
 			)}
@@ -642,12 +650,11 @@ export function McpServersContent({
 						{server.name}
 					</h3>
 					<Badge variant="outline" className="shrink-0 text-muted-foreground">
-						{TRANSPORT_TYPE_LABELS[server.transportType] ??
-							server.transportType}
+						{getTransportTypeLabel(server.transportType)}
 					</Badge>
 					{context?.matchedEntries?.length ? (
 						<Badge variant="outline" className="shrink-0 text-muted-foreground">
-							Marketplace
+							{t("Marketplace")}
 						</Badge>
 					) : null}
 					<div className="flex-1" />
@@ -660,7 +667,7 @@ export function McpServersContent({
 							role="alert"
 						>
 							<p className="text-xs font-medium text-destructive">
-								Invalid configuration
+								{t("Invalid configuration")}
 							</p>
 							<p className="mt-0.5 wrap-break-word text-xs text-muted-foreground">
 								{server.configurationError}
@@ -675,14 +682,14 @@ export function McpServersContent({
 							<div className="min-w-0 flex-1 grid gap-0.5">
 								<p className="text-xs font-medium text-foreground">
 									{isAuthorizing
-										? "Waiting for OAuth authorization"
-										: "OAuth authorization required"}
+										? t("Waiting for OAuth authorization")
+										: t("OAuth authorization required")}
 								</p>
 								<p className="wrap-break-word text-xs text-muted-foreground">
 									{isAuthorizing
-										? "Complete sign-in in your browser, or select Cancel to stop waiting."
+										? t("Complete sign-in in your browser, or select Cancel to stop waiting.")
 										: (serverError ??
-											"Select Connect to sign in with your browser. The server will remain off until authorization succeeds.")}
+											t("Select Connect to sign in with your browser. The server will remain off until authorization succeeds."))}
 								</p>
 							</div>
 							<Button
@@ -701,7 +708,7 @@ export function McpServersContent({
 								}
 								disabled={isBusy}
 							>
-								{isAuthorizing ? "Cancel" : "Connect"}
+								{isAuthorizing ? t("Cancel") : t("Connect")}
 							</Button>
 						</div>
 					) : null}
@@ -711,7 +718,7 @@ export function McpServersContent({
 							role="alert"
 						>
 							<p className="text-xs font-medium text-destructive">
-								Connection failed
+								{t("Connection failed")}
 							</p>
 							<p className="mt-0.5 wrap-break-word text-xs text-muted-foreground">
 								{serverError}
@@ -722,7 +729,7 @@ export function McpServersContent({
 					{server.oauthStatus?.configured ? (
 						<div className="flex items-center gap-2 text-xs text-muted-foreground">
 							<span className="rounded-md border border-primary/40 bg-primary/10 px-2 py-0.5 text-primary">
-								OAuth connected
+								{t("OAuth connected")}
 							</span>
 						</div>
 					) : null}
@@ -757,7 +764,7 @@ export function McpServersContent({
 			</Button>
 			<Button size="sm" onClick={openCreateDialog}>
 				<Plus className="h-4 w-4" />
-				Add MCP Server
+				{t("Add MCP Server")}
 			</Button>
 		</>
 	);
@@ -768,15 +775,15 @@ export function McpServersContent({
 				<PageHeader
 					description={
 						hasSettingsFile
-							? "Editing this list updates cline_mcp_settings.json."
-							: "No MCP settings file found yet. Add a server to create it."
+							? t("Editing this list updates cline_mcp_settings.json.")
+							: t("No MCP settings file found yet. Add a server to create it.")
 					}
-					title="MCP Servers"
+					title={t("MCP Servers")}
 					meta={
 						<>
 							<CommandBadge>cline config mcp</CommandBadge>
 							<span className="rounded-md border border-border bg-background px-2 py-0.5 text-xs text-muted-foreground">
-								From settings file
+								{t("From settings file")}
 							</span>
 						</>
 					}
@@ -786,8 +793,8 @@ export function McpServersContent({
 				<div className="mb-4 flex items-center justify-between gap-3">
 					<p className="text-sm text-muted-foreground">
 						{hasSettingsFile
-							? "Editing this list updates cline_mcp_settings.json."
-							: "No MCP settings file found yet. Add a server to create it."}
+							? t("Editing this list updates cline_mcp_settings.json.")
+							: t("No MCP settings file found yet. Add a server to create it.")}
 					</p>
 					<div className="flex shrink-0 items-center gap-2">
 						{headerActions}
@@ -796,14 +803,14 @@ export function McpServersContent({
 			)}
 
 			<div className="mb-1 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-				<span>MCP settings path:</span>
+				<span>{t("MCP settings path:")}</span>
 				<Button
 					variant="link"
 					className="h-auto p-0 font-mono text-xs"
 					onClick={() => void openSettingsFile()}
 					disabled={isOpeningSettingsFile}
 				>
-					{settingsPath || "Open settings file"}
+					{settingsPath || t("Open settings file")}
 				</Button>
 			</div>
 			{errorMessage && (
@@ -831,12 +838,12 @@ export function McpServersContent({
 				<DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
 					<DialogHeader>
 						<DialogTitle>
-							{editorMode === "edit" ? "Edit MCP Server" : "Add MCP Server"}
+							{editorMode === "edit" ? t("Edit MCP Server") : t("Add MCP Server")}
 						</DialogTitle>
 						<DialogDescription>
 							{editorMode === "edit"
-								? "Update the MCP server stored in "
-								: "The server is saved to "}
+								? t("Update the MCP server stored in ")
+								: t("The server is saved to ")}
 							<code className="font-mono">
 								{settingsPath || "cline_mcp_settings.json"}
 							</code>
@@ -846,7 +853,7 @@ export function McpServersContent({
 
 					<div className="grid gap-4">
 						<div className="grid gap-2">
-							<Label htmlFor="mcp-name">Server name</Label>
+							<Label htmlFor="mcp-name">{t("Server name")}</Label>
 							<Input
 								id="mcp-name"
 								value={formState.name}
@@ -861,7 +868,7 @@ export function McpServersContent({
 						</div>
 
 						<div className="grid gap-2">
-							<Label>Server type</Label>
+							<Label>{t("Server type")}</Label>
 							<RadioGroup
 								className="grid gap-2"
 								value={serverTypeOf(formState.transportType)}
@@ -888,11 +895,10 @@ export function McpServersContent({
 									/>
 									<span className="grid gap-0.5">
 										<span className="text-sm font-medium text-foreground">
-											Local
+											{t("Local")}
 										</span>
 										<span className="text-xs text-muted-foreground">
-											Runs a command on this machine (stdio). Recommended when
-											available.
+											{t("Runs a command on this machine (stdio). Recommended when available.")}
 										</span>
 									</span>
 								</Label>
@@ -907,10 +913,10 @@ export function McpServersContent({
 									/>
 									<span className="grid gap-0.5">
 										<span className="text-sm font-medium text-foreground">
-											Remote
+											{t("Remote")}
 										</span>
 										<span className="text-xs text-muted-foreground">
-											Connects to a hosted server over HTTP by URL.
+											{t("Connects to a hosted server over HTTP by URL.")}
 										</span>
 									</span>
 								</Label>
@@ -920,7 +926,7 @@ export function McpServersContent({
 						{formState.transportType === "stdio" ? (
 							<>
 								<div className="grid gap-2">
-									<Label htmlFor="mcp-command">Command</Label>
+									<Label htmlFor="mcp-command">{t("Command")}</Label>
 									<Input
 										id="mcp-command"
 										value={formState.command}
@@ -934,7 +940,7 @@ export function McpServersContent({
 									/>
 								</div>
 								<div className="grid gap-2">
-									<Label htmlFor="mcp-args">Args</Label>
+									<Label htmlFor="mcp-args">{t("Args")}</Label>
 									<Textarea
 										id="mcp-args"
 										value={formState.argsText}
@@ -949,7 +955,7 @@ export function McpServersContent({
 								</div>
 								<div className="grid gap-2">
 									<div className="flex items-center justify-between gap-3">
-										<Label>Environment variables</Label>
+										<Label>{t("Environment variables")}</Label>
 										<Button
 											type="button"
 											variant="ghost"
@@ -998,7 +1004,7 @@ export function McpServersContent({
 						) : (
 							<>
 								<div className="grid gap-2">
-									<Label htmlFor="mcp-url">Server URL</Label>
+									<Label htmlFor="mcp-url">{t("Server URL")}</Label>
 									<Input
 										id="mcp-url"
 										value={formState.url}
@@ -1012,7 +1018,7 @@ export function McpServersContent({
 									/>
 								</div>
 								<div className="grid gap-2">
-									<Label htmlFor="mcp-headers">Headers</Label>
+									<Label htmlFor="mcp-headers">{t("Headers")}</Label>
 									<Textarea
 										id="mcp-headers"
 										value={formState.headersText}
@@ -1026,7 +1032,7 @@ export function McpServersContent({
 									/>
 								</div>
 								<div className="grid gap-2">
-									<Label>Transport</Label>
+									<Label>{t("Transport")}</Label>
 									<Select
 										value={formState.transportType}
 										onValueChange={(value) =>
@@ -1037,13 +1043,13 @@ export function McpServersContent({
 										}
 									>
 										<SelectTrigger className="w-full">
-											<SelectValue placeholder="Select transport" />
+											<SelectValue placeholder={t("Select transport")} />
 										</SelectTrigger>
 										<SelectContent>
 											<SelectItem value="streamableHttp">
-												Streamable HTTP (recommended)
+												{t("Streamable HTTP (recommended)")}
 											</SelectItem>
-											<SelectItem value="sse">SSE (legacy)</SelectItem>
+											<SelectItem value="sse">{t("SSE (legacy)")}</SelectItem>
 										</SelectContent>
 									</Select>
 								</div>
@@ -1066,13 +1072,13 @@ export function McpServersContent({
 											advancedOpen && "rotate-90",
 										)}
 									/>
-									Advanced
+									{t("Advanced")}
 								</button>
 							</CollapsibleTrigger>
 							<CollapsibleContent className="grid gap-4">
 								{formState.transportType === "stdio" && (
 									<div className="grid gap-2">
-										<Label htmlFor="mcp-cwd">Working directory</Label>
+										<Label htmlFor="mcp-cwd">{t("Working directory")}</Label>
 										<Input
 											id="mcp-cwd"
 											value={formState.cwd}
@@ -1087,7 +1093,7 @@ export function McpServersContent({
 									</div>
 								)}
 								<div className="grid gap-2">
-									<Label htmlFor="mcp-metadata">Metadata JSON</Label>
+									<Label htmlFor="mcp-metadata">{t("Metadata JSON")}</Label>
 									<Textarea
 										id="mcp-metadata"
 										value={formState.metadataText}
@@ -1105,9 +1111,9 @@ export function McpServersContent({
 
 						<div className="flex items-center justify-between rounded-md border border-border px-3 py-2">
 							<div>
-								<p className="text-sm font-medium text-foreground">Enabled</p>
+								<p className="text-sm font-medium text-foreground">{t("Enabled")}</p>
 								<p className="text-xs text-muted-foreground">
-									Disable the server without removing it from settings.
+									{t("Disable the server without removing it from settings.")}
 								</p>
 							</div>
 							<Switch
@@ -1135,17 +1141,17 @@ export function McpServersContent({
 							onClick={() => setEditorOpen(false)}
 							disabled={busyServerName !== null}
 						>
-							Cancel
+							{t("Cancel")}
 						</Button>
 						<Button
 							onClick={() => void handleSaveServer()}
 							disabled={busyServerName !== null}
 						>
 							{busyServerName !== null
-								? "Saving..."
+								? t("Saving...")
 								: editorMode === "edit"
-									? "Save changes"
-									: "Add server"}
+									? t("Save changes")
+									: t("Add server")}
 						</Button>
 					</DialogFooter>
 				</DialogContent>
@@ -1161,16 +1167,16 @@ export function McpServersContent({
 			>
 				<AlertDialogContent>
 					<AlertDialogHeader>
-						<AlertDialogTitle>Delete MCP Server</AlertDialogTitle>
+						<AlertDialogTitle>{t("Delete MCP Server")}</AlertDialogTitle>
 						<AlertDialogDescription>
 							{deleteTarget
-								? `Delete MCP server "${deleteTarget.name}" from settings?`
-								: "Delete this MCP server from settings?"}
+								? t('Delete MCP server "{name}" from settings?', { name: deleteTarget.name })
+								: t("Delete this MCP server from settings?")}
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>
 						<AlertDialogCancel disabled={busyServerName !== null}>
-							Cancel
+							{t("Cancel")}
 						</AlertDialogCancel>
 						<AlertDialogAction
 							disabled={busyServerName !== null || !deleteTarget}
@@ -1181,7 +1187,7 @@ export function McpServersContent({
 								}
 							}}
 						>
-							Delete
+							{t("Delete")}
 						</AlertDialogAction>
 					</AlertDialogFooter>
 				</AlertDialogContent>

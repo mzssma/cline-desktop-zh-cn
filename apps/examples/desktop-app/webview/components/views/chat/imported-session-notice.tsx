@@ -1,6 +1,7 @@
 "use client";
 
 import { Import } from "lucide-react";
+import { t } from "@/lib/i18n";
 import {
 	SESSION_IMPORT_TOOL_LABELS,
 	type SessionImportTool,
@@ -21,13 +22,13 @@ export function ImportedSessionNotice({ tool }: { tool: SessionImportTool }) {
 			</span>
 			<div className="min-w-0">
 				<p className="text-sm font-semibold text-foreground">
-					Imported from {label}
+					{t("Imported from {tool}", { tool: label })}
 				</p>
 				<p className="mt-0.5 text-[13px] text-muted-foreground">
-					The earlier turns were recorded by {label}, whose tools and workflow
-					differ from Cline&apos;s. When you continue, the model works from a
-					summary of them rather than the original tool calls, so results may
-					not be as reliable as in a session started with Cline.
+					{t(
+						"The earlier turns were recorded by {tool}, whose tools and workflow differ from Cline's. When you continue, the model works from a summary of them rather than the original tool calls, so results may not be as reliable as in a session started with Cline.",
+						{ tool: label },
+					)}
 				</p>
 			</div>
 		</output>

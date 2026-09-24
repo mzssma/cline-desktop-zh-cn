@@ -50,17 +50,22 @@ import {
 	SESSION_IMPORT_TOOL_ORDER,
 	type SessionImportTool,
 } from "@/lib/session-import";
+import { t } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 const CREATE_ACCOUNT_URL = "https://app.cline.bot";
 const CLINE_PASS_SUBSCRIBE_URL =
 	"https://app.cline.bot/onboarding/individual-plan";
 
-const CLINE_SIGN_IN_BENEFITS = [
-	"Regular free model promotions",
-	"Subscribe to ClinePass for generous usage across the best open weights models like DeepSeek, Kimi, and GLM",
-	"No API key needed",
-];
+function getClineSignInBenefits() {
+	return [
+		t("Regular free model promotions"),
+		t(
+			"Subscribe to ClinePass for generous usage across the best open weights models like DeepSeek, Kimi, and GLM",
+		),
+		t("No API key needed"),
+	];
+}
 
 type ClineRecommendedModelsResponse = {
 	free?: { id: string; name?: string; description?: string }[];
@@ -302,11 +307,13 @@ function WelcomeStep({ onContinue }: { onContinue: () => void }) {
 					<AgentWelcomeHero variant="bot-only" />
 				</div>
 				<h1 className="mt-5 text-4xl font-semibold text-foreground">Cline</h1>
-				<p className="mt-2 text-lg text-foreground">Build software your way</p>
+				<p className="mt-2 text-lg text-foreground">
+					{t("Build software your way")}
+				</p>
 				<p className="mt-6 text-md text-muted-foreground">
-					Cline is an AI coding agent. It reads your code, edits files, runs
-					commands, and works through tasks with you — in any project on your
-					machine.
+					{t(
+						"Cline is an AI coding agent. It reads your code, edits files, runs commands, and works through tasks with you — in any project on your machine.",
+					)}
 				</p>
 				<Button
 					className="mt-8 w-full max-w-64"
@@ -316,10 +323,12 @@ function WelcomeStep({ onContinue }: { onContinue: () => void }) {
 					type="button"
 					variant="fill"
 				>
-					Get started
+					{t("Get started")}
 				</Button>
 				<p className="mt-8 text-xs text-muted-foreground">
-					Takes less than a minute. Everything can be changed later in Settings.
+					{t(
+						"Takes less than a minute. Everything can be changed later in Settings.",
+					)}
 				</p>
 			</div>
 		</OnboardingContent>
@@ -543,7 +552,7 @@ function ConnectStep({
 		<OnboardingContent surface="panel">
 			<div className="flex flex-col">
 				<IconButton
-					aria-label="Back"
+					aria-label={t("Back")}
 					className="-ml-2"
 					onClick={onBack}
 					size="md"
@@ -554,11 +563,12 @@ function ConnectStep({
 					<ArrowLeft className="size-4" />
 				</IconButton>
 				<h1 className="mt-6 text-2xl font-semibold tracking-tight text-foreground">
-					Set up Cline
+					{t("Set up Cline")}
 				</h1>
 				<p className="mt-4 text-sm text-muted-foreground">
-					Choose how Cline connects to models. You can add more providers
-					anytime in Settings.
+					{t(
+						"Choose how Cline connects to models. You can add more providers anytime in Settings.",
+					)}
 				</p>
 			</div>
 
@@ -566,7 +576,7 @@ function ConnectStep({
 				<SetupOptionCard
 					id="cline"
 					onSelect={() => setSelectedMethod("cline")}
-					selectLabel="Sign in with Cline"
+					selectLabel={t("Sign in with Cline")}
 					selected={selectedMethod === "cline"}
 				>
 					<SetupOptionHeader
@@ -575,12 +585,12 @@ function ConnectStep({
 								className="-mt-2 rounded-sm border-primary/30 bg-primary/10 px-1.5 !pt-[0.3rem] !pb-[0.2rem] text-primary-emphasis"
 								variant="outline"
 							>
-								Recommended
+								{t("Recommended")}
 							</Badge>
 						}
 						description={
 							<ul className="flex flex-col gap-1">
-								{CLINE_SIGN_IN_BENEFITS.map((benefit) => (
+								{getClineSignInBenefits().map((benefit) => (
 									<li className="flex gap-2" key={benefit}>
 										<Check
 											aria-hidden="true"
@@ -592,12 +602,12 @@ function ConnectStep({
 							</ul>
 						}
 						icon={<ClineLogo className="size-5" />}
-						title="Sign in with Cline"
+						title={t("Sign in with Cline")}
 					/>
 					{user ? (
 						<div className="mt-6 flex flex-wrap items-center justify-end gap-6">
 							<p className="text-sm text-muted-foreground">
-								Signed in as{" "}
+								{t("Signed in as")}{" "}
 								<span className="font-medium">
 									{user.displayName || user.email}
 								</span>
@@ -612,7 +622,7 @@ function ConnectStep({
 								type="button"
 								variant="fill"
 							>
-								Continue
+								{t("Continue")}
 							</Button>
 						</div>
 					) : (
@@ -626,7 +636,7 @@ function ConnectStep({
 								variant="fill"
 							>
 								{signingIn && <Loader2 className="size-4 animate-spin" />}
-								{signingIn ? "Waiting for browser..." : "Sign in"}
+								{signingIn ? t("Waiting for browser...") : t("Sign in")}
 							</Button>
 							{signingIn ? (
 								<Button
@@ -636,7 +646,7 @@ function ConnectStep({
 									type="button"
 									variant="ghost"
 								>
-									Cancel
+									{t("Cancel")}
 								</Button>
 							) : (
 								<Button
@@ -646,14 +656,14 @@ function ConnectStep({
 									type="button"
 									variant="ghost"
 								>
-									Sign up
+									{t("Sign up")}
 								</Button>
 							)}
 						</div>
 					)}
 					{!user && signingIn && deviceUserCode ? (
 						<p className="mt-4 ml-12 text-sm text-muted-foreground max-[720px]:ml-0">
-							Confirm this code in your browser:{" "}
+							{t("Confirm this code in your browser: ")}
 							<span className="font-mono font-medium text-foreground">
 								{deviceUserCode}
 							</span>
@@ -664,7 +674,7 @@ function ConnectStep({
 							className="mt-6 ml-12 text-xs text-destructive max-[720px]:ml-0"
 							role="alert"
 						>
-							Sign in failed: {signInError}
+							{t("Sign in failed: {error}", { error: signInError })}
 						</p>
 					) : null}
 					{!user ? (
@@ -682,7 +692,7 @@ function ConnectStep({
 								type="button"
 								variant="ghost"
 							>
-								Use a Cline API key
+								{t("Use a Cline API key")}
 								<ChevronDown aria-hidden="true" className="size-3.5" />
 							</Button>
 							<ExpandablePanel
@@ -693,7 +703,7 @@ function ConnectStep({
 								<div className="flex flex-col gap-2 pt-3 ml-2 max-[720px]:ml-0">
 									<div className="flex flex-wrap items-center gap-2">
 										<Input
-											aria-label="Cline API key"
+											aria-label={t("Cline API key")}
 											autoComplete="off"
 											className="min-w-52 flex-1 bg-background"
 											disabled={clineKeySaving}
@@ -710,7 +720,7 @@ function ConnectStep({
 													void connectWithClineApiKey();
 												}
 											}}
-											placeholder="Cline API key"
+											placeholder={t("Cline API key")}
 											type="password"
 											value={clineApiKey}
 										/>
@@ -725,7 +735,7 @@ function ConnectStep({
 											{clineKeySaving ? (
 												<Loader2 className="size-4 animate-spin" />
 											) : null}
-											{clineKeySaving ? "Connecting..." : "Connect"}
+											{clineKeySaving ? t("Connecting...") : t("Connect")}
 										</Button>
 									</div>
 									<Button
@@ -737,12 +747,14 @@ function ConnectStep({
 										type="button"
 										variant="ghost"
 									>
-										Find your key
+										{t("Find your key")}
 										<ExternalLink className="size-3" />
 									</Button>
 									{clineKeyError ? (
 										<p className="text-xs text-destructive" role="alert">
-											Failed to save API key: {clineKeyError}
+											{t("Failed to save API key: {error}", {
+												error: clineKeyError,
+											})}
 										</p>
 									) : null}
 								</div>
@@ -756,13 +768,13 @@ function ConnectStep({
 						setSelectedMethod("api-key");
 						setClineKeyFormExpanded(false);
 					}}
-					selectLabel="Use your own API key"
+					selectLabel={t("Use your own API key")}
 					selected={selectedMethod === "api-key"}
 				>
 					<SetupOptionHeader
-						description="Anthropic, OpenAI, OpenRouter, and more."
+						description={t("Anthropic, OpenAI, OpenRouter, and more.")}
 						icon={<KeyRound className="size-4" />}
-						title="Use your own API key"
+						title={t("Use your own API key")}
 					/>
 					<ExpandablePanel
 						data-onboarding-api-key-form
@@ -771,7 +783,9 @@ function ConnectStep({
 						<div className="flex flex-col gap-3 pt-6">
 							{providersError ? (
 								<p className="text-xs text-destructive" role="alert">
-									Failed to load providers: {providersError}
+									{t("Failed to load providers: {error}", {
+										error: providersError,
+									})}
 								</p>
 							) : (
 								<Select
@@ -783,14 +797,14 @@ function ConnectStep({
 									value={selectedProviderId || undefined}
 								>
 									<SelectTrigger
-										aria-label="Provider"
+										aria-label={t("Provider")}
 										className="w-full bg-background"
 									>
 										<SelectValue
 											placeholder={
 												providersLoading
-													? "Loading providers..."
-													: "Choose a provider"
+													? t("Loading providers...")
+													: t("Choose a provider")
 											}
 										/>
 									</SelectTrigger>
@@ -804,7 +818,7 @@ function ConnectStep({
 								</Select>
 							)}
 							<Input
-								aria-label="API key"
+								aria-label={t("API key")}
 								autoComplete="off"
 								className="bg-background"
 								disabled={saving}
@@ -814,8 +828,10 @@ function ConnectStep({
 								}}
 								placeholder={
 									selectedProvider
-										? `${selectedProvider.name} API key`
-										: "API key"
+										? t("{provider} API key", {
+												provider: selectedProvider.name,
+											})
+										: t("API key")
 								}
 								type="password"
 								value={apiKey}
@@ -832,7 +848,9 @@ function ConnectStep({
 										variant="ghost"
 									>
 										{selectedProvider.docLabel ||
-											`Get a ${selectedProvider.name} API key`}
+											t("Get a {provider} API key", {
+												provider: selectedProvider.name,
+											})}
 										<ExternalLink className="size-3.5" />
 									</Button>
 								) : null}
@@ -845,12 +863,14 @@ function ConnectStep({
 									variant="fill"
 								>
 									{saving ? <Loader2 className="size-4 animate-spin" /> : null}
-									{saving ? "Connecting..." : "Connect"}
+									{saving ? t("Connecting...") : t("Connect")}
 								</Button>
 							</div>
 							{saveError ? (
 								<p className="text-xs text-destructive" role="alert">
-									Failed to save provider: {saveError}
+									{t("Failed to save provider: {error}", {
+										error: saveError,
+									})}
 								</p>
 							) : null}
 						</div>
@@ -866,7 +886,7 @@ function ConnectStep({
 					type="button"
 					variant="ghost"
 				>
-					Skip
+					{t("Skip")}
 				</Button>
 			</div>
 		</OnboardingContent>
@@ -946,7 +966,7 @@ function ImportHistoryStep({
 						className="size-6 animate-spin text-muted-foreground"
 					/>
 					<p className="mt-4 text-md text-muted-foreground">
-						Checking for session history from other tools…
+						{t("Checking for session history from other tools…")}
 					</p>
 					<Button
 						className="mt-8"
@@ -955,7 +975,7 @@ function ImportHistoryStep({
 						type="button"
 						variant="ghost"
 					>
-						Skip
+						{t("Skip")}
 					</Button>
 				</div>
 			</OnboardingContent>
@@ -971,12 +991,22 @@ function ImportHistoryStep({
 			<div className="flex flex-col items-center py-4 text-center">
 				<Import aria-hidden="true" className="size-10 text-primary" />
 				<h1 className="mt-4 text-3xl font-semibold tracking-tight text-foreground">
-					Bring your history with you
+					{t("Bring your history with you")}
 				</h1>
 				<p className="mt-3 text-md text-muted-foreground">
 					{imported
-						? "Your sessions are in Cline's history now. You can import more anytime from the Sessions page."
-						: `Cline found ${found.count} session${found.count === 1 ? "" : "s"} from ${toolList} on this machine. Import them to keep your past conversations — and continue them here.`}
+						? t(
+								"Your sessions are in Cline's history now. You can import more anytime from the Sessions page.",
+							)
+						: found.count === 1
+							? t(
+									"Cline found 1 session from {toolList} on this machine. Import them to keep your past conversations — and continue them here.",
+									{ toolList },
+								)
+							: t(
+									"Cline found {count} sessions from {toolList} on this machine. Import them to keep your past conversations — and continue them here.",
+									{ count: found.count, toolList },
+								)}
 				</p>
 				{imported ? (
 					<Button
@@ -987,7 +1017,7 @@ function ImportHistoryStep({
 						type="button"
 						variant="fill"
 					>
-						Start building
+						{t("Start building")}
 					</Button>
 				) : (
 					<>
@@ -999,7 +1029,7 @@ function ImportHistoryStep({
 							type="button"
 							variant="fill"
 						>
-							Choose sessions to import
+							{t("Choose sessions to import")}
 						</Button>
 						<Button
 							className="mt-3"
@@ -1008,7 +1038,7 @@ function ImportHistoryStep({
 							type="button"
 							variant="ghost"
 						>
-							Skip for now
+							{t("Skip for now")}
 						</Button>
 					</>
 				)}
@@ -1057,9 +1087,11 @@ function ClineModelsSummary() {
 		>
 			{freeModels.length > 0 ? (
 				<>
-					<h2 className="text-sm font-semibold text-foreground">Free models</h2>
+					<h2 className="text-sm font-semibold text-foreground">
+						{t("Free models")}
+					</h2>
 					<p className="mt-1 text-xs text-muted-foreground">
-						Try with limited usage at no cost.
+						{t("Try with limited usage at no cost.")}
 					</p>
 					<ul className="mt-3 flex flex-wrap gap-1.5">
 						{freeModels.map((model) => (
@@ -1077,8 +1109,9 @@ function ClineModelsSummary() {
 				<div className="min-w-0 flex-1">
 					<h2 className="text-sm font-semibold text-foreground">ClinePass</h2>
 					<p className="mt-1 text-xs text-muted-foreground">
-						Generous usage across the best open weights models like DeepSeek,
-						Kimi, and GLM.
+						{t(
+							"Generous usage across the best open weights models like DeepSeek, Kimi, and GLM.",
+						)}
 					</p>
 				</div>
 				<Button
@@ -1088,7 +1121,7 @@ function ClineModelsSummary() {
 					type="button"
 					variant="surface"
 				>
-					Get ClinePass
+					{t("Get ClinePass")}
 					<ExternalLink className="size-3.5" />
 				</Button>
 			</div>
@@ -1108,12 +1141,14 @@ function DoneStep({
 			<div className="flex flex-col items-center py-4 text-center">
 				<CheckCircle2 aria-hidden="true" className="size-10 text-primary" />
 				<h1 className="mt-4 text-3xl font-semibold tracking-tight text-foreground">
-					You&apos;re all set
+					{t("You're all set")}
 				</h1>
 				<p className="mt-3 text-md text-muted-foreground">
 					{connection?.kind === "provider"
-						? `${connection.providerName} is connected.`
-						: "Your Cline account is connected."}
+						? t("{provider} is connected.", {
+								provider: connection.providerName,
+							})
+						: t("Your Cline account is connected.")}
 				</p>
 				{connection?.kind === "cline" ? <ClineModelsSummary /> : null}
 				<Button
@@ -1124,7 +1159,7 @@ function DoneStep({
 					type="button"
 					variant="fill"
 				>
-					Start building
+					{t("Start building")}
 				</Button>
 			</div>
 		</OnboardingContent>

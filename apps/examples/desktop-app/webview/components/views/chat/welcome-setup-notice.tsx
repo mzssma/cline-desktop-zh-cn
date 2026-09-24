@@ -2,6 +2,7 @@
 
 import { Cable } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { t } from "@/lib/i18n";
 
 /**
  * Shown on the welcome screen when no model provider has credentials yet.
@@ -25,10 +26,10 @@ export function WelcomeSetupNotice({
 				</span>
 				<div className="min-w-0">
 					<p className="text-sm font-semibold text-foreground">
-						Connect a model to start building
+						{t("Connect a model to start building")}
 					</p>
 					<p className="mt-0.5 text-[13px] text-muted-foreground">
-						Sign in with Cline or add an API key — it takes under a minute.
+						{t("Sign in with Cline or add an API key — it takes under a minute.")}
 					</p>
 				</div>
 			</div>
@@ -39,7 +40,7 @@ export function WelcomeSetupNotice({
 					size="sm"
 					type="button"
 				>
-					Connect a model
+					{t("Connect a model")}
 				</Button>
 				<Button
 					className="rounded-full"
@@ -48,7 +49,7 @@ export function WelcomeSetupNotice({
 					type="button"
 					variant="ghost"
 				>
-					Model settings
+					{t("Model settings")}
 				</Button>
 			</div>
 		</output>

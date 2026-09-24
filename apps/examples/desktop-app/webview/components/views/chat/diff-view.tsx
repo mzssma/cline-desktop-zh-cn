@@ -15,6 +15,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "@/hooks/use-toast";
 import { desktopClient } from "@/lib/desktop-client";
+import { t } from "@/lib/i18n";
 import type { SessionDiffHunk, SessionFileDiff } from "@/lib/session-diff";
 import { resolveWorkspaceFilePath } from "@/lib/workspace-paths";
 import { EditorIcon } from "./editor-icons";
@@ -58,7 +59,7 @@ export function DiffView({
 
 	return (
 		<AgentChangesPanel
-			title="Uncommitted changes"
+			title={t("Uncommitted changes")}
 			fileCount={fileDiffs.length}
 			onClose={onClose}
 			renderScroll={(content) => (
@@ -66,7 +67,7 @@ export function DiffView({
 			)}
 			emptyMessage={
 				fileDiffs.length === 0
-					? "No file changes in this session yet."
+					? t("No file changes in this session yet.")
 					: undefined
 			}
 		>
@@ -128,8 +129,8 @@ function DiffFileSection({
 		} catch {
 			toast({
 				variant: "destructive",
-				title: "Copy failed",
-				description: "The file path could not be copied to the clipboard.",
+				title: t("Copy failed"),
+				description: t("The file path could not be copied to the clipboard."),
 			});
 		}
 	}, [resolvedPath]);
@@ -147,11 +148,11 @@ function DiffFileSection({
 			} catch (error) {
 				toast({
 					variant: "destructive",
-					title: "Could not open file",
+					title: t("Could not open file"),
 					description:
 						error instanceof Error
 							? error.message
-							: "The file could not be opened in an editor.",
+							: t("The file could not be opened in an editor."),
 				});
 			} finally {
 				setOpening(false);
@@ -176,14 +177,14 @@ function DiffFileSection({
 							aria-label={`Open ${file.path} in editor`}
 							className="shrink-0 rounded-md p-1 text-muted-foreground opacity-0 transition-opacity hover:bg-surface-hover hover:text-foreground focus-visible:opacity-100 group-hover:opacity-100 disabled:opacity-50 data-[state=open]:opacity-100 data-[state=open]:bg-surface-hover data-[state=open]:text-foreground"
 							disabled={opening}
-							title="Open in editor"
+							title={t("Open in editor")}
 							type="button"
 						>
 							<ExternalLink className="h-3.5 w-3.5" />
 						</button>
 					</DropdownMenuTrigger>
 					<DropdownMenuContent align="end" className="w-52">
-						<DropdownMenuLabel>Open in</DropdownMenuLabel>
+						<DropdownMenuLabel>{t("Open in")}</DropdownMenuLabel>
 						{editors.map((editor) => (
 							<DropdownMenuItem
 								key={editor.id}
@@ -198,7 +199,7 @@ function DiffFileSection({
 							onSelect={() => void handleOpenInEditor("default")}
 						>
 							<AppWindow aria-hidden />
-							System default
+							{t("System default")}
 						</DropdownMenuItem>
 					</DropdownMenuContent>
 				</DropdownMenu>
@@ -206,7 +207,7 @@ function DiffFileSection({
 		>
 			{file.hunks.length === 0 ? (
 				<p className="text-xs text-muted-foreground">
-					No hunk details available.
+					{t("No hunk details available.")}
 				</p>
 			) : (
 				// The index disambiguates repeated same-shaped hunks (e.g.

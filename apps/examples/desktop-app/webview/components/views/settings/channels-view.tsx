@@ -31,6 +31,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { desktopClient } from "@/lib/desktop-client";
 import { cn } from "@/lib/utils";
+import { t } from "@/lib/i18n";
 import { PageFrame, PageHeader } from "../page-layout";
 
 type ConnectorField = ConnectorChannel["fields"][number];
@@ -599,19 +600,22 @@ export function ChannelsContent({
 			{chrome === "page" ? (
 				<PageHeader
 					actions={refreshButton}
-					description="Connect messaging platforms so you can chat with Cline anywhere. Click on a channel name to view or edit its configuration."
+					description={t(
+						"Connect messaging platforms so you can chat with Cline anywhere. Click on a channel name to view or edit its configuration.",
+					)}
 					meta={
 						<span className="rounded-md border border-border bg-background px-2 py-0.5 text-xs text-muted-foreground">
 							cline connect
 						</span>
 					}
-					title="Channels"
+					title={t("Channels")}
 				/>
 			) : (
 				<div className="mb-4 flex items-center justify-between gap-3">
 					<p className="text-sm text-muted-foreground">
-						Connect messaging platforms so you can chat with Cline anywhere.
-						Click on a channel name to view or edit its configuration.
+						{t(
+							"Connect messaging platforms so you can chat with Cline anywhere. Click on a channel name to view or edit its configuration.",
+						)}
 					</p>
 					{refreshButton}
 				</div>
@@ -622,21 +626,21 @@ export function ChannelsContent({
 					className="mb-4 rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive"
 					role="alert"
 				>
-					Failed to load channels: {catalogError}
+					{t("Failed to load channels: {error}", { error: catalogError })}
 				</div>
 			) : null}
 
 			<div className="mb-5 flex items-center gap-2 rounded-lg border border-border bg-input px-3 py-2">
 				<Search aria-hidden="true" className="size-4 text-muted-foreground" />
 				<label className="sr-only" htmlFor="channel-search">
-					Search channels
+					{t("Search channels")}
 				</label>
 				<input
 					autoComplete="off"
 					className="flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
 					id="channel-search"
 					onChange={(event) => setQuery(event.target.value)}
-					placeholder="Search channels..."
+					placeholder={t("Search channels...")}
 					type="search"
 					value={query}
 				/>
@@ -645,14 +649,14 @@ export function ChannelsContent({
 			<div className="flex flex-col gap-2">
 				{isLoading && channels.length === 0 ? (
 					<div className="rounded-lg border border-dashed border-border px-4 py-10 text-center">
-						<p className="text-sm text-muted-foreground">Loading channels...</p>
+						<p className="text-sm text-muted-foreground">{t("Loading channels...")}</p>
 					</div>
 				) : null}
 
 				{!isLoading && channels.length === 0 && !catalogError ? (
 					<div className="rounded-lg border border-dashed border-border px-4 py-10 text-center">
 						<p className="text-sm text-muted-foreground">
-							No connector channels are available.
+							{t("No connector channels are available.")}
 						</p>
 					</div>
 				) : null}
@@ -752,10 +756,10 @@ export function ChannelsContent({
 									{activeForChannel.length > 0 ? (
 										<div className="mb-4 rounded-lg border border-border bg-background px-4 py-3">
 											<p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-												Active{" "}
+												{t("Active")}{" "}
 												{activeForChannel.length === 1
-													? "connection"
-													: "connections"}
+													? t("connection")
+													: t("connections")}
 											</p>
 											<div className="flex flex-col gap-2">
 												{activeForChannel.map((connector) => (
@@ -825,7 +829,7 @@ export function ChannelsContent({
 														className="text-sm font-medium text-foreground"
 														htmlFor={`channel-${channel.id}-security-toggle`}
 													>
-														Restrict access
+														{t("Restrict access")}
 													</label>
 													<p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
 														{channel.security.prompt}
@@ -885,14 +889,16 @@ export function ChannelsContent({
 												}}
 												type="button"
 											>
-												{isConnected ? "Reset" : "Close"}
+												{isConnected ? t("Reset") : t("Close")}
 											</button>
 											<button
 												className="rounded-lg bg-primary px-3.5 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:pointer-events-none disabled:opacity-50"
 												disabled={isBusy}
 												type="submit"
 											>
-												{pendingType === "connecting" ? "Saving..." : "Save"}
+												{pendingType === "connecting"
+													? t("Saving...")
+													: t("Save")}
 											</button>
 										</div>
 									</div>
@@ -905,7 +911,7 @@ export function ChannelsContent({
 				{!isLoading && channels.length > 0 && filteredChannels.length === 0 ? (
 					<div className="rounded-lg border border-dashed border-border px-4 py-10 text-center">
 						<p className="text-sm text-muted-foreground">
-							No channels match &ldquo;{query}&rdquo;.
+							{t("No channels match “{query}”.", { query })}
 						</p>
 					</div>
 				) : null}
@@ -922,19 +928,28 @@ export function ChannelsContent({
 				<AlertDialogContent>
 					<AlertDialogHeader>
 						<AlertDialogTitle>
-							Reset {disconnectTarget?.name ?? "channel"}?
+							{t("Reset {name}?", {
+								name: disconnectTarget?.name ?? t("channel"),
+							})}
 						</AlertDialogTitle>
 						<AlertDialogDescription>
-							This stops{" "}
 							{disconnectTargetConnectors.length === 1
-								? `the active ${disconnectTarget?.name ?? "channel"} connector`
-								: `all ${disconnectTargetConnectors.length} active ${disconnectTarget?.name ?? "channel"} connectors`}
-							. You will need to save its credentials to connect it again.
+								? t(
+										"This stops the active {name} connector. You will need to save its credentials to connect it again.",
+										{ name: disconnectTarget?.name ?? t("channel") },
+								  )
+								: t(
+										"This stops all {count} active {name} connectors. You will need to save its credentials to connect it again.",
+										{
+											count: disconnectTargetConnectors.length,
+											name: disconnectTarget?.name ?? t("channel"),
+										},
+								  )}
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>
 						<AlertDialogCancel disabled={pendingAction !== null}>
-							Cancel
+							{t("Cancel")}
 						</AlertDialogCancel>
 						<AlertDialogAction
 							className={buttonVariants({ variant: "destructive" })}
@@ -945,7 +960,7 @@ export function ChannelsContent({
 								}
 							}}
 						>
-							Reset
+							{t("Reset")}
 						</AlertDialogAction>
 					</AlertDialogFooter>
 				</AlertDialogContent>

@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { ImportSessionsDialog } from "@/components/import-sessions-dialog";
 import { Button } from "@/components/ui/button";
 import { desktopClient } from "@/lib/desktop-client";
+import { t } from "@/lib/i18n";
 import {
 	type ListImportableSessionsResponse,
 	SESSION_IMPORT_TOOL_LABELS,
@@ -18,15 +19,20 @@ function toolStatus(
 	scan: ListImportableSessionsResponse,
 ): string {
 	if (!scan.installedTools.includes(tool)) {
-		return "Not detected on this machine";
+		return t("Not detected on this machine");
 	}
 	const sessions = scan.sessions.filter((session) => session.tool === tool);
-	if (sessions.length === 0) return "No sessions found";
+	if (sessions.length === 0) return t("No sessions found");
 	const imported = sessions.filter(
 		(session) => session.alreadyImportedSessionId,
 	).length;
-	const found = `${sessions.length} session${sessions.length === 1 ? "" : "s"} found`;
-	return imported > 0 ? `${found} · ${imported} already imported` : found;
+	const found =
+		sessions.length === 1
+			? t("1 session found")
+			: t("{count} sessions found", { count: sessions.length });
+	return imported > 0
+		? t("{found} · {imported} already imported", { found, imported })
+		: found;
 }
 
 export function ImportContent() {
@@ -68,11 +74,13 @@ export function ImportContent() {
 				actions={
 					<Button onClick={() => setDialogOpen(true)} type="button">
 						<Import className="size-4" />
-						Import sessions
+						{t("Import sessions")}
 					</Button>
 				}
-				description="Bring your conversation history from other coding tools into Cline. Imported sessions show up in your history and can be continued here."
-				title="Import"
+				description={t(
+					"Bring your conversation history from other coding tools into Cline. Imported sessions show up in your history and can be continued here.",
+				)}
+				title={t("Import")}
 			/>
 			<section className="max-w-2xl">
 				{SESSION_IMPORT_TOOL_ORDER.map((tool, index) => (
@@ -92,15 +100,15 @@ export function ImportContent() {
 								{scan
 									? toolStatus(tool, scan)
 									: scanError
-										? "Scan failed"
-										: "Scanning…"}
+										? t("Scan failed")
+										: t("Scanning…")}
 							</p>
 						</div>
 					</div>
 				))}
 				{scanError ? (
 					<p className="mt-4 text-sm text-destructive" role="alert">
-						Couldn't scan for sessions: {scanError}
+						{t("Couldn't scan for sessions: {error}", { error: scanError })}
 					</p>
 				) : null}
 			</section>

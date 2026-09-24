@@ -20,6 +20,7 @@ import {
 	ChatMessageImageSchema,
 } from "@/lib/chat-schema";
 import { appendCappedCommandOutput } from "@/lib/command-output";
+import { t } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import { MemoizedMarkdown } from "../../../ui/markdown";
 import { IS_DEBUG, STREAMING_TITLE_CLASS } from "./constants";
@@ -89,10 +90,10 @@ const ToolCallRow = memo(function ToolCallRow({
 		? [
 				{
 					text: inProgress
-						? "Completing scheduled task"
+						? t("Completing scheduled task")
 						: payload?.isError
-							? "Scheduled task failed"
-							: "Scheduled task completed",
+							? t("Scheduled task failed")
+							: t("Scheduled task completed"),
 				},
 			]
 		: summary.labelParts;
@@ -179,7 +180,7 @@ const ToolCallRow = memo(function ToolCallRow({
 			setProceedError(
 				error instanceof Error
 					? error.message
-					: "Could not detach the running command.",
+					: t("Could not detach the running command."),
 			);
 		} finally {
 			setIsProceeding(false);
@@ -306,7 +307,7 @@ const ToolCallRow = memo(function ToolCallRow({
 				{inputPreview ? (
 					<div className="space-y-1">
 						<div className="text-[11px] uppercase tracking-wide text-muted-foreground/80">
-							Input
+							{t("Input")}
 						</div>
 						<ToolActivityCode className="text-sm">
 							{inputPreview}
@@ -330,7 +331,7 @@ const ToolCallRow = memo(function ToolCallRow({
 							{isProceeding ? (
 								<Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
 							) : null}
-							Proceed while running
+							{t("Proceed while running")}
 						</Button>
 						{proceedError ? (
 							<div className="text-xs text-destructive">{proceedError}</div>

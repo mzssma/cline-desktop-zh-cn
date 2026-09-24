@@ -9,6 +9,7 @@ import {
 	subscribeComposioAvailability,
 } from "@/lib/composio";
 import { desktopClient } from "@/lib/desktop-client";
+import { t } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import { PageFrame, PageHeader } from "../page-layout";
 import { ComposioConnectorsView } from "./composio-connectors-view";
@@ -140,12 +141,12 @@ export function CustomizeView({
 							variant="outline"
 						>
 							<Store className="size-4" />
-							Marketplace
+							{t("Marketplace")}
 						</Button>
 					) : undefined
 				}
-				description="Extend what Cline can do and how it works. Explore the marketplace for more options."
-				title="Customize"
+				description={t("Extend what Cline can do and how it works. Explore the marketplace for more options.")}
+				title={t("Customize")}
 			/>
 
 			<div className="mb-6 flex items-center gap-0 border-b border-border">
@@ -169,7 +170,7 @@ export function CustomizeView({
 							type="button"
 							variant="ghost"
 						>
-							{customizeTab.label}
+							{t(customizeTab.label)}
 							{typeof count === "number" ? (
 								<span
 									className={cn(

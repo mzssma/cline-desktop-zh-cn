@@ -1,4 +1,5 @@
 import { BadgeCheck } from "lucide-react";
+import { t } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 export function MarketplaceListRow({
@@ -41,7 +42,7 @@ export function MarketplaceListRow({
 			{installed ? (
 				<span
 					className="size-1.5 shrink-0 rounded-full bg-emerald-500"
-					title="Installed"
+					title={t("Installed")}
 				/>
 			) : null}
 		</button>

@@ -3,6 +3,7 @@
 import { X } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { t } from "@/lib/i18n";
 
 export function ModelIdInput({
 	models,
@@ -62,7 +63,7 @@ export function ModelIdInput({
 						onChange(models.slice(0, -1));
 					}
 				}}
-				placeholder={models.length === 0 ? "Type model ID and press Enter" : ""}
+				placeholder={models.length === 0 ? t("Type model ID and press Enter") : ""}
 				type="text"
 				value={modelInput}
 			/>

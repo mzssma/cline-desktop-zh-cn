@@ -25,6 +25,7 @@ import {
 	type MarketplaceEntry,
 	type MarketplacePrimitiveType,
 } from "@/lib/marketplace";
+import { t } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import { MarketplaceListRow } from "./marketplace-list-row";
 import { ComposioConnectorsView } from "./settings/composio-connectors-view";
@@ -46,23 +47,28 @@ type TypeMeta = {
 	icon: typeof Server;
 };
 
-const TYPE_META: Record<MarketplacePrimitiveType, TypeMeta> = {
-	skill: {
-		label: "Skill",
-		plural: "Skills",
-		icon: Zap,
-	},
-	mcp: {
-		label: "MCP Server",
-		plural: "MCP",
-		icon: Server,
-	},
-	plugin: {
-		label: "Plugin",
-		plural: "Plugins",
-		icon: Puzzle,
-	},
-};
+function getTypeMeta(type: MarketplacePrimitiveType): TypeMeta {
+	switch (type) {
+		case "skill":
+			return {
+				label: t("Skill"),
+				plural: t("Skills"),
+				icon: Zap,
+			};
+		case "mcp":
+			return {
+				label: t("MCP Server"),
+				plural: t("MCP"),
+				icon: Server,
+			};
+		case "plugin":
+			return {
+				label: t("Plugin"),
+				plural: t("Plugins"),
+				icon: Puzzle,
+			};
+	}
+}
 
 const CODE_FONT_STYLE: CSSProperties = {
 	fontFamily:
@@ -272,10 +278,10 @@ function actionLabelFor(
 	installed: boolean,
 	ready: boolean,
 ): string {
-	if (!ready) return "Checking...";
-	if (state?.status === "installing") return "Installing...";
-	if (state?.status === "uninstalling") return "Uninstalling...";
-	return installed ? "Uninstall" : "Install";
+	if (!ready) return t("Checking...");
+	if (state?.status === "installing") return t("Installing...");
+	if (state?.status === "uninstalling") return t("Uninstalling...");
+	return installed ? t("Uninstall") : t("Install");
 }
 
 function isBusy(state: EntryActionState | undefined): boolean {
@@ -334,7 +340,7 @@ function DetailPane({
 	onClose: () => void;
 	onSelectTag: (tag: string) => void;
 }) {
-	const meta = TYPE_META[entry.type];
+	const meta = getTypeMeta(entry.type);
 	const key = entryKey(entry);
 	const state = directory.actionStates.get(key);
 	const installed = directory.installedKeys.has(key);
@@ -365,7 +371,7 @@ function DetailPane({
 							{entry.verified ? (
 								<Badge className="border border-sky-500/20 bg-sky-500/10 text-sky-700 dark:text-sky-300">
 									<BadgeCheck />
-									Verified
+									{t("Verified")}
 								</Badge>
 							) : null}
 							<Badge variant="outline" className="text-muted-foreground">
@@ -399,7 +405,7 @@ function DetailPane({
 									variant="outline"
 								>
 									<Globe className="size-4" />
-									Learn more
+									{t("Learn more")}
 									<ArrowUpRight className="size-3.5 text-muted-foreground" />
 								</Button>
 							) : null}
@@ -418,7 +424,7 @@ function DetailPane({
 						) : null}
 					</div>
 					<Button
-						aria-label="Close details"
+						aria-label={t("Close details")}
 						className="shrink-0 text-muted-foreground"
 						onClick={onClose}
 						size="icon"
@@ -433,7 +439,7 @@ function DetailPane({
 					{entry.author ? (
 						<MetaCell
 							icon={User}
-							label="Author"
+							label={t("Author")}
 							onOpen={
 								entry.author.url
 									? () => void openExternalUrl(entry.author?.url as string)
@@ -442,11 +448,11 @@ function DetailPane({
 							value={entry.author.name}
 						/>
 					) : null}
-					<MetaCell icon={meta.icon} label="Type" value={meta.plural} />
+					<MetaCell icon={meta.icon} label={t("Type")} value={meta.plural} />
 				</div>
 
 				<section className="grid gap-2">
-					<h2 className="text-sm font-semibold text-foreground">About</h2>
+					<h2 className="text-sm font-semibold text-foreground">{t("About")}</h2>
 					<p className="text-sm leading-6 text-muted-foreground">
 						{entry.description}
 					</p>
@@ -456,7 +462,9 @@ function DetailPane({
 								<button
 									key={tag}
 									onClick={() => onSelectTag(tag)}
-									title={`Filter by ${directory.tagLabels.get(tag) ?? tag}`}
+									title={t("Filter by {tag}", {
+										tag: directory.tagLabels.get(tag) ?? tag,
+									})}
 									type="button"
 								>
 									<Badge
@@ -474,7 +482,7 @@ function DetailPane({
 				{requiredEnv.length > 0 || optionalEnv.length > 0 ? (
 					<section className="grid gap-2">
 						<h2 className="text-sm font-semibold text-foreground">
-							Environment setup
+							{t("Environment setup")}
 						</h2>
 						<div className="grid gap-2">
 							{[...requiredEnv, ...optionalEnv].map((env) => (
@@ -487,7 +495,7 @@ function DetailPane({
 											{env.name}
 										</code>
 										<Badge variant="outline">
-											{env.required === false ? "Optional" : "Required"}
+											{env.required === false ? t("Optional") : t("Required")}
 										</Badge>
 									</div>
 									{env.description ? (
@@ -501,7 +509,7 @@ function DetailPane({
 											onClick={() => void openExternalUrl(env.url as string)}
 											type="button"
 										>
-											Get value
+											{t("Get value")}
 											<ArrowUpRight className="size-3" />
 										</button>
 									) : null}
@@ -658,10 +666,10 @@ export function MarketplaceExplorerView() {
 					<div className="relative">
 						<Search className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
 						<Input
-							aria-label="Search marketplace"
+							aria-label={t("Search marketplace")}
 							className="h-9 pl-8"
 							onChange={(event) => setQuery(event.target.value)}
-							placeholder="Search marketplace"
+							placeholder={t("Search marketplace")}
 							value={query}
 						/>
 					</div>
@@ -673,7 +681,7 @@ export function MarketplaceExplorerView() {
 							type="button"
 							variant={typeFilter === null ? "default" : "outline"}
 						>
-							All
+							{t("All")}
 						</Button>
 						{MATURITY_ORDER.map((type) => (
 							<Button
@@ -686,7 +694,7 @@ export function MarketplaceExplorerView() {
 								type="button"
 								variant={typeFilter === type ? "default" : "outline"}
 							>
-								{TYPE_META[type].plural}
+								{getTypeMeta(type).plural}
 								<span className="text-[10px] opacity-70">
 									{typeCounts.get(type) ?? 0}
 								</span>
@@ -706,7 +714,7 @@ export function MarketplaceExplorerView() {
 								type="button"
 								variant={typeFilter === "connector" ? "default" : "outline"}
 							>
-								Connectors
+								{t("Connectors")}
 								<span className="text-[10px] opacity-70">
 									{connectorCount ?? "…"}
 								</span>
@@ -751,7 +759,9 @@ export function MarketplaceExplorerView() {
 									onClick={() => setTagsExpanded((current) => !current)}
 									type="button"
 								>
-									{tagsExpanded ? "Show less" : `+${hiddenTagCount} more`}
+									{tagsExpanded
+										? t("Show less")
+										: t("+{count} more", { count: hiddenTagCount })}
 								</button>
 							) : null}
 						</div>
@@ -762,7 +772,7 @@ export function MarketplaceExplorerView() {
 						{typeFilter !== "connector" && directory.loading ? (
 							<p className="flex items-center justify-center p-6 text-sm text-muted-foreground">
 								<Spinner className="mr-2" />
-								Loading marketplace...
+								{t("Loading marketplace...")}
 							</p>
 						) : null}
 						{typeFilter !== "connector" && directory.errorMessage ? (
@@ -771,7 +781,7 @@ export function MarketplaceExplorerView() {
 							</p>
 						) : null}
 						{groups.map((group) => {
-							const meta = TYPE_META[group.type];
+							const meta = getTypeMeta(group.type);
 							const Icon = meta.icon;
 							return (
 								<div className="grid gap-1" key={group.type}>
@@ -809,14 +819,14 @@ export function MarketplaceExplorerView() {
 						!directory.loading &&
 						!directory.errorMessage ? (
 							<p className="px-3 py-6 text-center text-sm text-muted-foreground">
-								No entries match the current filters.
+								{t("No entries match the current filters.")}
 							</p>
 						) : null}
 						{showConnectors ? (
-							<section className="grid gap-1" aria-label="Connectors">
+							<section className="grid gap-1" aria-label={t("Connectors")}>
 								<h2 className="flex items-center gap-1.5 px-2.5 pt-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
 									<Cable className="size-3.5 text-primary" />
-									Connectors
+									{t("Connectors")}
 									<span className="font-normal text-muted-foreground/70">
 										{connectorCount ?? "…"}
 									</span>

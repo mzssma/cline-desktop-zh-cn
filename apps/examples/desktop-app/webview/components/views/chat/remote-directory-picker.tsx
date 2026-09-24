@@ -19,6 +19,7 @@ import {
 	DialogTitle,
 } from "@/components/ui/dialog";
 import { desktopClient } from "@/lib/desktop-client";
+import { t } from "@/lib/i18n";
 
 type WorkspaceDirectoryListResult = {
 	environmentId: string;
@@ -127,10 +128,9 @@ export function RemoteDirectoryPicker({
 		<Dialog open={open} onOpenChange={(nextOpen) => !nextOpen && onCancel()}>
 			<DialogContent className="gap-4 sm:max-w-xl">
 				<DialogHeader>
-					<DialogTitle>Choose remote workspace</DialogTitle>
+					<DialogTitle>{t("Choose remote workspace")}</DialogTitle>
 					<DialogDescription>
-						Browse directories on the connected SSH host. No local folders are
-						shown here.
+						{t("Browse directories on the connected SSH host. No local folders are shown here.")}
 					</DialogDescription>
 				</DialogHeader>
 
@@ -174,7 +174,7 @@ export function RemoteDirectoryPicker({
 					{loading ? (
 						<div className="flex h-52 items-center justify-center gap-2 text-sm text-muted-foreground">
 							<Loader2 className="size-4 animate-spin" />
-							Loading remote directories…
+							{t("Loading remote directories…")}
 						</div>
 					) : error ? (
 						<div className="flex h-52 flex-col items-center justify-center gap-2 px-6 text-center text-sm text-destructive">
@@ -183,7 +183,7 @@ export function RemoteDirectoryPicker({
 						</div>
 					) : directories.length === 0 ? (
 						<div className="flex h-52 items-center justify-center text-sm text-muted-foreground">
-							No subdirectories
+							{t("No subdirectories")}
 						</div>
 					) : (
 						<div className="flex max-h-56 flex-col gap-0.5 overflow-y-auto">
@@ -207,20 +207,19 @@ export function RemoteDirectoryPicker({
 				</div>
 				{truncated && !loading && !error ? (
 					<p className="text-xs text-muted-foreground">
-						Only the first directories are shown. Open a folder to continue
-						browsing.
+						{t("Only the first directories are shown. Open a folder to continue browsing.")}
 					</p>
 				) : null}
 
 				<DialogFooter>
 					<Button onClick={onCancel} variant="outline">
-						Cancel
+						{t("Cancel")}
 					</Button>
 					<Button
 						disabled={loading || Boolean(error)}
 						onClick={() => onSelect(currentPath)}
 					>
-						Use this folder
+						{t("Use this folder")}
 					</Button>
 				</DialogFooter>
 			</DialogContent>

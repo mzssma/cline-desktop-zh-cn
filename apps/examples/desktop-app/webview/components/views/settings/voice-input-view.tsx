@@ -20,6 +20,7 @@ import type {
 	VoiceInputSelection,
 } from "@/lib/provider-schema";
 import { cn } from "@/lib/utils";
+import { t } from "@/lib/i18n";
 import { PageFrame, PageHeader } from "../page-layout";
 import { AudioModelBadges } from "./audio-model-badges";
 
@@ -159,8 +160,10 @@ export function VoiceInputContent({
 	const header = (
 		<>
 			<PageHeader
-				description="Speak instead of typing: the microphone in chat transcribes your voice with the model chosen here. Text appears as you speak; Stop ends the live session."
-				title="Voice input"
+				description={t(
+					"Speak instead of typing: the microphone in chat transcribes your voice with the model chosen here. Text appears as you speak; Stop ends the live session.",
+				)}
+				title={t("Voice input")}
 			/>
 			{providers !== null &&
 			voiceInput &&
@@ -168,7 +171,7 @@ export function VoiceInputContent({
 				(model) => model.id === voiceInput.modelId,
 			) ? (
 				<p className="mb-4 text-sm text-destructive" role="alert">
-					Choose a streaming transcription model to use live voice input.
+					{t("Choose a streaming transcription model to use live voice input.")}
 				</p>
 			) : null}
 			{modelErrors.length > 0 ? (
@@ -183,7 +186,7 @@ export function VoiceInputContent({
 		return (
 			<PageFrame>
 				{header}
-				<p className="text-sm text-muted-foreground">Loading providers...</p>
+				<p className="text-sm text-muted-foreground">{t("Loading providers...")}</p>
 			</PageFrame>
 		);
 	}
@@ -193,7 +196,7 @@ export function VoiceInputContent({
 			<PageFrame>
 				{header}
 				<p className="text-sm text-destructive">
-					Failed to load providers: {loadError}
+					{t("Failed to load providers: {error}", { error: loadError })}
 				</p>
 			</PageFrame>
 		);
@@ -208,18 +211,23 @@ export function VoiceInputContent({
 					<Mic aria-hidden="true" className="size-6 text-muted-foreground" />
 					<p className="text-base font-medium text-foreground">
 						{hasConnected
-							? "None of your configured providers offer streaming speech-to-text models"
-							: "Voice input needs a configured model provider"}
+							? t(
+									"None of your configured providers offer streaming speech-to-text models",
+							  )
+							: t("Voice input needs a configured model provider")}
 					</p>
 					<p className="text-sm text-muted-foreground">
 						{voiceCapableProviderNames.length > 0
-							? `Connect a provider with streaming transcription models — for example ${voiceCapableProviderNames
-									.slice(0, 4)
-									.join(", ")} — and this page unlocks automatically.`
-							: "Connect a provider with streaming transcription models and this page unlocks automatically."}
+							? t(
+									"Connect a provider with streaming transcription models — for example {names} — and this page unlocks automatically.",
+									{ names: voiceCapableProviderNames.slice(0, 4).join(", ") },
+							  )
+							: t(
+									"Connect a provider with streaming transcription models and this page unlocks automatically.",
+							  )}
 					</p>
 					<Button onClick={onOpenModelProviders} size="sm" type="button">
-						Open Model Providers
+						{t("Open Model Providers")}
 					</Button>
 				</div>
 			</PageFrame>
@@ -235,11 +243,12 @@ export function VoiceInputContent({
 				<div className="flex items-center justify-between gap-5 border-y py-4">
 					<div className="flex flex-col gap-1">
 						<p className="text-base font-semibold text-foreground">
-							Enable voice input
+							{t("Enable voice input")}
 						</p>
 						<p className="text-sm text-muted-foreground">
-							Turns on the microphone button in chat. A default model is
-							preselected — adjust it below.
+							{t(
+								"Turns on the microphone button in chat. A default model is preselected — adjust it below.",
+							)}
 						</p>
 					</div>
 					<Switch
@@ -255,7 +264,9 @@ export function VoiceInputContent({
 
 				{saveError ? (
 					<p className="mt-3 text-xs text-destructive" role="alert">
-						Failed to save voice input settings: {saveError}
+						{t("Failed to save voice input settings: {error}", {
+							error: saveError,
+						})}
 					</p>
 				) : null}
 
@@ -263,7 +274,7 @@ export function VoiceInputContent({
 					<>
 						<div className="mt-6">
 							<p className="mb-2 text-sm font-semibold text-foreground">
-								Provider
+								{t("Provider")}
 							</p>
 							<div className="flex flex-wrap gap-2">
 								{voiceProviders.map(({ provider }) => {
@@ -292,7 +303,7 @@ export function VoiceInputContent({
 						{selectedEntry ? (
 							<div className="mt-6">
 								<p className="mb-2 text-sm font-semibold text-foreground">
-									Model
+									{t("Model")}
 								</p>
 								<div
 									aria-label="Voice input model"
@@ -344,7 +355,7 @@ export function VoiceInputContent({
 														<AudioModelBadges model={model} />
 														{isDefault ? (
 															<span className="shrink-0 text-[0.625rem] font-medium uppercase tracking-wide text-muted-foreground">
-																Default
+																{t("Default")}
 															</span>
 														) : null}
 													</div>

@@ -37,6 +37,7 @@ import {
 	type MarketplacePrimitiveType,
 	type MarketplaceTag,
 } from "@/lib/marketplace";
+import { t } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import { CommandBadge, PageFrame, PageHeader } from "./page-layout";
 
@@ -80,46 +81,64 @@ type MarketplacePageDetails = {
 	icon: typeof Server;
 };
 
-const primitivePageDetails = {
-	mcp: {
-		title: "MCP Servers",
-		description:
-			"Install Model Context Protocol servers into this CLI environment.",
-		emptyInstalled:
-			"No MCP servers installed. Browse the marketplace or add a server manually.",
-		emptyCatalog: "No MCP servers match the current filters.",
-		icon: Server,
-	},
-	skill: {
-		title: "Skills",
-		description: "Install skills globally for Cline.",
-		emptyInstalled: "No skills installed. Browse the marketplace to add one.",
-		emptyCatalog: "No skills match the current filters.",
-		icon: Zap,
-	},
-	plugin: {
-		title: "Plugins",
-		description: "Install plugins into this CLI environment.",
-		emptyInstalled: "No plugins installed. Browse the marketplace to add one.",
-		emptyCatalog: "No plugins match the current filters.",
-		icon: Puzzle,
-	},
-} satisfies Record<MarketplacePrimitiveType, MarketplacePageDetails>;
+function getPrimitivePageDetails(
+	type: MarketplacePrimitiveType,
+): MarketplacePageDetails {
+	switch (type) {
+		case "mcp":
+			return {
+				title: t("MCP Servers"),
+				description: t(
+					"Install Model Context Protocol servers into this CLI environment.",
+				),
+				emptyInstalled: t(
+					"No MCP servers installed. Browse the marketplace or add a server manually.",
+				),
+				emptyCatalog: t("No MCP servers match the current filters."),
+				icon: Server,
+			};
+		case "skill":
+			return {
+				title: t("Skills"),
+				description: t("Install skills globally for Cline."),
+				emptyInstalled: t(
+					"No skills installed. Browse the marketplace to add one.",
+				),
+				emptyCatalog: t("No skills match the current filters."),
+				icon: Zap,
+			};
+		case "plugin":
+			return {
+				title: t("Plugins"),
+				description: t("Install plugins into this CLI environment."),
+				emptyInstalled: t(
+					"No plugins installed. Browse the marketplace to add one.",
+				),
+				emptyCatalog: t("No plugins match the current filters."),
+				icon: Puzzle,
+			};
+	}
+}
 
-const directoryPageDetails: MarketplacePageDetails = {
-	title: "Marketplace",
-	description:
-		"A curated set of plugins, MCP servers, and skills from the Cline community.",
-	emptyInstalled: "Nothing installed yet.",
-	emptyCatalog: "No marketplace entries match the current filters.",
-	icon: Store,
-};
+function getDirectoryPageDetails(): MarketplacePageDetails {
+	return {
+		title: t("Marketplace"),
+		description: t(
+			"A curated set of plugins, MCP servers, and skills from the Cline community.",
+		),
+		emptyInstalled: t("Nothing installed yet."),
+		emptyCatalog: t("No marketplace entries match the current filters."),
+		icon: Store,
+	};
+}
 
-const TYPE_FILTER_LABELS: Record<MarketplacePrimitiveType, string> = {
-	plugin: "Plugins",
-	mcp: "MCP servers",
-	skill: "Skills",
-};
+function getTypeFilterLabels(): Record<MarketplacePrimitiveType, string> {
+	return {
+		plugin: t("Plugins"),
+		mcp: t("MCP servers"),
+		skill: t("Skills"),
+	};
+}
 
 const TYPE_FILTER_ORDER: MarketplacePrimitiveType[] = [
 	"plugin",
@@ -220,10 +239,12 @@ function EntrySetupGuidance({ entry }: { entry: MarketplaceEntry }) {
 			{requiredEnv.length > 0 || optionalEnv.length > 0 ? (
 				<div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3">
 					<p className="text-sm font-medium text-amber-800 dark:text-amber-200">
-						Environment setup needed
+						{t("Environment setup needed")}
 					</p>
 					<p className="mt-1 text-xs leading-5 text-amber-800/80 dark:text-amber-100/80">
-						Add these values to your Cline/plugin environment after install.
+						{t(
+							"Add these values to your Cline/plugin environment after install.",
+						)}
 					</p>
 					<div className="mt-3 grid gap-2">
 						{[...requiredEnv, ...optionalEnv].map((env) => (
@@ -236,7 +257,7 @@ function EntrySetupGuidance({ entry }: { entry: MarketplaceEntry }) {
 										<span style={CODE_FONT_STYLE}>{env.name}</span>
 									</code>
 									<Badge variant="outline">
-										{env.required === false ? "Optional" : "Required"}
+										{env.required === false ? t("Optional") : t("Required")}
 									</Badge>
 								</div>
 								{env.description ? (
@@ -260,7 +281,7 @@ function EntrySetupGuidance({ entry }: { entry: MarketplaceEntry }) {
 										rel="noreferrer"
 										target="_blank"
 									>
-										Get value
+										{t("Get value")}
 										<ExternalLink className="size-3" />
 									</a>
 								) : null}
@@ -333,8 +354,10 @@ export function MarketplaceEntrySetupDetails({
 						>
 							<ChevronRight className="h-3 w-3 transition-transform group-data-[state=open]:rotate-90" />
 							{entriesWithGuidance.length > 1
-								? `Marketplace setup instructions (${entry.name})`
-								: "Marketplace setup instructions"}
+								? t("Marketplace setup instructions ({name})", {
+										name: entry.name,
+									})
+								: t("Marketplace setup instructions")}
 						</button>
 					</CollapsibleTrigger>
 					<CollapsibleContent className="grid gap-3">
@@ -373,7 +396,7 @@ function MarketplaceEntryCard({
 	sourceLabel?: string;
 	tagLabels: Map<string, string>;
 }) {
-	const EntryIcon = primitivePageDetails[entry.type].icon;
+	const EntryIcon = getPrimitivePageDetails(entry.type).icon;
 	const busy =
 		actionState?.status === "installing" ||
 		actionState?.status === "uninstalling";
@@ -392,14 +415,14 @@ function MarketplaceEntryCard({
 		onInstall(entry);
 	};
 	const actionLabel = !installedStatusReady
-		? "Checking..."
+		? t("Checking...")
 		: actionState?.status === "installing"
-			? "Installing..."
+			? t("Installing...")
 			: actionState?.status === "uninstalling"
-				? "Uninstalling..."
+				? t("Uninstalling...")
 				: installed
-					? "Uninstall"
-					: "Install";
+					? t("Uninstall")
+					: t("Install");
 	const statusMessage = inlineMessage ? (
 		<output
 			className={cn(
@@ -413,7 +436,7 @@ function MarketplaceEntryCard({
 		</output>
 	) : setupNeeded ? (
 		<span className="text-xs text-amber-700 dark:text-amber-300">
-			Requires setup after install
+			{t("Requires setup after install")}
 		</span>
 	) : null;
 	const actionButton = (
@@ -446,7 +469,7 @@ function MarketplaceEntryCard({
 					{showFeatured && entry.featured ? (
 						<Badge className="border border-violet-500/20 bg-violet-500/10 text-violet-700 dark:text-violet-300">
 							<Star className="fill-current" />
-							Featured
+							{t("Featured")}
 						</Badge>
 					) : null}
 					{sourceLabel ? (
@@ -496,7 +519,11 @@ function MarketplaceEntryCard({
 		// biome-ignore lint/a11y/useSemanticElements: The card contains a nested action button, so the wrapper cannot be a native button.
 		<div
 			aria-expanded={expanded}
-			aria-label={`${expanded ? "Collapse" : "Expand"} ${entry.name}`}
+			aria-label={
+				expanded
+					? t("Collapse {name}", { name: entry.name })
+					: t("Expand {name}", { name: entry.name })
+			}
 			className="relative grid min-w-0 cursor-pointer gap-2 rounded-lg border bg-card p-4 text-left transition-colors hover:bg-surface-hover-lighter focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
 			onClick={(event) => {
 				if (
@@ -749,8 +776,8 @@ export function MarketplaceView({
 	}, [catalog, installedItemsSignature]);
 
 	const pageDetails = primitive
-		? primitivePageDetails[primitive]
-		: directoryPageDetails;
+		? getPrimitivePageDetails(primitive)
+		: getDirectoryPageDetails();
 	const tagLabels = useMemo(
 		() => new Map(catalog?.tags.map((tag) => [tag.id, tag.label]) ?? []),
 		[catalog?.tags],
@@ -969,7 +996,7 @@ export function MarketplaceView({
 					type="button"
 					variant={typeFilter === null ? "default" : "outline"}
 				>
-					All
+					{t("All")}
 					<span className="rounded bg-background/30 px-1.5 py-0.5 text-xs">
 						{queryFilteredEntries.length}
 					</span>
@@ -985,7 +1012,7 @@ export function MarketplaceView({
 						type="button"
 						variant={typeFilter === type ? "default" : "outline"}
 					>
-						{TYPE_FILTER_LABELS[type]}
+						{getTypeFilterLabels()[type]}
 						<span className="rounded bg-background/30 px-1.5 py-0.5 text-xs">
 							{typeCounts.get(type) ?? 0}
 						</span>
@@ -1019,7 +1046,7 @@ export function MarketplaceView({
 						variant="ghost"
 					>
 						<X className="size-3.5" />
-						Clear
+						{t("Clear")}
 					</Button>
 				) : null}
 			</div>
@@ -1135,7 +1162,7 @@ export function MarketplaceView({
 								variant="outline"
 							>
 								<Blocks className="size-4" />
-								Installed
+								{t("Installed")}
 							</Button>
 						) : undefined
 					}
@@ -1145,14 +1172,14 @@ export function MarketplaceView({
 			{!catalog && !errorMessage ? (
 				<div className="flex min-h-80 items-center justify-center rounded-lg border bg-card text-sm text-muted-foreground">
 					<Spinner className="mr-2" />
-					Loading marketplace...
+					{t("Loading marketplace...")}
 				</div>
 			) : null}
 
 			{catalog && !installedStatusReady ? (
 				<div className="flex min-h-80 items-center justify-center rounded-lg border bg-card text-sm text-muted-foreground">
 					<Spinner className="mr-2" />
-					Checking installed status...
+					{t("Checking installed status...")}
 				</div>
 			) : null}
 
@@ -1169,10 +1196,14 @@ export function MarketplaceView({
 							<div className="relative block flex-1">
 								<Search className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
 								<Input
-									aria-label={`Search ${pageDetails.title}`}
+									aria-label={t("Search {title}", {
+										title: pageDetails.title,
+									})}
 									className="h-10 pl-8"
 									onChange={(event) => setQuery(event.target.value)}
-									placeholder={`Search ${pageDetails.title.toLowerCase()}`}
+									placeholder={t("Search {title}", {
+										title: pageDetails.title.toLowerCase(),
+									})}
 									value={query}
 								/>
 							</div>
@@ -1193,9 +1224,9 @@ export function MarketplaceView({
 							onUninstall={uninstallEntry}
 							showFeaturedBadges={false}
 							showEntryTags={false}
-							sourceLabel="Marketplace"
+							sourceLabel={t("Marketplace")}
 							tagLabels={tagLabels}
-							title="Installed"
+							title={t("Installed")}
 						/>
 					) : null}
 
@@ -1237,7 +1268,7 @@ export function MarketplaceView({
 							onToggleExpanded={toggleExpanded}
 							onUninstall={uninstallEntry}
 							tagLabels={tagLabels}
-							title={variant === "directory" ? undefined : "Browse"}
+							title={variant === "directory" ? undefined : t("Browse")}
 						/>
 					) : null}
 				</div>

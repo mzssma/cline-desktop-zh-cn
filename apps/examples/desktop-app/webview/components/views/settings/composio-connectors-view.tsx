@@ -21,6 +21,7 @@ import type {
 	ComposioIntegrationSummary,
 	ComposioToolkitSlug,
 } from "@/lib/composio-types";
+import { t } from "@/lib/i18n";
 import { useComposioConnections } from "@/lib/use-composio-connections";
 
 /** Shared connector browser for Customize and Marketplace. */
@@ -127,7 +128,7 @@ export function ConnectorActionButton({
 					type="button"
 					variant="default"
 				>
-					View
+					{t("View")}
 				</Button>
 			);
 		}
@@ -143,7 +144,7 @@ export function ConnectorActionButton({
 				variant="destructive"
 			>
 				{busy ? <Loader2 className="size-4 animate-spin" /> : null}
-				Uninstall
+				{t("Uninstall")}
 			</Button>
 		);
 	}
@@ -159,7 +160,7 @@ export function ConnectorActionButton({
 				variant="ghost"
 			>
 				<Loader2 className="size-4 animate-spin" />
-				Cancel
+				{t("Cancel")}
 			</Button>
 		);
 	}
@@ -175,7 +176,7 @@ export function ConnectorActionButton({
 			variant="outline"
 		>
 			{busy ? <Loader2 className="size-4 animate-spin" /> : null}
-			Install
+			{t("Install")}
 		</Button>
 	);
 }
@@ -333,7 +334,7 @@ export function ComposioConnectorsView({
 	if (loadError) {
 		return (
 			<p className="select-text text-sm text-destructive" role="alert">
-				Failed to load connectors: {loadError}
+				{t("Failed to load connectors:")} {loadError}
 			</p>
 		);
 	}
@@ -353,7 +354,7 @@ export function ComposioConnectorsView({
 		// The parent hides this tab when the account has no beta access.
 		return (
 			<p className="text-sm text-muted-foreground">
-				Connectors aren&apos;t available.
+				{t("Connectors aren't available.")}
 			</p>
 		);
 	}
@@ -366,7 +367,7 @@ export function ComposioConnectorsView({
 			variant="outline"
 		>
 			<Store className="size-4" />
-			Browse all connectors in the Marketplace
+			{t("Browse all connectors in the Marketplace")}
 		</Button>
 	) : null;
 	if (variant === "installed" && entries.length === 0) {
@@ -382,8 +383,7 @@ export function ComposioConnectorsView({
 			{!renderItem ? (
 				<div className="flex flex-wrap items-center justify-between gap-3">
 					<p className="text-sm text-muted-foreground">
-						Connect your accounts to give Cline tools for your favorite apps.
-						Tools will become available in new sessions.
+						{t("Connect your accounts to give Cline tools for your favorite apps. Tools will become available in new sessions.")}
 					</p>
 					{searchQuery === undefined ? (
 						<div className="relative">
@@ -392,7 +392,7 @@ export function ComposioConnectorsView({
 								className="h-8 w-64 pl-8"
 								onChange={(event) => setQuery(event.target.value)}
 								aria-label="Search connectors"
-								placeholder="Search connectors"
+								placeholder={t("Search connectors")}
 								value={query}
 							/>
 						</div>
@@ -418,7 +418,7 @@ export function ComposioConnectorsView({
 						type="button"
 						variant="outline"
 					>
-						Retry
+						{t("Retry")}
 					</Button>
 				</div>
 			) : (
@@ -471,8 +471,8 @@ export function ComposioConnectorsView({
 						{visibleCatalog.length === 0 ? (
 							<p className="py-4 text-sm text-muted-foreground">
 								{trimmedQuery
-									? `No connectors match "${query.trim()}".`
-									: "No connectors are available for your account yet."}
+									? `${t("No connectors match")} "${query.trim()}".`
+									: t("No connectors are available for your account yet.")}
 							</p>
 						) : null}
 					</div>
@@ -481,8 +481,10 @@ export function ComposioConnectorsView({
 					) : null}
 					{!appendOnScroll && hiddenCount > 0 ? (
 						<p className="text-xs text-muted-foreground">
-							Showing the {CATALOG_PREVIEW_COUNT} most-used connectors — search
-							to find {hiddenCount} more.
+							{t(
+								"Showing the {count} most-used connectors — search to find {hidden} more.",
+								{ count: CATALOG_PREVIEW_COUNT, hidden: hiddenCount },
+							)}
 						</p>
 					) : null}
 				</>
@@ -638,7 +640,7 @@ function ConnectorDetailDialog({
 							<dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-1.5 text-sm">
 								{entry.categories && entry.categories.length > 0 ? (
 									<>
-										<dt className="text-muted-foreground">Category</dt>
+										<dt className="text-muted-foreground">{t("Category")}</dt>
 										<dd className="flex flex-wrap gap-1">
 											{entry.categories.map((category) => (
 												<Badge
@@ -654,20 +656,20 @@ function ConnectorDetailDialog({
 								) : null}
 								{summary?.connectedAt ? (
 									<>
-										<dt className="text-muted-foreground">Connected</dt>
+										<dt className="text-muted-foreground">{t("Connected")}</dt>
 										<dd className="text-foreground">
 											{new Date(summary.connectedAt).toLocaleString()}
 										</dd>
 									</>
 								) : null}
-								<dt className="text-muted-foreground">Slug</dt>
+								<dt className="text-muted-foreground">{t("Slug")}</dt>
 								<dd className="font-mono text-xs leading-5 text-foreground">
 									{entry.slug}
 								</dd>
 								{typeof entry.toolsCount === "number" ||
 								(status === "connected" && toolNames.length > 0) ? (
 									<>
-										<dt className="text-muted-foreground">Tools</dt>
+										<dt className="text-muted-foreground">{t("Tools")}</dt>
 										<dd className="text-foreground">
 											{status === "connected" && toolNames.length > 0 ? (
 												<>
@@ -676,7 +678,7 @@ function ConnectorDetailDialog({
 														? `/${entry.toolsCount}`
 														: null}{" "}
 													<span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-														available in new sessions
+														{t("available in new sessions")}
 													</span>
 												</>
 											) : (
@@ -703,7 +705,7 @@ function ConnectorDetailDialog({
 							{status === "pending" ? (
 								<p className="inline-flex items-center gap-2 text-sm text-muted-foreground">
 									<Loader2 className="size-4 animate-spin" />
-									Finish authorizing {entry.name} in your browser…
+									{t("Finish authorizing in your browser…")}
 								</p>
 							) : null}
 
