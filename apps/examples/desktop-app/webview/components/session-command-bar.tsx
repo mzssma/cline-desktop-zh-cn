@@ -165,7 +165,7 @@ export function SessionCommandBar({
 								<div className="min-w-0 flex-1">
 									<div className="flex min-w-0 items-center gap-2">
 										<span className="shrink-0 text-xs capitalize text-muted-foreground">
-											{hit.role}
+											{t(hit.role)}
 										</span>
 										<span className="truncate font-medium">{hit.title}</span>
 									</div>

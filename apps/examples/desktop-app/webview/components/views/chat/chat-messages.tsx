@@ -778,10 +778,10 @@ function ChatMessagesImpl({
 							<div className="mt-4 flex items-center gap-2 text-xs text-muted-foreground">
 								<Loader2 className="h-3.5 w-3.5 animate-spin" />
 								{chatTransportState === "reconnecting"
-									? "Reconnecting chat..."
+									? t("Reconnecting chat...")
 									: chatTransportState === "unavailable"
-										? "Chat backend unavailable"
-										: "Connecting chat..."}
+										? t("Chat backend unavailable")
+										: t("Connecting chat...")}
 							</div>
 						) : null}
 						{shouldShowErrorBanner ? (

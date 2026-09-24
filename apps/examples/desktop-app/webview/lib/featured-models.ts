@@ -5,6 +5,7 @@ import type {
 	ProviderModel,
 	ProviderModelFeaturedTier,
 } from "@/lib/provider-schema";
+import { t } from "@/lib/i18n";
 
 export type ModelPickerData = {
 	options: SearchComboboxOption[];
@@ -96,13 +97,13 @@ export function buildModelPickerData(
 		return {
 			options: [...recommended, ...free, ...rest],
 			sections: [
-				{ id: "recommended", label: "Recommended" },
+				{ id: "recommended", label: t("Recommended") },
 				{
-					description: FREE_SECTION_DESCRIPTION,
+					description: t(FREE_SECTION_DESCRIPTION),
 					id: "free",
-					label: "Free",
+					label: t("Free"),
 				},
-				{ id: "all", label: "All models" },
+				{ id: "all", label: t("All models") },
 			],
 		};
 	}
@@ -129,11 +130,11 @@ export function buildModelPickerData(
 		return {
 			options: [...subscribed, ...free],
 			sections: [
-				{ id: "subscribed", label: "Subscribed" },
+				{ id: "subscribed", label: t("Subscribed") },
 				{
-					description: CLINE_PASS_FREE_SECTION_DESCRIPTION,
+					description: t(CLINE_PASS_FREE_SECTION_DESCRIPTION),
 					id: "free",
-					label: "Free",
+					label: t("Free"),
 				},
 			],
 		};

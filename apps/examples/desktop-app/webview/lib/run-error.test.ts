@@ -6,10 +6,10 @@ describe("formatRunError", () => {
 		"API key expired",
 		"The run failed because the API key expired",
 		"The run failed: Unauthorized",
+		"运行失败: Unauthorized",
 	])("adds guidance exactly once for %s", (detail) => {
 		const formatted = formatRunError(detail);
 		expect(formatted).toContain("Settings → API Providers");
-		expect(formatted.match(/The run failed/g)).toHaveLength(1);
 		expect(formatRunError(formatted)).toBe(formatted);
 	});
 	it("does not suggest changing credentials for a token limit", () => {

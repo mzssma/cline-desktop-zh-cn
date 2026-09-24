@@ -10,13 +10,23 @@ export function formatRunError(detail: string, providerId = ""): string {
 	const guidance = resolveCredentialFailureHint(providerId);
 	const looksCredentialRelated =
 		!description || isCredentialFailure(description);
+	const runFailedPrefix = t("The run failed:");
+	const alreadyHasPrefix =
+		description.startsWith("The run failed") ||
+		description.startsWith("运行失败") ||
+		(Boolean(runFailedPrefix) && description.startsWith(runFailedPrefix.trim()));
+	const translatedDescription = t(description);
 	return [
 		description
-			? description.startsWith("The run failed")
+			? alreadyHasPrefix
 				? description
-				: `${t("The run failed:")} ${description}`
+				: `${runFailedPrefix} ${translatedDescription}`
 			: t("The run failed before a response was produced."),
-		looksCredentialRelated && !description.includes(guidance) ? guidance : "",
+		looksCredentialRelated &&
+		!translatedDescription.includes(guidance) &&
+		!description.includes(guidance)
+			? guidance
+			: "",
 	]
 		.filter(Boolean)
 		.join(" ");

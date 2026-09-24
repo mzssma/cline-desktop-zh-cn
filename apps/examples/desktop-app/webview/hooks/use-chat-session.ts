@@ -59,6 +59,7 @@ import { appendCappedCommandOutput } from "@/lib/command-output";
 import { desktopClient } from "@/lib/desktop-client";
 import { imageAttachmentMediaType } from "@/lib/image-attachments";
 import { formatRunError } from "@/lib/run-error";
+import { t } from "@/lib/i18n";
 import {
 	buildSessionDiffState,
 	EMPTY_DIFF_SUMMARY,
@@ -2404,7 +2405,7 @@ export function useChatSession(environmentId: string) {
 				// signed-out reconnects); show the human text, not the envelope.
 				setError(
 					humanizeCloudSessionError(record.message?.trim() || "") ||
-						"Cloud session history could not be refreshed. Live updates are still connected.",
+						t("Cloud session history could not be refreshed. Live updates are still connected."),
 				);
 			},
 		);
@@ -4001,8 +4002,8 @@ export function useChatSession(environmentId: string) {
 					setIsCloudSessionExpired(true);
 					setError(
 						historyMessages.length > 0
-							? "This cloud session has expired. Start a new cloud session to continue."
-							: "This cloud session has expired and no archived history is available. Start a new cloud session to continue.",
+							? t("This cloud session has expired. Start a new cloud session to continue.")
+							: t("This cloud session has expired and no archived history is available. Start a new cloud session to continue."),
 					);
 				}
 

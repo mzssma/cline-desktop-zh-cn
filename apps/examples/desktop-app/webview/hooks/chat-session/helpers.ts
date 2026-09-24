@@ -212,7 +212,7 @@ export function resolveCredentialError(
 ): string | null {
 	if (config.executionTarget === "cloud") {
 		if (config.provider.trim().toLowerCase() !== "cline") {
-			return "Cloud sessions require the Cline provider.";
+			return t("Cloud sessions require the Cline provider.");
 		}
 		// Sends into an existing cloud session need no repo URL — the sandbox
 		// was already provisioned with one.
@@ -221,18 +221,18 @@ export function resolveCredentialError(
 		}
 		const repoUrl = config.repoUrl?.trim() ?? "";
 		if (!repoUrl) {
-			return "Select a GitHub repository before starting a cloud session.";
+			return t("Select a GitHub repository before starting a cloud session.");
 		}
 		// The picker validates as-you-type, but config accepts any keystroke —
 		// re-validate here so a half-typed URL can't reach the create call.
 		if (!isGitHubRepositoryUrl(repoUrl)) {
-			return "Enter a valid HTTPS GitHub repository URL (https://github.com/owner/repo).";
+			return t("Enter a valid HTTPS GitHub repository URL (https://github.com/owner/repo).");
 		}
 		return null;
 	}
 	const providerId = config.provider.trim().toLowerCase();
 	if (!providerId) {
-		return "Provider is required before starting a chat session.";
+		return t("Provider is required before starting a chat session.");
 	}
 	if (OAUTH_MANAGED_PROVIDERS.has(providerId)) {
 		return null;
@@ -248,7 +248,9 @@ export function resolveCredentialError(
 	if (config.apiKey.trim().length > 0) {
 		return null;
 	}
-	return `Missing API key for provider "${config.provider}". Add credentials in Settings, or switch providers.`;
+	return t('Missing API key for provider "{provider}". Add credentials in Settings, or switch providers.', {
+		provider: config.provider,
+	});
 }
 
 /**
@@ -281,7 +283,7 @@ export function resolveCredentialFailureHint(providerId: string): string {
  * must not point users at their provider settings.
  */
 export function isCredentialFailure(description: string): boolean {
-	return /unauthorized|401|403|forbidden|api key|credential|authenticat|sign in|auth token|access token|invalid token|expired token|token expired|session expired|not logged in|\/login/i.test(
+	return /unauthorized|401|403|forbidden|api key|credential|authenticat|sign in|auth token|access token|invalid token|expired token|token expired|session expired|not logged in|\/login|未授权|认证|凭据|未登录|重新登录|登录失效|登录过期|令牌失效|令牌过期/i.test(
 		description,
 	);
 }
@@ -300,8 +302,8 @@ export function resolveCredentialFailureAction(
 		return null;
 	}
 	return normalizeProviderId(providerId) === "cline"
-		? { label: "Sign in to Cline", target: "account" }
-		: { label: "Open API providers", target: "models" };
+		? { label: t("Sign in to Cline"), target: "account" }
+		: { label: t("Open API providers"), target: "models" };
 }
 
 /** Message meta that makes the chat render the credential fix action. */
