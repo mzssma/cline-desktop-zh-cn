@@ -4,7 +4,7 @@
 		"windows": [
 			{
 				"label": "main",
-				"title": "Cline",
+				"title": "Cline 中文版",
 				"width": 1500,
 				"height": 980,
 				"resizable": true,
@@ -15,6 +15,7 @@
 		]
 	},
 	"bundle": {
+		"targets": ["nsis"],
 		"windows": {
 			"nsis": {
 				"installerHooks": "nsis/installer-hooks.nsh"

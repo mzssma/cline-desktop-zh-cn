@@ -159,12 +159,12 @@ impl UpdateState {
 
 fn tray_status_text(update_status: &UpdateStatus, hub_healthy: bool) -> &'static str {
     match update_status.state.as_str() {
-        "checking" => "Status: Checking for Updates",
-        "downloading" => "Status: Downloading Update",
-        "ready" => "Status: Update Available",
-        "error" => "Status: Update Check Failed",
-        _ if hub_healthy => "Status: Healthy",
-        _ => "Status: Hub Disconnected",
+        "checking" => "状态：正在检查更新",
+        "downloading" => "状态：正在下载更新",
+        "ready" => "状态：有可用更新",
+        "error" => "状态：检查更新失败",
+        _ if hub_healthy => "状态：运行正常",
+        _ => "状态：后台服务未连接",
     }
 }
 
@@ -176,12 +176,12 @@ fn update_menu_item_text(update_status: &UpdateStatus) -> String {
         update_status.state.as_str(),
         update_status.version.as_deref(),
     ) {
-        ("checking", _) => "Checking for Updates...".to_string(),
-        ("downloading", Some(version)) => format!("Downloading Update v{version}..."),
-        ("downloading", None) => "Downloading Update...".to_string(),
-        ("ready", Some(version)) => format!("Restart to Update to v{version}"),
-        ("ready", None) => "Restart to Update".to_string(),
-        _ => "Check for Updates...".to_string(),
+        ("checking", _) => "正在检查更新...".to_string(),
+        ("downloading", Some(version)) => format!("正在下载更新 v{version}..."),
+        ("downloading", None) => "正在下载更新...".to_string(),
+        ("ready", Some(version)) => format!("重启以更新至 v{version}"),
+        ("ready", None) => "重启以更新".to_string(),
+        _ => "检查更新...".to_string(),
     }
 }
 
@@ -191,8 +191,8 @@ fn update_menu_item_enabled(update_status: &UpdateStatus) -> bool {
 
 fn running_sessions_text(running_sessions: u32) -> String {
     match running_sessions {
-        1 => "1 session running".to_string(),
-        count => format!("{count} sessions running"),
+        1 => "1 个正在进行的会话".to_string(),
+        count => format!("{count} 个正在进行的会话"),
     }
 }
 
@@ -1290,7 +1290,7 @@ fn setup_tray_icon(
     app: &tauri::App,
     check_for_updates: Option<MenuItem<tauri::Wry>>,
 ) -> tauri::Result<()> {
-    let status = MenuItem::new(app, "Status: Healthy", false, None::<&str>)?;
+    let status = MenuItem::new(app, "状态：运行正常", false, None::<&str>)?;
     let running_sessions = MenuItem::new(app, running_sessions_text(0), false, None::<&str>)?;
     let mut menu = MenuBuilder::new(app)
         .text(
@@ -1309,12 +1309,12 @@ fn setup_tray_icon(
     }
     let menu = menu
         .separator()
-        .text(TRAY_NEW_SESSION_MENU_ID, "New Session")
+        .text(TRAY_NEW_SESSION_MENU_ID, "新建会话")
         .item(&running_sessions)
         .separator()
-        .text(TRAY_SETTINGS_MENU_ID, "Settings")
+        .text(TRAY_SETTINGS_MENU_ID, "设置")
         .separator()
-        .text(TRAY_QUIT_MENU_ID, "Quit")
+        .text(TRAY_QUIT_MENU_ID, "退出")
         .build()?;
 
     // This is the same glyph used by webview/components/cline-logo.tsx,
@@ -1634,24 +1634,24 @@ mod tests {
         };
 
         let idle = status("idle", None);
-        assert_eq!(update_menu_item_text(&idle), "Check for Updates...");
+        assert_eq!(update_menu_item_text(&idle), "检查更新...");
         assert!(update_menu_item_enabled(&idle));
         let failed = status("error", None);
-        assert_eq!(update_menu_item_text(&failed), "Check for Updates...");
+        assert_eq!(update_menu_item_text(&failed), "检查更新...");
         assert!(update_menu_item_enabled(&failed));
 
         let checking = status("checking", None);
-        assert_eq!(update_menu_item_text(&checking), "Checking for Updates...");
+        assert_eq!(update_menu_item_text(&checking), "正在检查更新...");
         assert!(!update_menu_item_enabled(&checking));
         let downloading = status("downloading", Some("1.2.3"));
         assert_eq!(
             update_menu_item_text(&downloading),
-            "Downloading Update v1.2.3..."
+            "正在下载更新 v1.2.3..."
         );
         assert!(!update_menu_item_enabled(&downloading));
 
         let ready = status("ready", Some("1.2.3"));
-        assert_eq!(update_menu_item_text(&ready), "Restart to Update to v1.2.3");
+        assert_eq!(update_menu_item_text(&ready), "重启以更新至 v1.2.3");
         assert!(update_menu_item_enabled(&ready));
     }
 
@@ -1665,14 +1665,14 @@ mod tests {
 
     #[test]
     fn tray_session_count_updates_menu_tooltip_and_badge_copy() {
-        assert_eq!(running_sessions_text(0), "0 sessions running");
-        assert_eq!(running_sessions_text(1), "1 session running");
-        assert_eq!(running_sessions_text(3), "3 sessions running");
+        assert_eq!(running_sessions_text(0), "0 个正在进行的会话");
+        assert_eq!(running_sessions_text(1), "1 个正在进行的会话");
+        assert_eq!(running_sessions_text(3), "3 个正在进行的会话");
         assert_eq!(tray_tooltip_text("Cline", 0), "Cline");
-        assert_eq!(tray_tooltip_text("Cline", 3), "Cline — 3 sessions running");
+        assert_eq!(tray_tooltip_text("Cline", 3), "Cline — 3 个正在进行的会话");
         assert_eq!(
             tray_tooltip_text("Cline Beta", 2),
-            "Cline Beta — 2 sessions running"
+            "Cline Beta — 2 个正在进行的会话"
         );
         assert_eq!(tray_badge_text(0), None);
         assert_eq!(tray_badge_text(3), Some("3".to_string()));
