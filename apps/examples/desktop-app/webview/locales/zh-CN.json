@@ -1095,5 +1095,13 @@
 	"This cloud session has expired and no archived history is available. Start a new cloud session to continue.": "此云端会话已过期且无可用归档历史。请启动新的云端会话以继续。",
 	"user": "用户",
 	"assistant": "助手",
-	"tool": "工具"
+	"tool": "工具",
+	" They're in your history now.": " 现在已保存在您的历史记录中。",
+	"They're in your history now.": "现在已保存在您的历史记录中。",
+	" Other files can still be attached.": " 其他文件仍可正常附加。",
+	"Other files can still be attached.": "其他文件仍可正常附加。",
+	"Update the MCP server stored in ": "更新保存在以下位置的 MCP 服务：",
+	"Update the MCP server stored in": "更新保存在以下位置的 MCP 服务：",
+	"The server is saved to ": "该服务已保存至 ",
+	"The server is saved to": "该服务已保存至"
 }

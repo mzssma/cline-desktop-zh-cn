@@ -1602,26 +1602,26 @@ mod tests {
             error: None,
         };
 
-        assert_eq!(tray_status_text(&status("idle"), true), "Status: Healthy");
+        assert_eq!(tray_status_text(&status("idle"), true), "状态：运行正常");
         assert_eq!(
             tray_status_text(&status("idle"), false),
-            "Status: Hub Disconnected"
+            "状态：后台服务未连接"
         );
         assert_eq!(
             tray_status_text(&status("checking"), false),
-            "Status: Checking for Updates"
+            "状态：正在检查更新"
         );
         assert_eq!(
             tray_status_text(&status("downloading"), false),
-            "Status: Downloading Update"
+            "状态：正在下载更新"
         );
         assert_eq!(
             tray_status_text(&status("ready"), false),
-            "Status: Update Available"
+            "状态：有可用更新"
         );
         assert_eq!(
             tray_status_text(&status("error"), false),
-            "Status: Update Check Failed"
+            "状态：检查更新失败"
         );
     }
 
