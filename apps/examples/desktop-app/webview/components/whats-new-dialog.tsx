@@ -3,6 +3,7 @@
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { t } from "@/lib/i18n";
 import type { WhatsNewRelease } from "@/lib/whats-new-content";
 
 // A fixed deep-violet hero in both themes: the brand glow reads the same on a
@@ -37,10 +38,10 @@ export function WhatsNewDialog({
 					style={{ background: HERO_BACKGROUND }}
 				>
 					<p className="text-[11.5px] font-semibold uppercase tracking-[0.08em] text-[oklch(0.88_0.09_315)]">
-						What's new in Cline
+						{t("What's new in Cline")}
 					</p>
 					<DialogTitle className="mt-1.5 text-2xl font-semibold tracking-tight text-white">
-						{release.title}
+						{t(release.title)}
 					</DialogTitle>
 				</div>
 				<div className="px-6 pt-5 pb-5">
@@ -49,10 +50,10 @@ export function WhatsNewDialog({
 							<li key={highlight.title}>
 								<highlight.icon className="size-4.5 text-primary" />
 								<p className="mt-2 text-sm font-semibold text-foreground">
-									{highlight.title}
+									{t(highlight.title)}
 								</p>
 								<p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
-									{highlight.description}
+									{t(highlight.description)}
 								</p>
 							</li>
 						))}
@@ -66,14 +67,14 @@ export function WhatsNewDialog({
 								type="button"
 								variant="ghost"
 							>
-								See all changes
+								{t("See all changes")}
 								<ArrowRight className="size-3.5" />
 							</Button>
 						) : (
 							<span />
 						)}
 						<Button onClick={() => onOpenChange(false)} type="button">
-							Get Started
+							{t("Get Started")}
 						</Button>
 					</div>
 				</div>

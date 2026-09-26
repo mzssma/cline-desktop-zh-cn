@@ -20,6 +20,7 @@ import {
 	releaseUrl,
 } from "@/lib/changelog";
 import { desktopClient, openExternalUrl } from "@/lib/desktop-client";
+import { t } from "@/lib/i18n";
 import { latestWhatsNew } from "@/lib/whats-new";
 import { PageFrame, PageHeader } from "../page-layout";
 
@@ -61,21 +62,21 @@ function UpdateRow() {
 		checking || status.state === "checking" || status.state === "downloading";
 	const description =
 		status.state === "ready"
-			? `Version ${status.version} is downloaded and will be used the next time Cline starts.`
+			? t("Version {version} is downloaded and will be used the next time Cline starts.", { version: status.version ?? "" })
 			: status.state === "downloading"
-				? `Downloading version ${status.version ?? ""}…`
+				? t("Downloading version {version}…", { version: status.version ?? "" })
 				: status.state === "error" && status.error
-					? `The last check failed: ${status.error}`
+					? t("The last check failed: {error}", { error: status.error })
 					: checkResult === "up-to-date"
-						? "You're up to date. Cline also checks on its own shortly after launch and every two hours."
+						? t("You're up to date. Cline also checks on its own shortly after launch and every two hours.")
 						: checkResult === "unavailable"
-							? "Update checks are only available in the desktop app."
-							: "Cline checks for updates shortly after launch and every two hours, and installs them when it restarts.";
+							? t("Update checks are only available in the desktop app.")
+							: t("Cline checks for updates shortly after launch and every two hours, and installs them when it restarts.");
 
 	return (
 		<div className="flex items-center justify-between gap-5 border-b py-4 max-[720px]:flex-col max-[720px]:items-stretch">
 			<div className="flex flex-col gap-1">
-				<p className="text-base font-semibold text-foreground">Updates</p>
+				<p className="text-base font-semibold text-foreground">{t("Updates")}</p>
 				<p className="text-sm text-muted-foreground">{description}</p>
 			</div>
 			{status.state === "ready" ? (
@@ -92,7 +93,7 @@ function UpdateRow() {
 					type="button"
 				>
 					{restarting ? <Loader2 className="size-3 animate-spin" /> : null}
-					Restart to update
+					{t("Restart to update")}
 				</Button>
 			) : (
 				<Button
@@ -114,7 +115,7 @@ function UpdateRow() {
 					) : (
 						<RefreshCw className="size-3" />
 					)}
-					Check for updates
+					{t("Check for updates")}
 				</Button>
 			)}
 		</div>
@@ -136,7 +137,7 @@ function ReleaseNotes({
 	if (!releases) {
 		return (
 			<p className="py-4 text-sm text-muted-foreground">
-				Loading release notes…
+				{t("Loading release notes…")}
 			</p>
 		);
 	}
@@ -151,13 +152,13 @@ function ReleaseNotes({
 						<button
 							className="font-mono text-sm text-foreground hover:underline"
 							onClick={() => void openExternalUrl(releaseUrl(release.version))}
-							title="Open this release on GitHub"
+							title={t("Open this release on GitHub")}
 							type="button"
 						>
 							v{release.version}
 						</button>
 						{release.version === appVersion ? (
-							<Badge variant="secondary">Installed</Badge>
+							<Badge variant="secondary">{t("Installed")}</Badge>
 						) : null}
 					</div>
 					<MemoizedMarkdown
@@ -186,7 +187,7 @@ export function AboutContent() {
 			.catch(() => {
 				if (!cancelled) {
 					setChangelogError(
-						"Release notes aren't available in this build. The full changelog is on GitHub.",
+						t("Release notes aren't available in this build. The full changelog is on GitHub."),
 					);
 				}
 			});
@@ -220,10 +221,10 @@ export function AboutContent() {
 					<div className="flex items-center justify-between gap-5 border-b py-4 max-[720px]:flex-col max-[720px]:items-stretch">
 						<div className="flex flex-col gap-1">
 							<p className="text-base font-semibold text-foreground">
-								Highlights
+								{t("Highlights")}
 							</p>
 							<p className="text-sm text-muted-foreground">
-								A short tour of the biggest recent additions.
+								{t("A short tour of the biggest recent additions.")}
 							</p>
 						</div>
 						<Button
@@ -234,7 +235,7 @@ export function AboutContent() {
 							variant="outline"
 						>
 							<Sparkles className="size-3" />
-							Show what's new
+							{t("Show what's new")}
 						</Button>
 						<WhatsNewDialog
 							onOpenChange={setWhatsNewOpen}
@@ -246,10 +247,10 @@ export function AboutContent() {
 				<div className="flex items-center justify-between gap-5 border-b py-4 max-[720px]:flex-col max-[720px]:items-stretch">
 					<div className="flex flex-col gap-1">
 						<p className="text-base font-semibold text-foreground">
-							Report an issue
+							{t("Report an issue")}
 						</p>
 						<p className="text-sm text-muted-foreground">
-							Found a bug or have a request? Open an issue on GitHub.
+							{t("Found a bug or have a request? Open an issue on GitHub.")}
 						</p>
 					</div>
 					<Button
@@ -260,13 +261,13 @@ export function AboutContent() {
 						variant="outline"
 					>
 						<Bug className="size-3" />
-						Open GitHub issues
+						{t("Open GitHub issues")}
 					</Button>
 				</div>
 				<div className="pt-6">
 					<div className="flex items-center justify-between gap-4">
 						<h2 className="text-lg font-semibold text-foreground">
-							Release notes
+							{t("Release notes")}
 						</h2>
 						<Button
 							className="text-muted-foreground"
@@ -275,7 +276,7 @@ export function AboutContent() {
 							type="button"
 							variant="ghost"
 						>
-							Full changelog
+							{t("Full changelog")}
 							<ExternalLink className="size-3" />
 						</Button>
 					</div>
