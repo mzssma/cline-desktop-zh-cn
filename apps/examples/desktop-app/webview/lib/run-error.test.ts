@@ -8,8 +8,8 @@ describe("formatRunError", () => {
 		"The run failed: Unauthorized",
 		"运行失败: Unauthorized",
 	])("adds guidance exactly once for %s", (detail) => {
-		const formatted = formatRunError(detail);
-		expect(formatted).toContain("Settings → API Providers");
+		expect(formatted).toContain("Settings → Providers");
+		expect(formatted.match(/(?:The run failed|运行失败)/g)).toHaveLength(1);
 		expect(formatRunError(formatted)).toBe(formatted);
 	});
 	it("does not suggest changing credentials for a token limit", () => {

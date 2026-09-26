@@ -256,7 +256,7 @@ export function resolveCredentialError(
 /**
  * Where to send the user after a credential-looking turn failure. Local-auth
  * providers (Claude Code, Codex CLI, OpenCode) borrow their login from a CLI
- * on this machine, so Settings → API Providers has nothing to fix — e.g. Claude
+ * on this machine, so Settings → Providers has nothing to fix — e.g. Claude
  * Code's "OAuth session expired and could not be refreshed" needs a fresh
  * sign-in in the `claude` CLI itself.
  */
@@ -272,7 +272,7 @@ export function resolveCredentialFailureHint(providerId: string): string {
 		return t("Sign in to Cline again in Settings → Account, then try again.");
 	}
 	return t(
-		"Check your model connection in Settings → API Providers (or sign in with Cline), then try again.",
+		"Check your model connection in Settings → Providers (or sign in with Cline), then try again.",
 	);
 }
 
@@ -291,7 +291,7 @@ export function isCredentialFailure(description: string): boolean {
 /**
  * The in-app action that fixes a credential failure for `providerId`, or null
  * when there is none to offer (local-auth providers are fixed in their CLI).
- * Cline goes to the Account page: Settings → API Providers keeps reporting a
+ * Cline goes to the Account page: Settings → Providers keeps reporting a
  * stale OAuth token as "signed in", while the Account page verifies it against
  * the API and offers to sign in again.
  */

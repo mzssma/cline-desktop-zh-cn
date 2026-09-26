@@ -25,10 +25,9 @@ import {
 	Star,
 	X,
 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { type ReactNode, useEffect, useId, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { useOAuthUserCode } from "@/hooks/use-oauth-user-code";
 import { openExternalUrl } from "@/lib/desktop-client";
 import { t } from "@/lib/i18n";
@@ -225,21 +224,46 @@ function ProviderRow({
 	);
 }
 
-function ProviderSectionHeading({
+function ProviderSection({
 	title,
 	description,
+	expanded,
+	onToggle,
+	children,
 }: {
 	title: string;
 	description?: string;
+	expanded: boolean;
+	onToggle: () => void;
+	children: ReactNode;
 }) {
+	const contentId = useId();
 	return (
-		<div className="mb-2 mt-8 first:mt-0">
-			<h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-				{title}
+		<div className="mt-8 first:mt-0">
+			<h2>
+				<button
+					aria-expanded={expanded}
+					aria-controls={contentId}
+					className="mb-2 flex w-full items-center gap-2 rounded text-left text-sm font-semibold uppercase tracking-wide text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+					onClick={onToggle}
+					type="button"
+				>
+					<ChevronRight
+						aria-hidden="true"
+						className={cn(
+							"size-4 shrink-0 transition-transform",
+							expanded && "rotate-90",
+						)}
+					/>
+					{title}
+				</button>
 			</h2>
-			{description ? (
-				<p className="mt-1 text-sm text-muted-foreground">{description}</p>
-			) : null}
+			<div hidden={!expanded} id={contentId}>
+				{description ? (
+					<p className="mb-2 text-sm text-muted-foreground">{description}</p>
+				) : null}
+				{children}
+			</div>
 		</div>
 	);
 }
@@ -258,6 +282,17 @@ export function ProviderListContent({
 	variant?: "page" | "panel";
 }) {
 	const [providerSearch, setProviderSearch] = useState("");
+	const [collapsedSections, setCollapsedSections] = useState<Set<string>>(
+		new Set(),
+	);
+	const toggleSection = (title: string) => {
+		setCollapsedSections((current) => {
+			const next = new Set(current);
+			if (next.has(title)) next.delete(title);
+			else next.add(title);
+			return next;
+		});
+	};
 	const isPanel = variant === "panel";
 
 	const providerSearchQuery = providerSearch.trim().toLowerCase();
@@ -297,109 +332,127 @@ export function ProviderListContent({
 	);
 
 	return (
-		<ScrollArea className="h-full">
+		<div
+			className={cn(
+				"flex h-full min-h-0 min-w-0 flex-col overflow-hidden py-10 max-[720px]:px-4 max-[720px]:py-5",
+				isPanel ? "px-8" : "px-18 max-[1200px]:px-8",
+			)}
+		>
 			<div
 				className={cn(
-					"py-10 max-[720px]:px-4 max-[720px]:py-5",
-					isPanel ? "px-8" : "px-18 max-[1200px]:px-8",
+					"mb-6 flex shrink-0 items-start justify-between gap-6 max-[860px]:flex-col max-[860px]:items-stretch",
+					isPanel ? "max-w-none" : "max-w-2xl",
 				)}
 			>
-				<div
-					className={cn(
-						"mb-6 flex items-start justify-between gap-6 max-[860px]:flex-col max-[860px]:items-stretch",
-						isPanel ? "max-w-none" : "max-w-2xl",
-					)}
-				>
-					<div className="min-w-0">
-						<h1
-							className={cn(
-								"truncate font-semibold leading-[1.15] text-foreground",
-								isPanel ? "text-2xl" : "text-3xl",
-							)}
-						>
-							{t("Model Providers")}
-						</h1>
-						<p className="mt-3 text-base leading-6 text-muted-foreground">
-							{connectedCount === 0
-								? t("Connect a provider to start using models.")
-								: t("{configured} configured · {available} available", {
-										configured: connectedCount,
-										available: providers.length,
-								  })}
-						</p>
-					</div>
-					<Button
-						className="h-8 shrink-0 rounded-md bg-foreground px-3 text-sm text-background hover:bg-foreground/90 max-[860px]:self-start"
-						onClick={onAddProvider}
-						type="button"
+				<div className="min-w-0">
+					<h1
+						className={cn(
+							"truncate font-semibold leading-[1.15] text-foreground",
+							isPanel ? "text-2xl" : "text-3xl",
+						)}
 					>
-						<PlusCircle className="size-4" />
-						{t("Add provider")}
-					</Button>
+						{t("Model Providers")}
+					</h1>
+					<p className="mt-3 text-base leading-6 text-muted-foreground">
+						{connectedCount === 0
+							? t("Connect a provider to start using models.")
+							: t("{connectedCount} configured · {totalCount} available", {
+									connectedCount,
+									totalCount: providers.length,
+								})}
+					</p>
 				</div>
+				<Button
+					className="h-8 shrink-0 rounded-md bg-foreground px-3 text-sm text-background hover:bg-foreground/90 max-[860px]:self-start"
+					onClick={onAddProvider}
+					type="button"
+				>
+					<PlusCircle className="size-4" />
+					{t("Add provider")}
+				</Button>
+			</div>
 
-				<div className={cn("mb-6", isPanel ? "max-w-none" : "max-w-2xl")}>
-					<div className="flex h-9 items-center gap-2 rounded border bg-background px-3">
-						<Search className="size-4 shrink-0 text-muted-foreground" />
-						<Input
-							aria-label={t("Search model providers")}
-							className={EMBEDDED_INPUT_CLASS}
-							onChange={(event) => setProviderSearch(event.target.value)}
-							placeholder={t("Search providers")}
-							value={providerSearch}
-						/>
-						{providerSearch ? (
-							<button
-								aria-label={t("Clear provider search")}
-								className="grid size-5 place-items-center rounded text-muted-foreground hover:text-foreground"
-								onClick={() => setProviderSearch("")}
-								type="button"
-							>
-								<X className="size-3.5" />
-							</button>
-						) : null}
-					</div>
-				</div>
-
-				<div className={cn(isPanel ? "max-w-none" : "max-w-2xl")}>
-					{filteredProviders.length === 0 ? (
-						<div className="border-y px-2 py-6 text-base text-muted-foreground">
-							{t("No providers match \"{query}\".", {
-								query: providerSearch.trim(),
-							})}
-						</div>
-					) : null}
-
-					{connectedProviders.length > 0 ? (
-						<>
-							<ProviderSectionHeading title={t("Configured")} />
-							{renderRows(connectedProviders)}
-						</>
-					) : null}
-
-					{popularProviders.length > 0 ? (
-						<>
-							<ProviderSectionHeading
-								description={
-									connectedProviders.length === 0 && !providerSearchQuery
-										? t("Sign in or add an API key to connect.")
-										: undefined
-								}
-								title={t("Popular")}
-							/>
-							{renderRows(popularProviders)}
-						</>
-					) : null}
-
-					{otherProviders.length > 0 ? (
-						<>
-							<ProviderSectionHeading title={t("All providers")} />
-							{renderRows(otherProviders)}
-						</>
+			<div
+				className={cn("mb-6 shrink-0", isPanel ? "max-w-none" : "max-w-2xl")}
+			>
+				<div className="flex h-9 items-center gap-2 rounded border bg-background px-3">
+					<Search className="size-4 shrink-0 text-muted-foreground" />
+					<Input
+						aria-label={t("Search model providers")}
+						className={EMBEDDED_INPUT_CLASS}
+						onChange={(event) => {
+							setProviderSearch(event.target.value);
+							setCollapsedSections(new Set());
+						}}
+						placeholder={t("Search providers")}
+						value={providerSearch}
+					/>
+					{providerSearch ? (
+						<button
+							aria-label={t("Clear provider search")}
+							className="grid size-5 place-items-center rounded text-muted-foreground hover:text-foreground"
+							onClick={() => setProviderSearch("")}
+							type="button"
+						>
+							<X className="size-3.5" />
+						</button>
 					) : null}
 				</div>
 			</div>
-		</ScrollArea>
+
+			<section
+				aria-label={t("Model providers")}
+				className={cn(
+					"min-h-0 flex-1 overflow-y-auto overscroll-contain",
+					isPanel ? "max-w-none" : "max-w-2xl",
+				)}
+				// biome-ignore lint/a11y/noNoninteractiveTabindex: Allow keyboard scrolling of the provider list.
+				tabIndex={0}
+			>
+				{filteredProviders.length === 0 ? (
+					<div className="border-y px-2 py-6 text-base text-muted-foreground">
+						{t('No providers match "{query}".', {
+							query: providerSearch.trim(),
+						})}
+					</div>
+				) : null}
+
+				{connectedProviders.length > 0 ? (
+					<ProviderSection
+						title={t("Configured")}
+						expanded={!collapsedSections.has("Configured")}
+						onToggle={() => toggleSection("Configured")}
+					>
+						{renderRows(connectedProviders)}
+					</ProviderSection>
+				) : null}
+
+				{popularProviders.length > 0 ? (
+					<ProviderSection
+						expanded={!collapsedSections.has("Popular")}
+						onToggle={() => toggleSection("Popular")}
+						description={
+							connectedProviders.length === 0 && !providerSearchQuery
+								? t("Sign in or add an API key to connect.")
+								: undefined
+						}
+						title={t("Popular")}
+					>
+						{renderRows(popularProviders)}
+					</ProviderSection>
+				) : null}
+
+				{otherProviders.length > 0 ? (
+					<ProviderSection
+						title={t("All providers")}
+						expanded={!collapsedSections.has("All providers")}
+						onToggle={() => toggleSection("All providers")}
+					>
+						{renderRows(otherProviders)}
+					</ProviderSection>
+				) : null}
+			</section>
+		</div>
 	);
 }
 
@@ -430,12 +483,10 @@ function ConfigFieldRow({
 	return (
 		<div className="grid min-h-18 grid-cols-[minmax(12rem,0.55fr)_minmax(16rem,0.45fr)] items-center gap-6 border-b py-4 max-[900px]:grid-cols-1 max-[900px]:gap-3">
 			<header>
-				<h3 className="text-lg font-semibold text-foreground">
-					{field.label ? t(field.label) : null}
-				</h3>
+				<h3 className="text-lg font-semibold text-foreground">{field.label}</h3>
 				{field.description ? (
 					<p className="mt-1 text-base leading-relaxed text-muted-foreground">
-						{t(field.description)}
+						{field.description}
 					</p>
 				) : null}
 				{field.path === "apiKey" && providerKeyUrl ? (
@@ -444,20 +495,16 @@ function ConfigFieldRow({
 						onClick={() => void openExternalUrl(providerKeyUrl)}
 						type="button"
 					>
-						{provider.docLabel
-							? t(provider.docLabel)
-							: t("Get a {name} API key", { name: provider.name })}
+						{provider.docLabel ? t(provider.docLabel) : t("Get a {provider} API key", { provider: provider.name })}
 						<ExternalLink className="size-3.5" />
 					</button>
 				) : null}
 			</header>
 			{field.type === "boolean" ? (
 				<div className="flex items-center justify-end">
-					<span className="text-sm text-muted-foreground">
-						{field.label ? t(field.label) : null}
-					</span>
+					<span className="text-sm text-muted-foreground">{t(field.label)}</span>
 					<Switch
-						aria-label={field.label ? t(field.label) : undefined}
+						aria-label={t(field.label)}
 						checked={Boolean(value)}
 						onCheckedChange={(checked) => onCommit(checked)}
 					/>
@@ -471,7 +518,7 @@ function ConfigFieldRow({
 					<option value="">{t("Not set")}</option>
 					{field.options?.map((option) => (
 						<option key={String(option.value)} value={String(option.value)}>
-							{option.label ? t(option.label) : String(option.value)}
+							{t(option.label)}
 						</option>
 					))}
 				</select>
@@ -512,9 +559,7 @@ function ConfigFieldRow({
 								)}
 							</Button>
 							<Button
-								aria-label={t("Copy {label}", {
-									label: field.label ? t(field.label) : "",
-								})}
+								aria-label={t("Copy {label}", { label: t(field.label) })}
 								className="rounded-md p-1 text-muted-foreground hover:text-foreground "
 								onClick={() => navigator.clipboard.writeText(valueText)}
 								variant="ghost"
@@ -782,17 +827,6 @@ export function ProviderDetailContent({
 								)}
 							</p>
 						</div>
-						{onDisconnect ? (
-							<Button
-								className="shrink-0"
-								onClick={handleDisconnect}
-								size="sm"
-								type="button"
-								variant="outline"
-							>
-								{t("Sign out")}
-							</Button>
-						) : null}
 					</div>
 				) : connected && apiKeyValue ? (
 					<div className="flex flex-col">
@@ -800,24 +834,13 @@ export function ProviderDetailContent({
 							<p className="text-sm text-muted-foreground">
 								{t("Configured with an API key.")}
 							</p>
-							{onDisconnect ? (
-								<Button
-									className="shrink-0"
-									onClick={handleDisconnect}
-									size="sm"
-									type="button"
-									variant="outline"
-								>
-									{t("Disconnect")}
-								</Button>
-							) : null}
 						</div>
 						{apiKeyField ? renderConfigFieldRow(apiKeyField) : null}
 					</div>
 				) : (
 					<div className="rounded-lg border px-4 py-4">
 						<p className="text-sm font-medium text-foreground">
-							{t("Sign in to {name}", { name: provider.name })}
+							{t("Sign in to {provider}", { provider: provider.name })}
 						</p>
 						<p className="mt-1 text-xs text-muted-foreground">
 							{t("Connects through your browser. No API key needed.")}
@@ -890,28 +913,16 @@ export function ProviderDetailContent({
 							)}
 						</p>
 					</div>
-					{connected
-						? onDisconnect && (
-								<Button
-									className="shrink-0"
-									onClick={handleDisconnect}
-									size="sm"
-									type="button"
-									variant="outline"
-								>
-									{t("Disconnect")}
-								</Button>
-							)
-						: onConnect && (
-								<Button
-									className="shrink-0"
-									onClick={onConnect}
-									size="sm"
-									type="button"
-								>
-									{t("Connect")}
-								</Button>
-							)}
+					{!connected && onConnect && (
+						<Button
+							className="shrink-0"
+							onClick={onConnect}
+							size="sm"
+							type="button"
+						>
+							{t("Connect")}
+						</Button>
+					)}
 				</div>
 			</section>
 		) : (
@@ -921,56 +932,37 @@ export function ProviderDetailContent({
 						{configFields.map(renderConfigFieldRow)}
 					</div>
 				) : null}
-				<div className="mt-4 flex items-center justify-between gap-4">
-					{connected ? (
-						<>
-							<p className="text-xs text-muted-foreground">
-								{t("Changes to the fields above are saved automatically.")}
-							</p>
-							{onDisconnect ? (
-								<Button
-									className="shrink-0"
-									onClick={handleDisconnect}
-									size="sm"
-									type="button"
-									variant="outline"
-								>
-									{t("Disconnect")}
-								</Button>
-							) : null}
-						</>
-					) : (
-						<>
-							<p className="text-xs text-muted-foreground">
-								{t(
-									"Saving an API key configures this provider automatically. Use Connect if it reads credentials from your environment or a local endpoint.",
-								)}
-							</p>
-							{onConnect ? (
-								<Button
-									className="shrink-0"
-									onClick={onConnect}
-									size="sm"
-									type="button"
-									variant="outline"
-								>
-									{t("Connect")}
-								</Button>
-							) : null}
-						</>
-					)}
-				</div>
+				{!connected ? (
+					<div className="mt-4 flex items-center justify-between gap-4">
+						<p className="text-xs text-muted-foreground">
+							{t(
+								"Saving an API key configures this provider automatically. Use Connect if it reads credentials from your environment or a local endpoint.",
+							)}
+						</p>
+						{onConnect ? (
+							<Button
+								className="shrink-0"
+								onClick={onConnect}
+								size="sm"
+								type="button"
+								variant="outline"
+							>
+								{t("Connect")}
+							</Button>
+						) : null}
+					</div>
+				) : null}
 			</section>
 		);
 
 	return (
-		<ScrollArea className="h-full">
-			<div
-				className={cn(
-					"py-10 max-[720px]:px-4 max-[720px]:py-5",
-					isPanel ? "px-6" : "px-18 max-[1200px]:px-8",
-				)}
-			>
+		<div
+			className={cn(
+				"flex h-full min-h-0 min-w-0 flex-col overflow-y-auto py-10 max-[720px]:px-4 max-[720px]:py-5",
+				isPanel ? "px-6" : "px-18 max-[1200px]:px-8",
+			)}
+		>
+			<div className="max-h-1/2 shrink-0 overflow-y-auto overscroll-contain">
 				{/* Back + title (the panel variant is always open, so no close button) */}
 				<div className="mb-8 flex items-center gap-3">
 					{isPanel ? null : (
@@ -983,259 +975,283 @@ export function ProviderDetailContent({
 							<ArrowLeft className="size-4" />
 						</Button>
 					)}
-					<h1
-						className={cn(
-							"min-w-0 flex-1 truncate font-semibold leading-[1.15] text-foreground",
-							isPanel ? "text-2xl" : "text-3xl",
-						)}
-					>
-						{provider.name}
-					</h1>
-					<span className="inline-flex shrink-0 items-center rounded-full border px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
-						{connected ? t("Configured") : t("Not configured")}
-					</span>
+					<div className="min-w-0 flex-1">
+						<div className="flex min-w-0 flex-wrap items-center gap-3">
+							<h1
+								className={cn(
+									"min-w-0 truncate font-semibold leading-[1.15] text-foreground",
+									isPanel ? "text-2xl" : "text-3xl",
+								)}
+							>
+								{provider.name}
+							</h1>
+							<span className="inline-flex shrink-0 items-center rounded-full border px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
+								{connected ? t("Configured") : t("Not configured")}
+							</span>
+						</div>
+						{connected && authKind !== "oauth" && authKind !== "local" ? (
+							<p className="mt-2 text-xs text-muted-foreground">
+								{t("Changes to the fields below are saved automatically.")}
+							</p>
+						) : null}
+					</div>
+					{connected && onDisconnect ? (
+						<Button
+							className="shrink-0"
+							onClick={handleDisconnect}
+							size="sm"
+							type="button"
+							variant="outline"
+						>
+							{authKind === "oauth" && oauthConnected
+								? t("Sign out")
+								: t("Disconnect")}
+						</Button>
+					) : null}
 				</div>
 
 				{connectionSection}
+			</div>
 
-				{/* Models section */}
-				<section
-					className={cn(
-						"overflow-hidden rounded-lg border",
-						isPanel ? "max-w-none" : "max-w-184",
-					)}
-				>
-					<div className="flex h-12 items-center justify-between bg-muted/40 px-4">
-						<div className="flex items-center gap-1">
-							<h2 className="mr-1 text-lg font-medium text-muted-foreground">
-								{t("Models")}
-							</h2>
-							<Button
-								aria-label={t("Refresh models")}
-								className="size-4 rounded-none p-0 text-muted-foreground transition-colors hover:bg-transparent hover:text-foreground"
-								disabled={modelsLoading}
-								onClick={onLoadModels}
-								variant="ghost"
-							>
-								<RefreshCw
-									className={cn("size-4", modelsLoading && "animate-spin")}
-								/>
-							</Button>
-						</div>
-						{onUpdateModels ? (
-							<Button
-								aria-label={t("Add model")}
-								className="size-4 rounded-none p-0 text-muted-foreground transition-colors hover:bg-transparent hover:text-foreground"
-								disabled={modelsLoading}
-								onClick={() =>
-									setAddModelState({ providerId: provider.id, value: "" })
-								}
-								variant="ghost"
-							>
-								<Plus className="size-4" />
-							</Button>
-						) : null}
+			{/* Reserve usable space for model controls and rows. If the pane is too
+			    short, its outer scroll area keeps this section reachable. */}
+			<section
+				className={cn(
+					"flex min-h-64 flex-1 flex-col overflow-y-auto rounded-lg border",
+					isPanel ? "max-w-none" : "max-w-184",
+				)}
+			>
+				<div className="flex h-12 shrink-0 items-center justify-between bg-muted/40 px-4">
+					<div className="flex items-center gap-1">
+						<h2 className="mr-1 text-lg font-medium text-muted-foreground">
+							{t("Models")}
+						</h2>
+						<Button
+							aria-label={t("Refresh models")}
+							className="size-4 rounded-none p-0 text-muted-foreground transition-colors hover:bg-transparent hover:text-foreground"
+							disabled={modelsLoading}
+							onClick={onLoadModels}
+							variant="ghost"
+						>
+							<RefreshCw
+								className={cn("size-4", modelsLoading && "animate-spin")}
+							/>
+						</Button>
 					</div>
-					{isAddingModel ? (
-						<div className="flex items-center gap-2 border-t px-4 py-3">
+					{onUpdateModels ? (
+						<Button
+							aria-label={t("Add model")}
+							className="size-4 rounded-none p-0 text-muted-foreground transition-colors hover:bg-transparent hover:text-foreground"
+							disabled={modelsLoading}
+							onClick={() =>
+								setAddModelState({ providerId: provider.id, value: "" })
+							}
+							variant="ghost"
+						>
+							<Plus className="size-4" />
+						</Button>
+					) : null}
+				</div>
+				{isAddingModel ? (
+					<div className="flex shrink-0 items-center gap-2 border-t px-4 py-3">
+						<Input
+							aria-label={t("New model ID")}
+							autoFocus
+							className="h-9 flex-1 font-mono"
+							onChange={(event) =>
+								setAddModelState({
+									providerId: provider.id,
+									value: event.target.value,
+								})
+							}
+							onKeyDown={(event) => {
+								if (event.key === "Enter") addModel();
+								if (event.key === "Escape") setAddModelState(null);
+							}}
+							placeholder={t("Model ID")}
+							value={newModelId}
+						/>
+						<Button disabled={!newModelId.trim()} onClick={addModel} size="sm">
+							{t("Add")}
+						</Button>
+						<Button
+							onClick={() => setAddModelState(null)}
+							size="sm"
+							variant="ghost"
+						>
+							{t("Cancel")}
+						</Button>
+					</div>
+				) : null}
+
+				{modelsError ? (
+					<div className="border-t border-destructive/30 bg-destructive/5 px-4 py-2">
+						<p className="text-sm text-destructive">{modelsError}</p>
+					</div>
+				) : null}
+				{/* A failed refresh means the endpoint's list is unknown; the
+					    bundled placeholder models would only read as a fallback. */}
+				{modelList.length > 0 && !modelsError ? (
+					<div className="flex min-h-0 flex-1 flex-col gap-3">
+						<div className="mx-4 mt-4 flex h-9 shrink-0 items-center gap-2 rounded border bg-background px-3">
+							<Search className="size-4 shrink-0 text-muted-foreground" />
 							<Input
-								aria-label={t("New model ID")}
-								autoFocus
-								className="h-9 flex-1 font-mono"
+								aria-label={t("Search models")}
+								className={EMBEDDED_INPUT_CLASS}
 								onChange={(event) =>
-									setAddModelState({
+									setModelSearchState({
 										providerId: provider.id,
 										value: event.target.value,
 									})
 								}
-								onKeyDown={(event) => {
-									if (event.key === "Enter") addModel();
-									if (event.key === "Escape") setAddModelState(null);
-								}}
-								placeholder={t("Model ID")}
-								value={newModelId}
+								placeholder={t("Search models by name or ID")}
+								spellCheck={false}
+								value={modelSearch}
 							/>
-							<Button
-								disabled={!newModelId.trim()}
-								onClick={addModel}
-								size="sm"
-							>
-								{t("Add")}
-							</Button>
-							<Button
-								onClick={() => setAddModelState(null)}
-								size="sm"
-								variant="ghost"
-							>
-								{t("Cancel")}
-							</Button>
 						</div>
-					) : null}
-
-					{modelsError ? (
-						<div className="border-t border-destructive/30 bg-destructive/5 px-4 py-2">
-							<p className="text-sm text-destructive">{modelsError}</p>
-						</div>
-					) : null}
-					{/* A failed refresh means the endpoint's list is unknown; the
-					    bundled placeholder models would only read as a fallback. */}
-					{modelList.length > 0 && !modelsError ? (
-						<div className="space-y-3">
-							<div className="mx-4 mt-4 flex h-9 items-center gap-2 rounded border bg-background px-3">
-								<Search className="size-4 shrink-0 text-muted-foreground" />
-								<Input
-									aria-label={t("Search models")}
-									className={EMBEDDED_INPUT_CLASS}
-									onChange={(event) =>
-										setModelSearchState({
-											providerId: provider.id,
-											value: event.target.value,
-										})
-									}
-									placeholder={t("Search models by name or ID")}
-									spellCheck={false}
-									value={modelSearch}
-								/>
-							</div>
-							{filteredModelList.length > 0 ? (
-								<div className="border-t">
-									{filteredModelList.map((model) => (
-										<div
-											className="group flex min-h-16 items-center gap-3 border-b px-4 py-3 hover:bg-surface-hover-lighter"
-											key={model.id}
-										>
-											<div className="min-w-0 flex-1 font-mono">
-												<div className="flex min-w-0 items-center gap-1.5 px-1 text-sm text-foreground">
-													<span className="truncate">{model.name}</span>
-													{featuredBadges(model).map((badge) => (
- 														<span
-															className="inline-flex shrink-0 items-center rounded bg-surface-hover px-1 py-px font-sans text-[0.625rem] font-medium uppercase tracking-wide text-muted-foreground"
-															key={badge}
-														>
-															{t(badge)}
-														</span>
-													))}
-													{/* Capability icons */}
-													{model.supportsAttachments && (
- 														<span
-															aria-label={t("File support")}
-															role="img"
-															title={t("File support")}
-														>
-															<FileIcon
-																aria-hidden="true"
-																className="h-3.5 w-3.5 text-muted-foreground"
-															/>
-														</span>
-													)}
-													{model.supportsVision && (
- 														<span
-															aria-label={t("Image support")}
-															role="img"
-															title={t("Image support")}
-														>
-															<ImageIcon
-																aria-hidden="true"
-																className="h-3.5 w-3.5 text-muted-foreground"
-															/>
-														</span>
-													)}
-													<AudioModelBadges model={model} />
-													{supportsAudio(model) &&
-														model.operation !== "transcription" &&
-														model.operation !== "realtime" && (
- 															<span
-																aria-label={t("Audio support")}
-																role="img"
-																title={t("Audio support")}
-															>
-																<Mic
-																	aria-hidden="true"
-																	className="h-3.5 w-3.5 text-muted-foreground"
-																/>
-															</span>
-														)}
-													{model.supportsReasoning && (
- 														<span
-															aria-label={t("Reasoning support")}
-															role="img"
-															title={t("Reasoning support")}
-														>
-															<Brain
-																aria-hidden="true"
-																className="h-3.5 w-3.5 text-muted-foreground"
-															/>
-														</span>
-													)}
-												</div>
-												{model.description ? (
-													<p className="mt-0.5 truncate px-1 font-sans text-xs text-muted-foreground">
-														{model.description}
-													</p>
-												) : null}
-												<button
-													aria-label={`Copy model ID ${model.id}`}
-													className="mt-1 flex max-w-full items-center gap-1.5 px-1 text-left text-xs text-muted-foreground  hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-													onClick={() => copyModelId(model.id)}
-													title={t("Copy model ID")}
-													type="button"
-												>
-													<span className="min-w-0 truncate">{model.id}</span>
-													<Copy className="size-3 shrink-0" />
-													{copiedModelId === model.id ? (
-														<span className="shrink-0 text-foreground">
-															{t("Copied")}
-														</span>
-													) : null}
-												</button>
-											</div>
-
-											<Button
-												aria-label={
-													favoriteModelIds.has(model.id)
-														? `Unfavorite ${model.name}`
-														: `Favorite ${model.name}`
-												}
-												className={cn(
-													"ml-auto shrink-0 rounded-md p-1.5 transition-colors hover:bg-surface-hover hover:text-foreground",
-													favoriteModelIds.has(model.id)
-														? "text-amber-400"
-														: "text-muted-foreground",
+						{filteredModelList.length > 0 ? (
+							<section
+								aria-label={t("Models")}
+								className="min-h-0 flex-1 overflow-y-auto overscroll-contain border-t"
+								// biome-ignore lint/a11y/noNoninteractiveTabindex: Allow keyboard scrolling of the model list.
+								tabIndex={0}
+							>
+								{filteredModelList.map((model) => (
+									<div
+										className="group flex min-h-16 items-center gap-3 border-b px-4 py-3 hover:bg-surface-hover-lighter"
+										key={model.id}
+									>
+										<div className="min-w-0 flex-1 font-mono">
+											<div className="flex min-w-0 items-center gap-1.5 px-1 text-sm text-foreground">
+												<span className="truncate">{model.name}</span>
+												{featuredBadges(model).map((badge) => (
+													<span
+														className="inline-flex shrink-0 items-center rounded bg-surface-hover px-1 py-px font-sans text-[0.625rem] font-medium uppercase tracking-wide text-muted-foreground"
+														key={badge}
+													>
+														{t(badge)}
+													</span>
+												))}
+												{/* Capability icons */}
+												{model.supportsAttachments && (
+													<span
+														aria-label={t("File support")}
+														role="img"
+														title={t("File support")}
+													>
+														<FileIcon
+															aria-hidden="true"
+															className="h-3.5 w-3.5 text-muted-foreground"
+														/>
+													</span>
 												)}
-												onClick={() => toggleFavoriteModel(model.id)}
-												variant="ghost"
-											>
-												<Star
-													className={cn(
-														"size-4",
-														favoriteModelIds.has(model.id) && "fill-current",
+												{model.supportsVision && (
+													<span
+														aria-label={t("Image support")}
+														role="img"
+														title={t("Image support")}
+													>
+														<ImageIcon
+															aria-hidden="true"
+															className="h-3.5 w-3.5 text-muted-foreground"
+														/>
+													</span>
+												)}
+												<AudioModelBadges model={model} />
+												{supportsAudio(model) &&
+													model.operation !== "transcription" &&
+													model.operation !== "realtime" && (
+														<span
+															aria-label={t("Audio support")}
+															role="img"
+															title={t("Audio support")}
+														>
+															<Mic
+																aria-hidden="true"
+																className="h-3.5 w-3.5 text-muted-foreground"
+															/>
+														</span>
 													)}
-												/>
-											</Button>
+												{model.supportsReasoning && (
+													<span
+														aria-label={t("Reasoning support")}
+														role="img"
+														title={t("Reasoning support")}
+													>
+														<Brain
+															aria-hidden="true"
+															className="h-3.5 w-3.5 text-muted-foreground"
+														/>
+													</span>
+												)}
+											</div>
+											{model.description ? (
+												<p className="mt-0.5 truncate px-1 font-sans text-xs text-muted-foreground">
+													{model.description}
+												</p>
+											) : null}
+											<button
+												aria-label={t("Copy model ID {id}", { id: model.id })}
+												className="mt-1 flex max-w-full items-center gap-1.5 px-1 text-left text-xs text-muted-foreground  hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+												onClick={() => copyModelId(model.id)}
+												title={t("Copy model ID")}
+												type="button"
+											>
+												<span className="min-w-0 truncate">{model.id}</span>
+												<Copy className="size-3 shrink-0" />
+												{copiedModelId === model.id ? (
+													<span className="shrink-0 text-foreground">
+														{t("Copied")}
+													</span>
+												) : null}
+											</button>
 										</div>
-									))}
-								</div>
-							) : (
-								<div className="rounded-lg border border-border px-4 py-8 text-center">
-									<p className="text-sm text-muted-foreground">
-										{t("No models match \"{query}\".", {
-											query: modelSearch.trim(),
-										})}
-									</p>
-								</div>
-							)}
-						</div>
-					) : (
-						<div className="rounded-lg border border-border px-4 py-8 text-center">
-							<p className="text-sm text-muted-foreground">
-								{modelsLoading
-									? t("Loading models...")
-									: t("No models available. Click refresh to load models.")}
-							</p>
-						</div>
-					)}
-				</section>
-			</div>
-		</ScrollArea>
+
+										<Button
+											aria-label={
+												favoriteModelIds.has(model.id)
+													? t("Unfavorite {name}", { name: model.name })
+													: t("Favorite {name}", { name: model.name })
+											}
+											className={cn(
+												"ml-auto shrink-0 rounded-md p-1.5 transition-colors hover:bg-surface-hover hover:text-foreground",
+												favoriteModelIds.has(model.id)
+													? "text-amber-400"
+													: "text-muted-foreground",
+											)}
+											onClick={() => toggleFavoriteModel(model.id)}
+											variant="ghost"
+										>
+											<Star
+												className={cn(
+													"size-4",
+													favoriteModelIds.has(model.id) && "fill-current",
+												)}
+											/>
+										</Button>
+									</div>
+								))}
+							</section>
+						) : (
+							<div className="rounded-lg border border-border px-4 py-8 text-center">
+								<p className="text-sm text-muted-foreground">
+									{t('No models match "{query}".', {
+										query: modelSearch.trim(),
+									})}
+								</p>
+							</div>
+						)}
+					</div>
+				) : (
+					<div className="rounded-lg border border-border px-4 py-8 text-center">
+						<p className="text-sm text-muted-foreground">
+							{modelsLoading
+								? t("Loading models...")
+								: t("No models available. Click refresh to load models.")}
+						</p>
+					</div>
+				)}
+			</section>
+		</div>
 	);
 }
