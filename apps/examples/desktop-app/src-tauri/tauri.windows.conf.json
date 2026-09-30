@@ -1,5 +1,6 @@
 {
 	"$schema": "https://schema.tauri.app/config/2",
+	"productName": "Cline 中文版",
 	"app": {
 		"windows": [
 			{
