@@ -6,6 +6,7 @@ import {
 	fetchProviderCatalog,
 	subscribeToProviderCatalogInvalidation,
 } from "@/lib/provider-model-catalog";
+import { t } from "@/lib/i18n";
 
 export function WebSearchProviderGuidance({
 	onOpenModelProviders,
@@ -45,26 +46,29 @@ export function WebSearchProviderGuidance({
 	if (readyProviders.length > 0)
 		return (
 			<p className="text-xs text-muted-foreground">
-				Ready to use with {readyProviders.join(", ")} on models that support web
-				search.
+				{t(
+					"Ready to use with {providers} on models that support web search.",
+					{ providers: readyProviders.join(", ") },
+				)}
 			</p>
 		);
 	return (
 		<p className="text-xs text-amber-700 dark:text-amber-300">
-			None of your connected providers support built-in web search, so this
-			setting has no effect yet.{" "}
+			{t(
+				"None of your connected providers support built-in web search, so this setting has no effect yet.",
+			)}{" "}
 			{onOpenModelProviders ? (
 				<button
 					type="button"
 					className="underline underline-offset-2 hover:text-foreground"
 					onClick={onOpenModelProviders}
 				>
-					Connect a provider
+					{t("Connect a provider")}
 				</button>
 			) : (
-				"Connect a provider in Settings"
+				t("Connect a provider in Settings")
 			)}{" "}
-			that supports it.
+			{t("that supports it.")}
 		</p>
 	);
 }
