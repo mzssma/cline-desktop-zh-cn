@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { AgentConversationHeader, SessionStatus } from "@cline/ui";
 import {
@@ -231,7 +231,6 @@ function AgentHeaderImpl({
 						"min-w-0 truncate text-sm font-medium text-foreground",
 						canEditTitle &&
 							"rounded px-1 py-0.5 transition-colors hover:bg-surface-hover",
-					)}
 					)}
 					disabled={renamingTitle}
 					onClick={(event) => {

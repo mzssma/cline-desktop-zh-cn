@@ -361,6 +361,7 @@ export function WelcomeScreen({
 						: null;
 	const showCloudOnboarding = cloudOnboardingVariant !== null;
 
+	return (
 		<AgentConversationLayout
 			welcome={active}
 			body={body}
