@@ -383,6 +383,7 @@ export function ComposioConnectorsView({
 			{!renderItem ? (
 				<div className="flex flex-wrap items-center justify-between gap-3">
 					<p className="text-sm text-muted-foreground">
+						<Badge className="mr-1">Beta</Badge>
 						{t("Connect your accounts to give Cline tools for your favorite apps. Tools will become available in new sessions.")}
 					</p>
 					{searchQuery === undefined ? (
