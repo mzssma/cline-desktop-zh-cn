@@ -1,3 +1,4 @@
+import type { ProviderAuthInfo } from "@cline/shared/browser";
 import {
 	isCredentialFailure,
 	resolveCredentialFailureHint,
@@ -5,9 +6,13 @@ import {
 import { t } from "@/lib/i18n";
 
 /** The same presentation for live failures and restored transcript errors. */
-export function formatRunError(detail: string, providerId = ""): string {
+export function formatRunError(
+	detail: string,
+	providerId = "",
+	providerAuth?: ProviderAuthInfo,
+): string {
 	const description = detail.trim();
-	const guidance = resolveCredentialFailureHint(providerId);
+	const guidance = resolveCredentialFailureHint(providerId, providerAuth);
 	const looksCredentialRelated =
 		!description || isCredentialFailure(description);
 	const runFailedPrefix = t("The run failed:");

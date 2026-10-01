@@ -8,9 +8,11 @@ describe("formatRunError", () => {
 		"The run failed: Unauthorized",
 		"运行失败: Unauthorized",
 	])("adds guidance exactly once for %s", (detail) => {
+		const auth = { providerId: "openrouter" };
+		const formatted = formatRunError(detail, "openrouter", auth);
 		expect(formatted).toContain("Settings → Providers");
 		expect(formatted.match(/(?:The run failed|运行失败)/g)).toHaveLength(1);
-		expect(formatRunError(formatted)).toBe(formatted);
+		expect(formatRunError(formatted, "openrouter", auth)).toBe(formatted);
 	});
 	it("does not suggest changing credentials for a token limit", () => {
 		expect(
@@ -25,8 +27,16 @@ it.each([
 	"Please /login",
 	"Please authenticate",
 ])("preserves CLI guidance for %s", (detail) => {
-	const text = formatRunError(detail, "claude-code");
+	const auth = { providerId: "claude-code", localCli: { command: "claude" } };
+	const text = formatRunError(detail, "claude-code", auth);
 	expect(text).toContain("`claude` CLI");
+	expect(text).not.toContain("Settings");
+	expect(formatRunError(text, "claude-code", auth)).toBe(text);
+});
+
+it("uses neutral guidance when restored errors have no auth metadata", () => {
+	const text = formatRunError("session expired", "claude-code");
+	expect(text).toContain("your provider's authentication method");
 	expect(text).not.toContain("Settings");
 	expect(formatRunError(text, "claude-code")).toBe(text);
 });
