@@ -277,6 +277,7 @@
 	"Model Providers": "模型提供商",
 	"Connect a provider to start using models.": "连接提供商以开始使用模型。",
 	"{configured} configured · {available} available": "{configured} 个已配置 · 共 {available} 个可用",
+	"{connectedCount} configured · {totalCount} available": "{connectedCount} 个已配置 · 共 {totalCount} 个可用",
 	"Add provider": "添加提供商",
 	"No providers match \"{query}\".": "未找到匹配 \"{query}\" 的提供商。",
 	"Popular": "常用推荐",
