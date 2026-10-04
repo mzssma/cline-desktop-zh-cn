@@ -58,6 +58,7 @@ import type { ProcessContext } from "@/hooks/chat-session/types";
 import { checkForUpdateAndNotify, useAppUpdate } from "@/hooks/use-app-update";
 import { useChatSession } from "@/hooks/use-chat-session";
 import { usePendingAttachments } from "@/hooks/use-pending-attachments";
+import { usePromptDraft } from "@/hooks/use-prompt-draft";
 import { useSessionAgents } from "@/hooks/use-session-agents";
 import { useSessionHistory } from "@/hooks/use-session-history";
 import { toast } from "@/hooks/use-toast";
@@ -297,6 +298,8 @@ function toThreadTitle(options: { title?: string; prompt?: string }): string {
 
 export default function Home() {
 	const [initialThreadId] = useState(makeThreadId);
+	// Outlive keyed chat panes without re-rendering the app on every keystroke.
+	const { current: promptDrafts } = useRef(new Map<string, string>());
 	const [appState, dispatchApp] = useReducer(
 		desktopAppReducer<SettingsSection>,
 		initialThreadId,
@@ -341,6 +344,12 @@ export default function Home() {
 	>(null);
 	const selectLocalDraftWhenChatVisibleRef = useRef(false);
 	const { navigation, threads } = appState;
+	useEffect(() => {
+		const threadIds = new Set(threads.map((thread) => thread.id));
+		for (const threadId of promptDrafts.keys()) {
+			if (!threadIds.has(threadId)) promptDrafts.delete(threadId);
+		}
+	}, [promptDrafts, threads]);
 	const { activeThreadId, settingsSection, view } = navigation.current;
 	const activeEnvironmentId =
 		activeRemoteEnvironment?.id ?? LOCAL_WORKSPACE_ENVIRONMENT_ID;
@@ -706,22 +715,28 @@ export default function Home() {
 		});
 	}, [handleDeleteSession]);
 
-	const activeHistorySession = threads.find(
-		(thread) => thread.id === activeThreadId,
-	)?.historySession;
-	const activeHistorySessionId = activeHistorySession
-		? sessionKey(activeHistorySession)
-		: null;
 	const activeThread =
 		threads.find((thread) => thread.id === activeThreadId) ?? threads[0];
+	// A thread opened from history carries its session record; one started
+	// fresh in the app only has the runtime session id bound by thread-started.
+	// Both must resolve so the sidebar highlights a session begun in the app.
+	const activeHistorySessionId = activeThread?.historySession
+		? sessionKey(activeThread.historySession)
+		: activeThread?.sessionId
+			? sessionKey({
+					sessionId: activeThread.sessionId,
+					environmentId: activeThread.environmentId,
+				})
+			: null;
 	const handleHome = useCallback(() => {
 		if (activeThread?.historySession || activeThread?.hasStarted) {
-			handleNewThread();
+			selectEnvironmentDraft(activeEnvironmentId);
+			requestPromptInputFocus();
 			return;
 		}
 		navigateWith({ view: "chat" });
 		requestPromptInputFocus();
-	}, [activeThread, handleNewThread, navigateWith]);
+	}, [activeThread, activeEnvironmentId, selectEnvironmentDraft, navigateWith]);
 	const handleViewChange = useCallback(
 		(nextView: DesktopAppView) => {
 			navigateWith({ view: nextView });
@@ -973,6 +988,7 @@ export default function Home() {
 												)?.status ?? activeThread.historySession?.status
 											}
 											initialPromptDraft={activeThread.initialPromptDraft}
+											promptDrafts={promptDrafts}
 											knownWorkspacePaths={historyWorkspacePaths}
 											onInitialPromptDraftConsumed={
 												handleInitialPromptDraftConsumed
@@ -1054,6 +1070,11 @@ export default function Home() {
 						setWhatsNew(null);
 						handleSettingsSectionChange("About");
 					}}
+					onOpenConnectors={() => {
+						markWhatsNewSeen(whatsNew.id);
+						setWhatsNew(null);
+						handleSettingsSectionChange("Customize");
+					}}
 					open={!showOnboarding}
 					release={whatsNew}
 				/>
@@ -1085,6 +1106,7 @@ let workspacesLoadedOnce = false;
 
 function ChatThreadPane({
 	threadId,
+	promptDrafts,
 	environmentId,
 	environmentProfiles,
 	environmentProfilesLoading,
@@ -1109,6 +1131,7 @@ function ChatThreadPane({
 	onThreadStarted,
 }: {
 	threadId: string;
+	promptDrafts: Map<string, string>;
 	environmentId: string;
 	environmentProfiles: RemoteEnvironmentProfile[];
 	environmentProfilesLoading: boolean;
@@ -1183,18 +1206,12 @@ function ChatThreadPane({
 			onThreadStarted?.(threadId, sessionId);
 		}
 	}, [onThreadStarted, sessionId, threadId]);
-	// The live composer text lives inside ChatInputBar so typing does not
-	// re-render this whole pane. The pane mirrors it in a ref (for reads) and
-	// pushes external updates (quick actions, undo, resets) via promptDraft.
-	const promptInputRef = useRef("");
-	const [promptDraft, setPromptDraft] = useState({ version: 0, value: "" });
-	const setPromptInput = useCallback((value: string) => {
-		promptInputRef.current = value;
-		setPromptDraft((prev) => ({ version: prev.version + 1, value }));
-	}, []);
-	const handlePromptInputChange = useCallback((value: string) => {
-		promptInputRef.current = value;
-	}, []);
+	const {
+		clearPromptForSend,
+		promptDraft,
+		setPromptInput,
+		handlePromptInputChange,
+	} = usePromptDraft(promptDrafts, threadId);
 	const [pendingAttachments, setPendingAttachments] = usePendingAttachments();
 	const [workInSelection, setWorkInSelection] =
 		useState<WorkIn>(readWorkInFromWindow);
@@ -1816,18 +1833,10 @@ function ChatThreadPane({
 		resetThreadRef.current = threadId;
 		hydratedSessionRef.current = null;
 		manualTitleSessionRef.current = null;
-		setPromptInput("");
 		setPendingAttachments([]);
 		setManualTitle("");
 		void reset();
-	}, [
-		historySession,
-		manualTitle,
-		reset,
-		threadId,
-		setPromptInput,
-		setPendingAttachments,
-	]);
+	}, [historySession, manualTitle, reset, threadId, setPendingAttachments]);
 
 	useEffect(() => {
 		if (!historySession) {
@@ -1837,8 +1846,16 @@ function ChatThreadPane({
 			return;
 		}
 		hydratedSessionRef.current = historySession.sessionId;
-		setPromptInput(initialPromptDraft ?? "");
+		// Opening the current live session's sidebar row now reuses this pane.
+		// Don't reset its stream/attachments just to hydrate the same session.
+		if (
+			historySession.sessionId === sessionId &&
+			initialPromptDraft === undefined
+		) {
+			return;
+		}
 		if (initialPromptDraft !== undefined) {
+			setPromptInput(initialPromptDraft);
 			onInitialPromptDraftConsumed?.(threadId);
 		}
 		setPendingAttachments([]);
@@ -1849,6 +1866,7 @@ function ChatThreadPane({
 		hydrateSession,
 		initialPromptDraft,
 		onInitialPromptDraftConsumed,
+		sessionId,
 		setPendingAttachments,
 		setPromptInput,
 		threadId,
@@ -1911,7 +1929,7 @@ function ChatThreadPane({
 			// Also clear the injected draft: the composer cleared its local copy,
 			// but a stale non-empty draft would repopulate the input if the
 			// composer remounts (e.g. a transport blip re-showing the loader).
-			setPromptInput("");
+			const restorePrompt = clearPromptForSend();
 			const toSend = [...pendingAttachments];
 			setPendingAttachments([]);
 			const promptTaken = await sendPrompt(trimmed, toSend, {
@@ -1919,13 +1937,13 @@ function ChatThreadPane({
 			});
 			// The prompt never reached the runtime (e.g. the provider connection
 			// failed): hand it back so the user can fix the provider and resend
-			// without retyping. Leave anything they typed meanwhile alone.
-			if (!promptTaken && promptInputRef.current.trim() === "") {
-				setPromptInput(trimmed);
+			// without retyping, but only if this pane still owns the unchanged draft.
+			if (!promptTaken && restorePrompt(trimmed)) {
 				handleAttachFiles(toSend);
 			}
 		},
 		[
+			clearPromptForSend,
 			config.repoUrl,
 			handleAttachFiles,
 			isCloudSession,
@@ -1935,7 +1953,6 @@ function ChatThreadPane({
 			sendPrompt,
 			sessionId,
 			setPendingAttachments,
-			setPromptInput,
 			threadId,
 			workIn,
 		],

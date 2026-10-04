@@ -171,7 +171,11 @@ function ReleaseNotes({
 	);
 }
 
-export function AboutContent() {
+export function AboutContent({
+	onOpenConnectors,
+}: {
+	onOpenConnectors: () => void;
+}) {
 	const appVersion = useAppVersion();
 	const [releases, setReleases] = useState<ChangelogRelease[] | null>(null);
 	const [changelogError, setChangelogError] = useState<string | null>(null);
@@ -239,6 +243,7 @@ export function AboutContent() {
 						</Button>
 						<WhatsNewDialog
 							onOpenChange={setWhatsNewOpen}
+							onOpenConnectors={onOpenConnectors}
 							open={whatsNewOpen}
 							release={whatsNew}
 						/>

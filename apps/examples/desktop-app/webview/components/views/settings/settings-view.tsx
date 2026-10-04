@@ -647,7 +647,7 @@ export function SettingsView({
 		) : activeNav === "Account" ? (
 			<AccountView />
 		) : activeNav === "About" ? (
-			<AboutContent />
+			<AboutContent onOpenConnectors={() => onNavigateSection("Customize")} />
 		) : activeNav === "General" ? (
 			<GeneralSettingsContent onExportDiagnostics={onExportDiagnostics} />
 		) : (
