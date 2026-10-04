@@ -1151,7 +1151,7 @@ function ChatInputBarImpl({
 											<span className="font-medium">/{cmd.name}</span>
 											{cmd.description && (
 												<span className="text-[10px] opacity-70">
-													{cmd.description}
+													{t(cmd.description)}
 												</span>
 											)}
 										</button>
@@ -2252,7 +2252,7 @@ const ModelSelector = memo(function ModelSelector({
 				onClick={refreshActiveProviderModels}
 				type="button"
 			>
-				Could not load cloud models. Retry
+				{t("Could not load cloud models. Retry")}
 			</button>
 		);
 	}
