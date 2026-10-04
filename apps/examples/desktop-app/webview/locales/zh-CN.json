@@ -1146,7 +1146,7 @@
 	"Each task gets its own branch under ~/.cline/worktrees, so parallel work never collides.": "每个任务在 ~/.cline/worktrees 下拥有独立分支，并行工作互不干扰。",
 	"Pull request status": "Pull Request 状态",
 	"Your branch's PR, merge state, and CI checks, right in the composer.": "当前分支的 PR、合并状态及 CI 检查结果，直接呈现在输入栏中。",
-	"Parallel sub-agents": "并行子 Agent",
+	"Parallel sub-agents": "并行子代理",
 	"Delegate several tasks in one session and they run at the same time.": "在单次会话中分派多个任务，它们将同时并行执行。",
 	"Could not load cloud models. Retry": "无法加载云端模型。重试",
 	"All categories": "所有分类",
@@ -1189,5 +1189,15 @@
 	"Make a 30-second teaser for this project, upload it to YouTube, and draft launch posts for LinkedIn and r/SideProject.": "为该项目制作 30 秒宣传片，上传到 YouTube，并草拟在 LinkedIn 和 r/SideProject 发布的帖子。",
 	"Summarize the conversation to free up context": "总结对话以释放上下文空间",
 	"Create a copy of the current session into a new session": "将当前会话复制到新会话中",
-	"Start the task with an agent team": "使用智能体团队启动任务"
+	"Start the task with an agent team": "使用智能体团队启动任务",
+	"Sub-agent": "子代理",
+	"Sub-agents": "子代理",
+	"sub-agent": "子代理",
+	"sub-agents": "子代理",
+	"Subagent": "子代理",
+	"Subagents": "子代理",
+	"subagent": "子代理",
+	"subagents": "子代理",
+	"Waiting for the first agent to report in...": "正在等待首个智能体汇报状态…",
+	"No agent details were recorded for this session.": "此会话未记录任何智能体详细信息。"
 }

@@ -453,8 +453,8 @@ function AgentRoster({
 		return (
 			<div className="px-3 py-4 text-xs text-muted-foreground">
 				{activity.running > 0
-					? "Waiting for the first agent to report in..."
-					: "No agent details were recorded for this session."}
+					? t("Waiting for the first agent to report in...")
+					: t("No agent details were recorded for this session.")}
 				{error ? (
 					<div className="mt-1 text-[11px] text-muted-foreground/80">
 						{error}
