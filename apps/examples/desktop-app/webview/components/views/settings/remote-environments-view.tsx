@@ -509,7 +509,7 @@ export function RemoteEnvironmentsContent() {
 									disabled={isBusy}
 									id="remote-name"
 									onChange={(event) => updateDraft("name", event.target.value)}
-									placeholder="Build server"
+									placeholder={t("Build server")}
 									value={draft.name}
 								/>
 							</div>
@@ -520,7 +520,7 @@ export function RemoteEnvironmentsContent() {
 									disabled={isBusy || hasSavedDestination}
 									id="remote-host"
 									onChange={(event) => updateDraft("host", event.target.value)}
-									placeholder="dev.example.com or ssh-config-alias"
+									placeholder={t("dev.example.com or ssh-config-alias")}
 									spellCheck={false}
 									value={draft.host}
 								/>

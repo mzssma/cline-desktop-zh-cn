@@ -787,7 +787,7 @@ export function MarketplaceExplorerView({
 							<DropdownMenu>
 								<DropdownMenuTrigger asChild>
 									<Button
-										aria-label="Filter by category"
+										aria-label={t("Filter by category")}
 										className="ml-auto text-muted-foreground"
 										size="xs"
 										type="button"

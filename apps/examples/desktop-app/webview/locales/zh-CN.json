@@ -1200,5 +1200,9 @@
 	"subagent": "子代理",
 	"subagents": "子代理",
 	"Waiting for the first agent to report in...": "正在等待首个智能体汇报状态…",
-	"No agent details were recorded for this session.": "此会话未记录任何智能体详细信息。"
+	"No agent details were recorded for this session.": "此会话未记录任何智能体详细信息。",
+	"Filter by category": "按分类筛选",
+	"Settings sections": "设置分类",
+	"Build server": "构建服务器",
+	"dev.example.com or ssh-config-alias": "dev.example.com 或 SSH 配置别名"
 }

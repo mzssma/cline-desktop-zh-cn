@@ -233,7 +233,7 @@ function SettingsSectionNavigation({
 
 	return (
 		<nav
-			aria-label="Settings sections"
+			aria-label={t("Settings sections")}
 			className={cn(
 				"flex h-full min-h-0 flex-col overflow-y-auto overflow-x-hidden",
 				collapsed ? "w-full items-start" : "w-full",
@@ -1249,7 +1249,7 @@ export function AgentSidebar({
 								</span>
 							</button>
 							<Button
-								aria-label="Settings"
+								aria-label={t("Settings")}
 								className={cn(
 									"size-9 shrink-0 justify-center px-0",
 									view === "settings" &&
@@ -1266,7 +1266,7 @@ export function AgentSidebar({
 						</div>
 					) : (
 						<Button
-							aria-label="Settings"
+							aria-label={t("Settings")}
 							className={cn(
 								"min-w-0 justify-start",
 								isCollapsed && "size-9 justify-center px-0",
