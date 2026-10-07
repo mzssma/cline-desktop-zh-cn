@@ -12,6 +12,14 @@ The open source coding agent in your IDE, terminal, & desktop.
   <a href="README_zh.md"><strong>🇨🇳 简体中文说明文档</strong></a> | <a href="README.md"><strong>English</strong></a>
 </p>
 
+> [!IMPORTANT]
+> **Disclaimer / 非官方声明**:
+> This repository is an **unofficial community Chinese localization project** maintained independently for Cline Desktop. It is **not affiliated with, endorsed by, sponsored by, or in any way officially connected with** Cline Bot Inc. or the official Cline project.
+> - **Official Cline Repository**: [github.com/cline/cline](https://github.com/cline/cline)
+> - **Official Website**: [cline.bot](https://cline.bot)
+> - 本项目为社区独立维护的非官方中文汉化版，与 Cline 官方团队没有任何官方或商业从属关联。
+
+
 <div align="center">
 
 <div align="center">

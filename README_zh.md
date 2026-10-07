@@ -12,6 +12,14 @@
   <a href="README_zh.md"><strong>🇨🇳 简体中文说明文档</strong></a> | <a href="README.md"><strong>English</strong></a>
 </p>
 
+> [!IMPORTANT]
+> **非官方汉化声明 / Disclaimer**：
+> 1. **项目性质**：本项目是 **Cline Desktop（桌面客户端）的社区非官方简体中文汉化版**，由个人独立维护与汉化。
+> 2. **无官方关联**：本项目**与 Cline 官方团队（Cline Bot Inc.）没有任何从属、雇佣、赞助、授权或直接关联关系**。
+> 3. **官方原版项目**：获取官方英文原版或寻求官方技术支持，请访问官方开源仓库 [github.com/cline/cline](https://github.com/cline/cline) 与官方网站 [cline.bot](https://cline.bot)。
+> 4. **版权说明**：所有原始代码、商标与知识产权归原作者 Cline Bot Inc. 所有，本项目严格遵循 [Apache 2.0 开源协议](LICENSE) 进行开源合规分发。
+
+
 <div align="center">
 
 <div align="center">
