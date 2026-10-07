@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <a href="README_zh.md"><strong>🇨🇳 简体中文说明文档</strong></a> | <a href="README.md"><strong>English</strong></a>
+  <a href="README_zh.md"><strong>简体中文</strong></a> | <a href="README.md"><strong>English</strong></a>
 </p>
 
 > [!IMPORTANT]
@@ -73,9 +73,7 @@ npm i -g cline
 适用于 macOS 和 Windows 的 Cline 原生桌面应用。
 可在任意本地文件夹中启动智能体任务、调度例行工作，并管理模型、插件与 MCP 服务。
 
-<a href="https://cline.bot/desktop">官方英文原版下载 (macOS / Windows)</a>
-<br>
-<strong><a href="https://github.com/mzssma/cline-desktop-zh-cn/releases/latest">👉 下载 Windows 简体中文版 (独立安装 / 便携版)</a></strong>
+<a href="https://github.com/mzssma/cline-desktop-zh-cn/releases/latest">下载 Cline 简体中文版 (Windows)</a>
 <br><br>
 
 </td>

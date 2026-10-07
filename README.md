@@ -9,7 +9,7 @@ The open source coding agent in your IDE, terminal, & desktop.
 </p>
 
 <p align="center">
-  <a href="README_zh.md"><strong>🇨🇳 简体中文说明文档</strong></a> | <a href="README.md"><strong>English</strong></a>
+  <a href="README_zh.md"><strong>简体中文</strong></a> | <a href="README.md"><strong>English</strong></a>
 </p>
 
 > [!IMPORTANT]
@@ -75,9 +75,7 @@ Cline as a native app for macOS and Windows.
 Run agent sessions in any folder, schedule
 routines, and manage models, plugins, and MCP servers.
 
-<a href="https://cline.bot/desktop">Download for macOS and Windows</a>
-<br>
-<strong><a href="https://github.com/mzssma/cline-desktop-zh-cn/releases/latest">👉 Download Windows 简体中文版 (Installer / Portable)</a></strong>
+<a href="https://github.com/mzssma/cline-desktop-zh-cn/releases/latest">Download Cline Chinese Edition (Windows)</a>
 <br><br>
 
 </td>
