@@ -11,6 +11,7 @@
 - **GitHub 仓库**：[mzssma/cline-desktop-zh-cn](https://github.com/mzssma/cline-desktop-zh-cn)
 - **主开发分支**：`desktop-zh-cn`
 - **上游官方源**：[cline/cline](https://github.com/cline/cline)
+- **维护者**：mzssma
 - **核心目标**：紧密跟进官方版本更新，提供 100% 完整、自然、深度汉化的 Cline 桌面客户端，并通过 GitHub Actions 实现关机全自动云端打包与静默升级发布。
 
 ---
