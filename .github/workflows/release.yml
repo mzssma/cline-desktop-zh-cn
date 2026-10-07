@@ -1,0 +1,142 @@
+name: Release Desktop App (Cline 中文版)
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      version_tag:
+        description: "Release version tag (e.g. v0.0.43). Leave empty to use branch HEAD."
+        required: false
+        type: string
+
+concurrency:
+  group: desktop-release-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    name: Build & Release Windows Desktop
+    runs-on: windows-latest
+    timeout-minutes: 90
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: "1.4.2"
+
+      - name: Seed Bun cache with Linux remote-helper runtimes
+        shell: bash
+        run: |
+          BUN_VERSION="$(bun --version)"
+          CACHE_DIR="${RUNNER_TEMP//\\//}/bun-install-cache"
+          mkdir -p "$CACHE_DIR"
+          for target in linux-x64-baseline linux-aarch64; do
+            dest="$CACHE_DIR/bun-$target-v$BUN_VERSION"
+            work="$(mktemp -d)"
+            (cd "$work" && npm pack "@oven/bun-$target@$BUN_VERSION" --silent >/dev/null && tar -xzf ./*.tgz package/bin/bun)
+            mv "$work/package/bin/bun" "$dest"
+            if [ "$(head -c 4 "$dest" | od -An -c | tr -d ' ')" != "177ELF" ]; then
+              echo "$dest is not an ELF executable; refusing to seed a bad runtime"
+              exit 1
+            fi
+            echo "seeded $dest ($(stat -c %s "$dest") bytes)"
+          done
+          echo "BUN_INSTALL_CACHE_DIR=${CACHE_DIR}" >> "$GITHUB_ENV"
+
+      - name: Install UPX
+        run: choco install upx --no-progress -y
+
+      - name: Setup Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+
+      - name: Install project dependencies
+        run: bun install
+
+      - name: Build SDK and UI packages
+        run: bun run build:sdk
+
+      - name: Build Tauri Desktop (NSIS & Portable)
+        shell: bash
+        working-directory: apps/examples/desktop-app
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          bunx tauri build --bundles nsis
+
+      - name: Prepare Release Artifacts
+        id: artifacts
+        shell: bash
+        run: |
+          mkdir -p dist-release
+          BUNDLE_DIR="apps/examples/desktop-app/src-tauri/target/release/bundle"
+          PORTABLE_EXE="apps/examples/desktop-app/src-tauri/target/release/cline-app.exe"
+          
+          # Find and copy all bundle outputs: installer .exe, updater .zip, signatures .sig, and latest.json
+          if [ -d "$BUNDLE_DIR" ]; then
+            find "$BUNDLE_DIR" -type f \( -name "*.exe" -o -name "*.zip" -o -name "*.sig" -o -name "latest.json" \) -exec cp -v {} dist-release/ \;
+          fi
+          
+          # Copy portable exe if available
+          if [ -f "$PORTABLE_EXE" ] && [ ! -f "dist-release/cline-app.exe" ]; then
+            cp -v "$PORTABLE_EXE" dist-release/cline-app.exe
+          fi
+          
+          echo "=== Artifacts to upload to GitHub Release ==="
+          ls -la dist-release/
+
+      - name: Determine Release Tag
+        id: release_tag
+        shell: bash
+        run: |
+          if [ -n "${{ github.event.inputs.version_tag }}" ]; then
+            TAG="${{ github.event.inputs.version_tag }}"
+          elif [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            TAG="${GITHUB_REF#refs/tags/}"
+          else
+            # Derive tag from tauri.conf.json
+            VERSION=$(node -p "require('./apps/examples/desktop-app/src-tauri/tauri.conf.json').version")
+            TAG="v${VERSION}"
+          fi
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+          echo "Release tag will be: ${TAG}"
+
+      - name: Create GitHub Release and Upload Assets
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.release_tag.outputs.tag }}
+          name: "Cline 中文版 ${{ steps.release_tag.outputs.tag }}"
+          body: |
+            ### 🤖 Cline Desktop 简体中文汉化版 ${{ steps.release_tag.outputs.tag }}
+
+            本版本基于 Cline Desktop 官方 Release 制作，已完成全部界面、菜单、设置及系统托盘的深度简体中文汉化。
+
+            #### ✨ 版本特性：
+            - **独立安装共存**：产品标识为 `bot.cline.app.zhcn`，与官方英文原版可同时安装、独立运行，不抢焦点、不互相覆盖。
+            - **数据共享互通**：共享 `~/.cline` 配置，历史任务、模型设置与 API Key 100% 互通。
+            - **自动检测更新**：集成在线更新检测，新版本发布后支持自动检查升级。
+
+            #### 📦 下载说明：
+            - **Windows 独立安装版**：下载 `Cline 中文版_*_x64-setup.exe`，双击根据向导安装。
+            - **Windows 绿色免安装版**：下载 `cline-app.exe`，解压/双击直接运行。
+          files: |
+            dist-release/*
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
