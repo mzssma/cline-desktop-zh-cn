@@ -8,6 +8,10 @@
 The open source coding agent in your IDE, terminal, & desktop.
 </p>
 
+<p align="center">
+  <a href="README_zh.md"><strong>🇨🇳 简体中文说明文档</strong></a> | <a href="README.md"><strong>English</strong></a>
+</p>
+
 <div align="center">
 
 <div align="center">
