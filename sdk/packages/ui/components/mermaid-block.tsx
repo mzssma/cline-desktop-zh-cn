@@ -236,18 +236,18 @@ function DownloadMenu({
 			<button
 				aria-expanded={open}
 				aria-haspopup="menu"
-				aria-label="Download diagram"
+				aria-label="下载图表"
 				className="cline-mermaid__button"
 				onClick={() => setOpen((current) => !current)}
 				ref={triggerRef}
-				title="Download diagram"
+				title="下载图表"
 				type="button"
 			>
 				<Icon>{ICONS.download}</Icon>
 			</button>
 			{open ? (
 				<div
-					aria-label="Download diagram"
+					aria-label="下载图表"
 					className="cline-mermaid__menu"
 					onKeyDown={onMenuKeyDown}
 					role="menu"
@@ -260,7 +260,7 @@ function DownloadMenu({
 						role="menuitem"
 						type="button"
 					>
-						PNG image
+						PNG 图片
 					</button>
 					<button
 						className="cline-mermaid__menu-item"
@@ -268,7 +268,7 @@ function DownloadMenu({
 						role="menuitem"
 						type="button"
 					>
-						Mermaid source (.mmd)
+						Mermaid 源码 (.mmd)
 					</button>
 				</div>
 			) : null}
@@ -385,15 +385,15 @@ function ZoomControls({ api }: { api: DiagramViewApi }) {
 	const percent = Math.round(api.view.scale * 100);
 	return (
 		<>
-			<ToolbarButton label="Zoom out" onClick={api.zoomOut}>
+			<ToolbarButton label="缩小" onClick={api.zoomOut}>
 				<Icon>{ICONS.zoomOut}</Icon>
 			</ToolbarButton>
-			<ToolbarButton label="Zoom in" onClick={api.zoomIn}>
+			<ToolbarButton label="放大" onClick={api.zoomIn}>
 				<Icon>{ICONS.zoomIn}</Icon>
 			</ToolbarButton>
 			<ToolbarButton
 				disabled={api.view === INITIAL_DIAGRAM_VIEW}
-				label={`Reset zoom (${percent}%)`}
+				label={`重置缩放 (${percent}%)`}
 				onClick={api.reset}
 			>
 				<Icon>{ICONS.reset}</Icon>
@@ -472,7 +472,7 @@ function FullscreenDialog({
 
 	return (
 		<dialog
-			aria-label={`${filename} (fullscreen)`}
+			aria-label={`${filename}（全屏）`}
 			className="cline-mermaid__dialog"
 			onCancel={(event) => {
 				event.preventDefault();
@@ -484,12 +484,12 @@ function FullscreenDialog({
 			<div className="cline-mermaid__header">
 				<span className="cline-mermaid__filename">{filename}</span>
 				<div
-					aria-label="Diagram actions"
+					aria-label="图表操作"
 					className="cline-mermaid__actions"
 					role="toolbar"
 				>
 					<ZoomControls api={api} />
-					<ToolbarButton label="Exit fullscreen" onClick={onClose}>
+					<ToolbarButton label="退出全屏" onClick={onClose}>
 						<Icon>{ICONS.exit}</Icon>
 					</ToolbarButton>
 				</div>
@@ -595,7 +595,7 @@ export function MermaidBlock({
 			await navigator.clipboard.writeText(normalizeDiagramSource(code));
 			markCopied();
 		} catch {
-			setNotice("Couldn't copy the diagram source.");
+			setNotice("无法复制图表源码。");
 		}
 	};
 
@@ -603,7 +603,7 @@ export function MermaidBlock({
 		try {
 			downloadText(normalizeDiagramSource(code), sourceName);
 		} catch {
-			setNotice("Couldn't save the diagram source.");
+			setNotice("无法保存图表源码。");
 		}
 	};
 
@@ -613,7 +613,7 @@ export function MermaidBlock({
 			const blob = await svgToPngBlob(state.svg, state.background);
 			downloadBlob(blob, diagramFileName(slug, "png"));
 		} catch {
-			setNotice("Couldn't export the PNG. Download the .mmd source instead.");
+			setNotice("无法导出 PNG。请改为下载 .mmd 源码。");
 		}
 	};
 
@@ -637,13 +637,13 @@ export function MermaidBlock({
 					{sourceName}
 				</span>
 				<div
-					aria-label="Diagram actions"
+					aria-label="图表操作"
 					className="cline-mermaid__actions"
 					role="toolbar"
 				>
 					{ready ? <ZoomControls api={api} /> : null}
 					<ToolbarButton
-						label={copied ? "Copied" : "Copy diagram source"}
+						label={copied ? "已复制" : "复制图表源码"}
 						onClick={() => void copySource()}
 					>
 						<Icon>{copied ? ICONS.check : ICONS.copy}</Icon>
@@ -656,7 +656,7 @@ export function MermaidBlock({
 					<ToolbarButton
 						buttonRef={fullscreenTriggerRef}
 						disabled={!ready}
-						label="View fullscreen"
+						label="全屏查看"
 						onClick={() => setFullscreen(true)}
 					>
 						<Icon>{ICONS.enter}</Icon>
@@ -669,12 +669,12 @@ export function MermaidBlock({
 			{state.status === "pending" ? (
 				<output aria-busy="true" className="cline-mermaid__skeleton">
 					<span aria-hidden="true" className="cline-mermaid__spinner" />
-					{isIncomplete ? "Drawing diagram…" : "Rendering diagram…"}
+					{isIncomplete ? "正在绘制图表…" : "正在渲染图表…"}
 				</output>
 			) : null}
 			{state.status === "error" ? (
 				<div className="cline-mermaid__error" role="alert">
-					<p>Mermaid Error: {state.message}</p>
+					<p>Mermaid 错误：{state.message}</p>
 					<pre>
 						<code>{code}</code>
 					</pre>

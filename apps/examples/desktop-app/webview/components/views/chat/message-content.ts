@@ -4,6 +4,7 @@ import {
 } from "@cline/shared/browser";
 import type { ChatMessage } from "@/lib/chat-schema";
 import { formatRunError, HUB_INTERRUPTED_MESSAGE_KIND } from "@/lib/run-error";
+import { t } from "@/lib/i18n";
 
 export function formatChatMessageContent(
 	role: ChatMessage["role"],
@@ -14,7 +15,7 @@ export function formatChatMessageContent(
 ): string {
 	const trimmed = content.trim();
 	if (role === "error" && messageKind === HUB_INTERRUPTED_MESSAGE_KIND)
-		return trimmed;
+		return t(trimmed);
 	if (role === "error")
 		return formatRunError(trimmed, providerId, providerAuth);
 	return role === "user" ? formatDisplayUserInput(trimmed) : trimmed;
