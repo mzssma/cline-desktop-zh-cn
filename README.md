@@ -68,6 +68,8 @@ Run agent sessions in any folder, schedule
 routines, and manage models, plugins, and MCP servers.
 
 <a href="https://cline.bot/desktop">Download for macOS and Windows</a>
+<br>
+<strong><a href="https://github.com/mzssma/cline-desktop-zh-cn/releases/latest">👉 Download Windows 简体中文版 (Installer / Portable)</a></strong>
 <br><br>
 
 </td>
