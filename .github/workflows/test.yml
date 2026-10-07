@@ -1,0 +1,15 @@
+name: Test CI
+
+on:
+  push:
+    branches:
+      - main
+      - desktop-zh-cn
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Test
+        run: echo "GitHub Actions is active!"
