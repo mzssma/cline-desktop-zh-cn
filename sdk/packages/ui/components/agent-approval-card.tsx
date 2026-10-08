@@ -1,6 +1,7 @@
 "use client";
 
 import { type ReactNode, useId } from "react";
+import { uiText } from "./ui-text.js";
 
 export type AgentApprovalAction = "approve" | "reject";
 
@@ -82,10 +83,10 @@ export function AgentApprovalCard({
 					{responding === "approve" ? (
 						<>
 							<Spinner />
-							Approving...
+							{uiText("Approving...")}
 						</>
 					) : (
-						"Approve"
+						uiText("Approve")
 					)}
 				</button>
 				<button
@@ -97,10 +98,10 @@ export function AgentApprovalCard({
 					{responding === "reject" ? (
 						<>
 							<Spinner />
-							Rejecting...
+							{uiText("Rejecting...")}
 						</>
 					) : (
-						"Reject"
+						uiText("Reject")
 					)}
 				</button>
 			</div>

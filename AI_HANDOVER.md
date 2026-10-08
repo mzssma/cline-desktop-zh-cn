@@ -64,7 +64,9 @@
 | `apps/examples/desktop-app/src-tauri/src/main.rs` | **Windows 系统托盘原生代码** | 托盘右键菜单文案，修改时需同步更新底部的测试断言。 |
 | `apps/examples/desktop-app/src-tauri/tauri.conf.json` | **Tauri 桌面配置** | 版本号 `version`、标识 `bot.cline.app.zhcn`、公钥与更新地址。 |
 | `apps/examples/desktop-app/src-tauri/tauri.windows.conf.json` | **Windows 窗口与打包配置** | 保证包含 `"targets": ["nsis"]`。 |
-| `scripts/check-translations.ts` | **汉化健康度与雷达扫描脚本** | 秒级扫描未翻译词条与语法变量完整性。 |
+| `scripts/check-translations.ts` | **汉化健康度与雷达扫描脚本** | 词典 JSON/重复键/占位符/红线/漏键检查，可附带扫描上游两个 tag 间新增的硬编码英文。 |
+| `scripts/scan-hardcoded-ui.ts` | **硬编码英文 AST 扫描** | 列出 webview 与 `@cline/ui` 组件中未经 `t()`/`uiText()` 的 JSX 英文文本与属性。 |
+| `sdk/packages/ui/components/ui-text.ts` | **共享组件翻译桥** | `@cline/ui` 组件用 `uiText()` 取文案；桌面端在 `webview/lib/i18n.ts` 注册 `t()`，词条同样写进 `zh-CN.json`。测试环境返回英文原文。 |
 | `.github/workflows/release.yml` | **GitHub Actions 云端自动流水线** | 微软云端 Windows 机器自动打包、签名并发布 Release。 |
 
 ---
@@ -85,11 +87,11 @@ git merge v0.0.44
 
 ### 步骤 2：运行汉化雷达扫描
 ```bash
-bun run check-translations
-# 或者:
-npx ts-node scripts/check-translations.ts
+# 全量词典检查 + 上游两个版本间新增硬编码英文扫描（有错误时退出码为 1）
+bun scripts/check-translations.ts desktop-v0.0.44 desktop-v0.0.45
+# 补充：AST 级硬编码英文扫描（需先 bun install）
+bun scripts/scan-hardcoded-ui.ts
 ```
-雷达脚本会自动分析代码差异，并精准列出本次官方更新中新增的所有未翻译英文文本。
 
 ### 步骤 3：增量精准翻译与配置同步
 1. 将雷达扫描出的新增英文，严格按照本文第 3 节的红线规范，翻译后追加到 `apps/examples/desktop-app/webview/locales/zh-CN.json`。
@@ -98,27 +100,30 @@ npx ts-node scripts/check-translations.ts
    ```json
    "version": "0.0.44"
    ```
-4. 再次运行 `bun run check-translations`，确保无未翻译词条。
+4. 再次运行 `bun scripts/check-translations.ts`，确保 0 个错误、无未翻译词条。
 
-### 步骤 4：提交并触发云端全自动打包
+### 步骤 4：打包前强制自检（主人要求，不可跳过）
+汉化完成后、打包之前，必须逐项检查并记录：
+1. **是否引入 bug**：`zh-CN.json` 合法、无重复键；`{name}` 等占位符与 HTML 标签与原文一致；`bun run build:sdk` 后在 `apps/examples/desktop-app` 跑 `bun run typecheck`、`bun run build:web`，以及 `bunx vitest run webview --config vitest.config.ts`（测试环境为英文，`t()` 的键必须与官方英文原文一字不差，否则测试会失败）。
+2. **是否漏译 / 译得含糊 / 译错**：上面两个扫描脚本无遗漏；术语符合第 3 节红线（API Key、显示 / 隐藏密码、子代理 / 智能体、MCP 服务器、模型提供商）。
+
+### 步骤 5：提交并打包（先出构建产物，主人确认后再发 Release）
 ```bash
-# 暂存并提交修改（使用 --no-verify 跳过本地 gitleaks 误报检查）
-git add .
-git commit -m "chore: release v0.0.44 zh-cn" --no-verify
-
-# 推送到 GitHub 仓库主分支
+git add -A
+git commit -m "chore: release v0.0.45 zh-cn" --no-verify
 git push origin desktop-zh-cn
 
-# 打上对应版本的 Tag 并推送，这会自动触发 GitHub Actions 云端打包
-git tag v0.0.44
-git push origin v0.0.44
+# 只打包、不发布：手动触发工作流（publish_release 默认 false），产物在 Actions 运行页的 Artifacts 里
+gh workflow run release.yml --ref desktop-zh-cn
 ```
-
----
+主人确认后再正式发布（二选一）：
+- 推送 Tag：`git tag v0.0.45 && git push origin v0.0.45`（自动构建并发布 Release）；
+- 或手动触发并勾选发布：`gh workflow run release.yml --ref desktop-zh-cn -f publish_release=true -f version_tag=v0.0.45`。
+发布后用 `gh release edit v0.0.45 --notes-file RELEASE_NOTES_v0.0.45.zh.md` 换上本版说明。
 
 ## 6. GitHub Actions 云端全自动打包机制
 
-- **触发条件**：向仓库推送 `v*` 格式的 Git Tag，或在 GitHub 网页端的 Actions 页面点击“Run workflow”。
+- **触发条件**：向仓库推送 `v*` 格式的 Git Tag（构建并发布 Release），或在 Actions 页面点击“Run workflow”（默认只构建并上传 Artifacts，勾选 `publish_release` 才发布 Release）。
 - **运行环境**：GitHub 官方托管的 Windows Server 虚拟机（`windows-latest`）。
 - **运行耗时**：约 15~20 分钟（无需用户电脑开机，完全在云端静默运行）。
 - **自动产出并上传到 GitHub Releases**：

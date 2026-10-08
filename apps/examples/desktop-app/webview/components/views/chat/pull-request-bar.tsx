@@ -10,6 +10,7 @@ import {
 import { desktopClient, openExternalUrl } from "@/lib/desktop-client";
 import type { PullRequestStatus } from "@/lib/pull-request";
 import { trackPullRequestEvent } from "@/lib/pull-request-telemetry";
+import { t } from "@/lib/i18n";
 
 export function PullRequestBar({
 	cwd,
@@ -66,7 +67,7 @@ function WorkspacePullRequestBar({ cwd }: { cwd: string }) {
 						setError(
 							cause instanceof Error
 								? cause.message
-								: "Could not load pull request status.",
+								: t("Could not load pull request status."),
 						);
 					}
 				}
@@ -93,7 +94,7 @@ function WorkspacePullRequestBar({ cwd }: { cwd: string }) {
 		try {
 			await openExternalUrl(url);
 		} catch {
-			setError("Could not open GitHub in your browser. Try again.");
+			setError(t("Could not open GitHub in your browser. Try again."));
 		}
 	}
 

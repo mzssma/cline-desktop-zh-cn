@@ -93,7 +93,7 @@ export function RemoteDirectoryPicker({
 				}
 				const canonicalPath = normalizeRemotePath(result.currentPath);
 				if (!canonicalPath) {
-					throw new Error("Remote host returned an empty directory path.");
+					throw new Error(t("Remote host returned an empty directory path."));
 				}
 				setCurrentPath(canonicalPath);
 				setParentPath(
@@ -130,7 +130,9 @@ export function RemoteDirectoryPicker({
 				<DialogHeader>
 					<DialogTitle>{t("Choose remote workspace")}</DialogTitle>
 					<DialogDescription>
-						{t("Browse directories on the connected SSH host. No local folders are shown here.")}
+						{t(
+							"Browse directories on the connected SSH host. No local folders are shown here.",
+						)}
 					</DialogDescription>
 				</DialogHeader>
 
@@ -207,7 +209,9 @@ export function RemoteDirectoryPicker({
 				</div>
 				{truncated && !loading && !error ? (
 					<p className="text-xs text-muted-foreground">
-						{t("Only the first directories are shown. Open a folder to continue browsing.")}
+						{t(
+							"Only the first directories are shown. Open a folder to continue browsing.",
+						)}
 					</p>
 				) : null}
 

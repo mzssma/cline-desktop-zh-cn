@@ -10,6 +10,11 @@ on:
         description: "Release version tag (e.g. v0.0.43). Leave empty to use branch HEAD."
         required: false
         type: string
+      publish_release:
+        description: "Create and publish a GitHub Release. Leave unchecked to only build and upload Actions artifacts (for review before release)."
+        required: false
+        default: false
+        type: boolean
 
 concurrency:
   group: desktop-release-${{ github.ref }}
@@ -100,7 +105,16 @@ jobs:
           echo "=== Artifacts to upload to GitHub Release ==="
           ls -la dist-release/
 
+      - name: Upload build artifacts (for review)
+        uses: actions/upload-artifact@v4
+        with:
+          name: cline-zh-cn-windows-${{ github.sha }}
+          path: dist-release/*
+          if-no-files-found: error
+          retention-days: 14
+
       - name: Determine Release Tag
+        if: startsWith(github.ref, 'refs/tags/') || inputs.publish_release
         id: release_tag
         shell: bash
         run: |
@@ -117,9 +131,11 @@ jobs:
           echo "Release tag will be: ${TAG}"
 
       - name: Create GitHub Release and Upload Assets
+        if: startsWith(github.ref, 'refs/tags/') || inputs.publish_release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.release_tag.outputs.tag }}
+          target_commitish: ${{ github.sha }}
           name: "Cline 中文版 ${{ steps.release_tag.outputs.tag }}"
           body: |
             ### 🤖 Cline Desktop 简体中文汉化版 ${{ steps.release_tag.outputs.tag }}

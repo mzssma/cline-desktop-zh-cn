@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { uiText } from "./ui-text.js";
 
 /** Current request context metrics, not accumulated session token traffic. */
 export interface AgentContextUsageData {
@@ -63,7 +64,14 @@ export function AgentContextUsage({
 	const circumference = 2 * Math.PI * radius;
 
 	return children({
-		triggerLabel: `Context window: ${totalTokens.toLocaleString()} of ${contextWindow.toLocaleString()} tokens used (${percent}%)`,
+		triggerLabel: uiText(
+			"Context window: {used} of {total} tokens used ({percent}%)",
+			{
+				used: totalTokens.toLocaleString(),
+				total: contextWindow.toLocaleString(),
+				percent,
+			},
+		),
 		ring: (
 			<svg
 				aria-hidden="true"
@@ -96,7 +104,9 @@ export function AgentContextUsage({
 		details: (
 			<div className="px-3 py-3">
 				<div className="flex items-center justify-between gap-4 text-cline-ui-sm">
-					<span className="text-cline-ui-muted-foreground">Context window</span>
+					<span className="text-cline-ui-muted-foreground">
+						{uiText("Context window")}
+					</span>
 					<span className="font-cline-ui-mono text-cline-ui-sm text-cline-ui-foreground">
 						{contextUsageLabel}
 					</span>
@@ -131,14 +141,16 @@ export function AgentContextUsage({
 				</div>
 				<div className="mt-3 space-y-2 text-cline-ui-sm">
 					<div className="flex items-center justify-between gap-4">
-						<span className="text-cline-ui-muted-foreground">Input tokens</span>
+						<span className="text-cline-ui-muted-foreground">
+							{uiText("Input tokens")}
+						</span>
 						<span className="font-cline-ui-mono text-cline-ui-foreground">
 							{usage.tokensIn.toLocaleString()}
 						</span>
 					</div>
 					<div className="flex items-center justify-between gap-4">
 						<span className="text-cline-ui-muted-foreground">
-							Output tokens
+							{uiText("Output tokens")}
 						</span>
 						<span className="font-cline-ui-mono text-cline-ui-foreground">
 							{usage.tokensOut.toLocaleString()}
@@ -146,7 +158,7 @@ export function AgentContextUsage({
 					</div>
 					<div className="flex items-center justify-between gap-4">
 						<span className="text-cline-ui-muted-foreground">
-							Cached tokens
+							{uiText("Cached tokens")}
 						</span>
 						<span className="font-cline-ui-mono text-cline-ui-foreground">
 							{usage.cacheReadTokens.toLocaleString()}
@@ -154,7 +166,9 @@ export function AgentContextUsage({
 					</div>
 					{costLabel || costLabel === 0 ? (
 						<div className="flex items-center justify-between gap-4">
-							<span className="text-cline-ui-muted-foreground">Cost</span>
+							<span className="text-cline-ui-muted-foreground">
+								{uiText("Cost")}
+							</span>
 							<span className="font-cline-ui-mono text-cline-ui-foreground">
 								{costLabel}
 							</span>

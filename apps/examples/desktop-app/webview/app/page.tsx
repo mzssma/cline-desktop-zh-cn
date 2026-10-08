@@ -824,7 +824,9 @@ export default function Home() {
 					},
 				);
 				if (!session) {
-					throw new Error("The session for this run is no longer available.");
+					throw new Error(
+						t("The session for this run is no longer available."),
+					);
 				}
 				if (
 					environmentId !== undefined &&
@@ -1892,8 +1894,12 @@ function ChatThreadPane({
 						? t("Unsupported cloud attachment")
 						: t("Unsupported image format"),
 					description: isCloudSession
-						? t("Choose PNG, JPEG, GIF, or WebP images, or switch to Local to attach other files.")
-						: t("Convert the image to PNG, JPEG, GIF, or WebP before attaching it."),
+						? t(
+								"Choose PNG, JPEG, GIF, or WebP images, or switch to Local to attach other files.",
+							)
+						: t(
+								"Convert the image to PNG, JPEG, GIF, or WebP before attaching it.",
+							),
 				});
 			}
 			setPendingAttachments((current) => {
@@ -2104,7 +2110,9 @@ function ChatThreadPane({
 				toast({
 					variant: "destructive",
 					title: t("Delete failed"),
-					description: t("The session could not be removed from local history."),
+					description: t(
+						"The session could not be removed from local history.",
+					),
 				});
 				return;
 			}
@@ -2531,8 +2539,7 @@ function ChatThreadPane({
 										"Desktop backend transport unavailable at ".length,
 									),
 								})
-							: chatTransportError ===
-								  "Desktop backend transport unavailable"
+							: chatTransportError === "Desktop backend transport unavailable"
 								? t("Desktop backend transport unavailable")
 								: t(chatTransportError)}
 					</p>

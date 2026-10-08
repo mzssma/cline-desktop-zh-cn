@@ -2,6 +2,7 @@
 
 import { Check, ChevronDown, ChevronRight, Copy, X } from "lucide-react";
 import { type HTMLAttributes, type ReactNode, type Ref, useState } from "react";
+import { uiText } from "./ui-text.js";
 
 export interface AgentChangesPanelProps extends HTMLAttributes<HTMLDivElement> {
 	title: string;
@@ -53,14 +54,14 @@ export function AgentChangesPanel({
 						{title}
 					</span>
 					<span className="cline-ui-agent-changes__count rounded bg-cline-ui-secondary px-1.5 py-0.5 text-[10px] font-cline-ui-mono text-cline-ui-muted-foreground">
-						Files: {fileCount}
+						{uiText("Files: {count}", { count: fileCount })}
 					</span>
 				</div>
 				<div className="flex items-center gap-2 text-cline-ui-xs font-cline-ui-mono">
 					<button
 						ref={closeButtonRef}
 						className="cline-ui-agent-changes__action rounded-md p-1 text-cline-ui-muted-foreground hover:bg-cline-ui-surface-hover hover:text-cline-ui-foreground transition-colors"
-						aria-label="Close diff view"
+						aria-label={uiText("Close diff view")}
 						type="button"
 						onClick={onClose}
 					>
@@ -131,8 +132,8 @@ export function AgentChangedFile({
 				<button
 					className={`cline-ui-agent-changes__action cline-ui-agent-changes__copy shrink-0 rounded-md p-1 transition-opacity hover:bg-cline-ui-surface-hover hover:text-cline-ui-foreground focus-visible:opacity-100 group-hover:opacity-100 ${copied ? "opacity-100 text-cline-ui-primary" : "opacity-0 text-cline-ui-muted-foreground"}`}
 					data-copied={copied || undefined}
-					aria-label={`Copy file path for ${path}`}
-					title="Copy file path"
+					aria-label={uiText("Copy file path for {path}", { path })}
+					title={uiText("Copy file path")}
 					type="button"
 					onClick={onCopyPath}
 				>

@@ -1,6 +1,7 @@
 "use client";
 
 import { type ReactNode, useEffect, useRef } from "react";
+import { uiText } from "./ui-text.js";
 
 export interface AgentCommandOutputProps {
 	output: string;
@@ -30,10 +31,10 @@ export function AgentCommandOutput({
 	return (
 		<div className="mt-2 space-y-1">
 			<div className="text-[11px] uppercase tracking-wide text-cline-ui-muted-foreground/80">
-				Output
+				{uiText("Output")}
 			</div>
 			<div
-				aria-label="Command output"
+				aria-label={uiText("Command output")}
 				aria-live="off"
 				className={`max-h-64 overflow-auto rounded-md border border-cline-ui-border/70 bg-black/90 p-3 font-cline-ui-mono text-cline-ui-xs leading-relaxed text-zinc-100${classNames?.viewport ? ` ${classNames.viewport}` : ""}`}
 				onScroll={(event) => {

@@ -39,6 +39,7 @@ import {
 	svgToPngBlob,
 	waitForFonts,
 } from "./mermaid-dom.js";
+import { uiText } from "./ui-text.js";
 
 /**
  * Owned Mermaid diagram block for Streamdown (`plugins.renderers`). Replaces
@@ -686,7 +687,7 @@ export function MermaidBlock({
 						}}
 						type="button"
 					>
-						Retry
+						{uiText("Retry")}
 					</button>
 				</div>
 			) : null}

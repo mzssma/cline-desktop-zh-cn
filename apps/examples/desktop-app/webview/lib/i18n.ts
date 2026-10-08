@@ -34,7 +34,7 @@ export function t(
 ): string {
 	if (!text) return "";
 	let translation =
-		currentLocale === "zh-CN" ? dictionary[text] ?? text : text;
+		currentLocale === "zh-CN" ? (dictionary[text] ?? text) : text;
 	if (params) {
 		for (const [key, value] of Object.entries(params)) {
 			translation = translation.replaceAll(`{${key}}`, String(value));
@@ -44,3 +44,14 @@ export function t(
 }
 
 export default t;
+
+// 让共享组件库 @cline/ui（审批卡片、追问卡片、排队消息、上下文用量、PR 状态栏等）
+// 通过 sdk/packages/ui/components/ui-text.ts 复用同一份中文词典。
+(
+	globalThis as {
+		__CLINE_UI_TRANSLATE__?: (
+			text: string,
+			params?: Record<string, string | number>,
+		) => string;
+	}
+).__CLINE_UI_TRANSLATE__ = t;

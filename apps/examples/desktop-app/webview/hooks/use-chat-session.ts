@@ -2429,7 +2429,9 @@ export function useChatSession(environmentId: string) {
 				// signed-out reconnects); show the human text, not the envelope.
 				setError(
 					humanizeCloudSessionError(record.message?.trim() || "") ||
-						t("Cloud session history could not be refreshed. Live updates are still connected."),
+						t(
+							"Cloud session history could not be refreshed. Live updates are still connected.",
+						),
 				);
 			},
 		);
@@ -3670,7 +3672,9 @@ export function useChatSession(environmentId: string) {
 				throw new Error("No active session to restore");
 			}
 			if (BUSY_STATUSES.has(status)) {
-				throw new Error("Wait for the current turn to finish before undoing");
+				throw new Error(
+					t("Wait for the current turn to finish before undoing"),
+				);
 			}
 
 			clearAbortFallbackTimeout();
@@ -3782,7 +3786,7 @@ export function useChatSession(environmentId: string) {
 				},
 			);
 			if ((response.detachedCount ?? 0) < 1) {
-				throw new Error("The command finished before it could be detached.");
+				throw new Error(t("The command finished before it could be detached."));
 			}
 		},
 		[environmentId],
@@ -4048,8 +4052,12 @@ export function useChatSession(environmentId: string) {
 					setIsCloudSessionExpired(true);
 					setError(
 						historyMessages.length > 0
-							? t("This cloud session has expired. Start a new cloud session to continue.")
-							: t("This cloud session has expired and no archived history is available. Start a new cloud session to continue."),
+							? t(
+									"This cloud session has expired. Start a new cloud session to continue.",
+								)
+							: t(
+									"This cloud session has expired and no archived history is available. Start a new cloud session to continue.",
+								),
 					);
 				}
 
@@ -4123,10 +4131,12 @@ export function useChatSession(environmentId: string) {
 		}> => {
 			const activeSessionId = activeSessionIdRef.current;
 			if (!activeSessionId) {
-				throw new Error("No active session to fork.");
+				throw new Error(t("No active session to fork."));
 			}
 			if (BUSY_STATUSES.has(status)) {
-				throw new Error("Wait for the current turn to finish before forking.");
+				throw new Error(
+					t("Wait for the current turn to finish before forking."),
+				);
 			}
 			const payload = (await postSession({
 				action: "fork",
