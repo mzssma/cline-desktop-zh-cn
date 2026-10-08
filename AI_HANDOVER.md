@@ -119,7 +119,7 @@ gh workflow run release.yml --ref desktop-zh-cn
 主人确认后再正式发布（二选一）：
 - 推送 Tag：`git tag v0.0.45 && git push origin v0.0.45`（自动构建并发布 Release）；
 - 或手动触发并勾选发布：`gh workflow run release.yml --ref desktop-zh-cn -f publish_release=true -f version_tag=v0.0.45`。
-发布后用 `gh release edit v0.0.45 --notes-file RELEASE_NOTES_v0.0.45.zh.md` 换上本版说明。
+仓库根目录存在 `RELEASE_NOTES_<tag>.zh.md` 时，工作流会自动用它作为 Release 说明（也可事后用 `gh release edit <tag> --notes-file ...` 覆盖）。
 
 ## 6. GitHub Actions 云端全自动打包机制
 
@@ -127,10 +127,10 @@ gh workflow run release.yml --ref desktop-zh-cn
 - **运行环境**：GitHub 官方托管的 Windows Server 虚拟机（`windows-latest`）。
 - **运行耗时**：约 15~20 分钟（无需用户电脑开机，完全在云端静默运行）。
 - **自动产出并上传到 GitHub Releases**：
-  1. `Cline 中文版_<版本>_x64-setup.exe`（Windows 标准 NSIS 安装包）
+  1. `Cline-zh-CN_<版本>_x64-setup.exe`（Windows 标准 NSIS 安装包；用纯 ASCII 文件名，因为 GitHub 会改写中文资产名）
   2. `cline-app.exe`（绿色免安装单文件）
-  3. `*.zip` 与 `*.sig`（Tauri 更新签名压缩包）
-  4. `latest.json`（自动升级元数据清单）
+  3. `Cline-zh-CN_<版本>_x64-setup.exe.sig`（Tauri 更新签名）
+  4. `latest.json`（自动升级清单，由工作流根据 .sig 与安装包下载地址自动生成，含 `windows-x86_64` / `windows-x86_64-nsis` 两个平台键）
 - **加密签名密钥**：已预置在 GitHub Secrets：
   - `TAURI_SIGNING_PRIVATE_KEY`
   - `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`

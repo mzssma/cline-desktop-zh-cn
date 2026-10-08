@@ -16,7 +16,7 @@
 
 - **独立安装共存**：产品名为「Cline 中文版」，Bundle ID 为 `bot.cline.app.zhcn`，可与官方英文原版同时安装、独立运行，不抢焦点、不互相覆盖。
 - **数据共享互通**：共享 `~/.cline` 配置，历史任务、模型设置与 API Key 互通。
-- **自动检测更新**：更新端点指向本仓库 `mzssma/cline-desktop-zh-cn` 的 `latest.json`，避免被官方英文版覆盖。
+- **自动检测更新**：更新端点指向本仓库 `mzssma/cline-desktop-zh-cn` 的 `latest.json`，避免被官方英文版覆盖。从本版起，每次发布都会自动生成并上传 `latest.json`，已安装的中文版可以检测到新版本。
 - **界面汉化补全**：我们这次把之前漏掉的共享组件文案也接入了中文词典，包括：
   - 工具审批卡片的「批准 / 拒绝」按钮；
   - Cline 追问卡片（可多选提示、自定义回答输入框、提交 / 正在发送）；
@@ -31,7 +31,7 @@
 
 #### 📦 下载说明
 
-- **Windows 独立安装版**：下载 `Cline 中文版_*_x64-setup.exe`，双击按向导安装。
+- **Windows 独立安装版**：下载 `Cline-zh-CN_0.0.45_x64-setup.exe`，双击按向导安装。
 - **Windows 绿色免安装版**：下载 `cline-app.exe`，双击直接运行。
 
 对照上游：https://github.com/cline/cline/compare/desktop-v0.0.44...desktop-v0.0.45

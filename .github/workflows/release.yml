@@ -84,25 +84,74 @@ jobs:
         run: |
           bunx tauri build --bundles nsis
 
+      - name: Determine Release Tag
+        id: release_tag
+        shell: bash
+        run: |
+          VERSION=$(node -p "require('./apps/examples/desktop-app/src-tauri/tauri.conf.json').version")
+          if [ -n "${{ github.event.inputs.version_tag }}" ]; then
+            TAG="${{ github.event.inputs.version_tag }}"
+          elif [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            TAG="${GITHUB_REF#refs/tags/}"
+          else
+            TAG="v${VERSION}"
+          fi
+          if [ "${TAG#v}" != "${VERSION}" ]; then
+            echo "::error::Tag ${TAG} does not match tauri.conf.json version ${VERSION}"
+            exit 1
+          fi
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          if [ -f "RELEASE_NOTES_${TAG}.zh.md" ]; then
+            echo "notes_file=RELEASE_NOTES_${TAG}.zh.md" >> "$GITHUB_OUTPUT"
+          fi
+          echo "Release tag will be: ${TAG} (version ${VERSION})"
+
       - name: Prepare Release Artifacts
         id: artifacts
         shell: bash
+        env:
+          TAG: ${{ steps.release_tag.outputs.tag }}
+          VERSION: ${{ steps.release_tag.outputs.version }}
         run: |
           mkdir -p dist-release
-          BUNDLE_DIR="apps/examples/desktop-app/src-tauri/target/release/bundle"
+          NSIS_DIR="apps/examples/desktop-app/src-tauri/target/release/bundle/nsis"
           PORTABLE_EXE="apps/examples/desktop-app/src-tauri/target/release/cline-app.exe"
-          
-          # Find and copy all bundle outputs: installer .exe, updater .zip, signatures .sig, and latest.json
-          if [ -d "$BUNDLE_DIR" ]; then
-            find "$BUNDLE_DIR" -type f \( -name "*.exe" -o -name "*.zip" -o -name "*.sig" -o -name "latest.json" \) -exec cp -v {} dist-release/ \;
+
+          # GitHub rewrites non-ASCII asset names (e.g. "Cline 中文版_..." became "Cline._..."),
+          # so give the installer a stable ASCII name that latest.json can point at.
+          SETUP_SRC=$(find "$NSIS_DIR" -maxdepth 1 -type f -name "*_${VERSION}_x64-setup.exe" | head -n 1)
+          if [ -z "$SETUP_SRC" ] || [ ! -f "${SETUP_SRC}.sig" ]; then
+            echo "::error::NSIS installer or its updater signature (.sig) for ${VERSION} not found in ${NSIS_DIR}"
+            ls -la "$NSIS_DIR" || true
+            exit 1
           fi
-          
-          # Copy portable exe if available
-          if [ -f "$PORTABLE_EXE" ] && [ ! -f "dist-release/cline-app.exe" ]; then
+          SETUP_NAME="Cline-zh-CN_${VERSION}_x64-setup.exe"
+          cp -v "$SETUP_SRC" "dist-release/${SETUP_NAME}"
+          cp -v "${SETUP_SRC}.sig" "dist-release/${SETUP_NAME}.sig"
+
+          if [ -f "$PORTABLE_EXE" ]; then
             cp -v "$PORTABLE_EXE" dist-release/cline-app.exe
           fi
-          
-          echo "=== Artifacts to upload to GitHub Release ==="
+
+          # Tauri v2 updater manifest served at releases/latest/download/latest.json
+          SETUP_NAME="$SETUP_NAME" REPO="${{ github.repository }}" node -e '
+            const fs = require("fs");
+            const { TAG, VERSION, SETUP_NAME, REPO } = process.env;
+            const signature = fs.readFileSync(`dist-release/${SETUP_NAME}.sig`, "utf8").trim();
+            const url = `https://github.com/${REPO}/releases/download/${encodeURIComponent(TAG)}/${encodeURIComponent(SETUP_NAME)}`;
+            const platform = { signature, url };
+            const manifest = {
+              version: VERSION,
+              notes: `Cline 中文版 ${TAG}：基于官方 Cline Desktop ${TAG} 的简体中文汉化版，详见 https://github.com/${REPO}/releases/tag/${TAG}`,
+              pub_date: new Date().toISOString().replace(/\.\d{3}Z$/, "Z"),
+              platforms: { "windows-x86_64": platform, "windows-x86_64-nsis": platform },
+            };
+            fs.writeFileSync("dist-release/latest.json", JSON.stringify(manifest, null, 2) + "\n");
+          '
+          cat dist-release/latest.json
+
+          echo "=== Artifacts ==="
           ls -la dist-release/
 
       - name: Upload build artifacts (for review)
@@ -113,23 +162,6 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
-      - name: Determine Release Tag
-        if: startsWith(github.ref, 'refs/tags/') || inputs.publish_release
-        id: release_tag
-        shell: bash
-        run: |
-          if [ -n "${{ github.event.inputs.version_tag }}" ]; then
-            TAG="${{ github.event.inputs.version_tag }}"
-          elif [[ "${{ github.ref }}" == refs/tags/* ]]; then
-            TAG="${GITHUB_REF#refs/tags/}"
-          else
-            # Derive tag from tauri.conf.json
-            VERSION=$(node -p "require('./apps/examples/desktop-app/src-tauri/tauri.conf.json').version")
-            TAG="v${VERSION}"
-          fi
-          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
-          echo "Release tag will be: ${TAG}"
-
       - name: Create GitHub Release and Upload Assets
         if: startsWith(github.ref, 'refs/tags/') || inputs.publish_release
         uses: softprops/action-gh-release@v2
@@ -137,6 +169,7 @@ jobs:
           tag_name: ${{ steps.release_tag.outputs.tag }}
           target_commitish: ${{ github.sha }}
           name: "Cline 中文版 ${{ steps.release_tag.outputs.tag }}"
+          body_path: ${{ steps.release_tag.outputs.notes_file }}
           body: |
             ### 🤖 Cline Desktop 简体中文汉化版 ${{ steps.release_tag.outputs.tag }}
 
@@ -148,11 +181,12 @@ jobs:
             - **自动检测更新**：集成在线更新检测，新版本发布后支持自动检查升级。
 
             #### 📦 下载说明：
-            - **Windows 独立安装版**：下载 `Cline 中文版_*_x64-setup.exe`，双击根据向导安装。
-            - **Windows 绿色免安装版**：下载 `cline-app.exe`，解压/双击直接运行。
+            - **Windows 独立安装版**：下载 `Cline-zh-CN_*_x64-setup.exe`，双击根据向导安装。
+            - **Windows 绿色免安装版**：下载 `cline-app.exe`，双击直接运行。
           files: |
             dist-release/*
           draft: false
           prerelease: false
+          make_latest: "true"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
