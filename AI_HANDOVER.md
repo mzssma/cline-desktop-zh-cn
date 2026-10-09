@@ -125,11 +125,13 @@ git push origin desktop-zh-cn
 gh workflow run release.yml -R mzssma/cline-desktop-zh-cn --ref desktop-zh-cn
 ```
 主人确认后再正式发布（二选一）：
-- 推送 Tag：`git tag v0.0.45 && git push origin v0.0.45`（自动构建并发布 Release）；
-- 或手动触发并勾选发布：`gh workflow run release.yml -R mzssma/cline-desktop-zh-cn --ref desktop-zh-cn -f publish_release=true -f version_tag=v0.0.45`。
+- **推荐**：推送 Tag：`git tag v0.0.45 && git push origin v0.0.45`（自动构建并发布 Release）。`v*` 标签受仓库规则集保护：只有仓库管理员（主人账号）能创建，任何人都不能移动或删除；
+- 仅用于重试（标签已存在且指向同一提交，比如上次发布中途失败）：`gh workflow run release.yml -R mzssma/cline-desktop-zh-cn --ref desktop-zh-cn -f publish_release=true -f version_tag=v0.0.45`。标签不存在时工作流会直接报错，因为 GITHUB_TOKEN 无权创建受保护标签。
 仓库根目录存在 `RELEASE_NOTES_<tag>.zh.md` 时，工作流会自动用它作为 Release 说明（也可事后用 `gh release edit <tag> --notes-file ...` 覆盖）。
 
 发布流水线的门禁（任何一项失败都不会发布）：Gitleaks 密钥扫描 → 汉化词典检查 + 类型检查 + webview / `@cline/ui` 单元测试 → Windows 打包 → 核对安装包 / 版本号 / latest.json / 签名一致 → 发布。正式发布只允许来自已推送到 `desktop-zh-cn` 的提交。
+
+仓库规则集（主人已批准，2026-10-09）：`main` / `desktop-zh-cn` 禁止强推和删除；合并需通过 `Gitleaks secret scan` 检查（仓库管理员可直接推送，但推送后云端仍会扫描，发布前也会再扫一次）；`v*` 标签只有管理员能创建、禁止移动和删除。默认工作流权限为只读，与本项目无关的官方工作流已停用。
 
 ## 6. GitHub Actions 云端全自动打包机制
 

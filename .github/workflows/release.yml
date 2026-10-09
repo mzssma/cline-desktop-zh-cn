@@ -134,6 +134,21 @@ jobs:
               echo "::error::Publishing is only allowed for commits already on desktop-zh-cn. Merge to desktop-zh-cn first."
               exit 1
             fi
+            # v* 标签受仓库规则集保护，只有仓库管理员能创建，GITHUB_TOKEN 不能新建标签。
+            # 手动勾选发布只用于“标签已存在”时的重试，并且标签必须指向本次构建的提交。
+            if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+              PEELED_SHA=$(git ls-remote origin "refs/tags/${TAG}^{}" | awk '{print $1}')
+              DIRECT_SHA=$(git ls-remote origin "refs/tags/${TAG}" | awk '{print $1}')
+              REMOTE_TAG_SHA="${PEELED_SHA:-$DIRECT_SHA}"
+              if [ -z "$REMOTE_TAG_SHA" ]; then
+                echo "::error::Tag ${TAG} does not exist. v* tags are protected: the repo admin must push the tag (git push origin ${TAG}), which publishes automatically."
+                exit 1
+              fi
+              if [ "$REMOTE_TAG_SHA" != "$(git rev-parse HEAD)" ]; then
+                echo "::error::Tag ${TAG} points to a different commit than this run; refusing to publish."
+                exit 1
+              fi
+            fi
           fi
           {
             echo "tag=${TAG}"
