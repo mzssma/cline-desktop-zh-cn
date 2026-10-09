@@ -94,3 +94,48 @@ apps/examples/desktop-app/webview/.next
 # Next.js generated type shim (churns between dev and build)
 apps/examples/desktop-app/webview/next-env.d.ts
 apps/examples/desktop-app/.cursor/settings.json
+
+# ==== Cline 中文版：敏感文件保护（2026-10 安全审计补充）====
+# 环境变量 / 包管理器与 Git 认证缓存（.env.example 等示例文件仍可提交）
+.env.*
+!.env.example
+!.env.*.example
+!*.env.example
+.npmrc
+.yarnrc
+.pypirc
+.netrc
+_netrc
+.git-credentials
+# 私钥、证书与签名密钥（Tauri 更新签名私钥只能放在 GitHub Secrets）
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*.keystore
+*.ppk
+id_rsa
+id_rsa.*
+id_ed25519
+id_ed25519.*
+id_ecdsa
+id_ecdsa.*
+!*.pub
+.tauri/
+# 浏览器 Cookie / 抓包会话
+cookies.txt
+*.cookies
+*.har
+# 日志、本地数据库与个人本地配置
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.sqlite
+*.sqlite3
+*.db
+*.db-journal
+*.local.json
+.claude/settings.local.json

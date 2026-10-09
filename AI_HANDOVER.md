@@ -68,6 +68,8 @@
 | `scripts/scan-hardcoded-ui.ts` | **硬编码英文 AST 扫描** | 列出 webview 与 `@cline/ui` 组件中未经 `t()`/`uiText()` 的 JSX 英文文本与属性。 |
 | `sdk/packages/ui/components/ui-text.ts` | **共享组件翻译桥** | `@cline/ui` 组件用 `uiText()` 取文案；桌面端在 `webview/lib/i18n.ts` 注册 `t()`，词条同样写进 `zh-CN.json`。测试环境返回英文原文。 |
 | `.github/workflows/release.yml` | **GitHub Actions 云端自动流水线** | 微软云端 Windows 机器自动打包、签名并发布 Release。 |
+| `.github/workflows/security-scan.yml` + `scripts/security-scan.sh` | **云端密钥扫描（Gitleaks）** | 推送 / PR / 每周 / 发布前自动跑，脱敏报告；我们自己的提交里有疑似密钥就失败并阻止发布。本地也可直接运行 `bash scripts/security-scan.sh`。 |
+| `.gitleaksignore` | **Gitleaks 误报白名单** | 只能逐条写 Fingerprint 并注明理由，禁止整文件 / 整规则关闭。 |
 
 ---
 
@@ -108,22 +110,31 @@ bun scripts/scan-hardcoded-ui.ts
 2. **是否漏译 / 译得含糊 / 译错**：上面两个扫描脚本无遗漏；术语符合第 3 节红线（API Key、显示 / 隐藏密码、子代理 / 智能体、MCP 服务器、模型提供商）。
 
 ### 步骤 5：提交并打包（先出构建产物，主人确认后再发 Release）
+提交前先确认只提交本次应改的文件，**禁止 `git add -A` 一把梭，禁止 `--no-verify` 跳过检查**：
 ```bash
-git add -A
-git commit -m "chore: release v0.0.45 zh-cn" --no-verify
+git status --short                # 逐个确认改动；evals/cline-bench 等与本次无关的变动不要提交
+git diff --stat                   # 审一遍 diff，确认没有 .env / 私钥 / 日志 / 个人路径等敏感内容
+git add <逐个列出本次改动的文件或目录>
+gitleaks git --pre-commit --redact --staged --verbose   # 与 pre-commit 钩子同一检查，可提前跑
+git commit -m "chore: release v0.0.45 zh-cn"            # 会自动执行 .husky/pre-commit（Gitleaks）
+bash scripts/security-scan.sh                           # 全历史 + 改动文件扫描（与云端一致）
 git push origin desktop-zh-cn
 
 # 只打包、不发布：手动触发工作流（publish_release 默认 false），产物在 Actions 运行页的 Artifacts 里
-gh workflow run release.yml --ref desktop-zh-cn
+# 注意加 -R：本地同时有 upstream 远端，不加时 gh 可能默认指向官方 cline/cline 仓库
+gh workflow run release.yml -R mzssma/cline-desktop-zh-cn --ref desktop-zh-cn
 ```
 主人确认后再正式发布（二选一）：
 - 推送 Tag：`git tag v0.0.45 && git push origin v0.0.45`（自动构建并发布 Release）；
-- 或手动触发并勾选发布：`gh workflow run release.yml --ref desktop-zh-cn -f publish_release=true -f version_tag=v0.0.45`。
+- 或手动触发并勾选发布：`gh workflow run release.yml -R mzssma/cline-desktop-zh-cn --ref desktop-zh-cn -f publish_release=true -f version_tag=v0.0.45`。
 仓库根目录存在 `RELEASE_NOTES_<tag>.zh.md` 时，工作流会自动用它作为 Release 说明（也可事后用 `gh release edit <tag> --notes-file ...` 覆盖）。
+
+发布流水线的门禁（任何一项失败都不会发布）：Gitleaks 密钥扫描 → 汉化词典检查 + 类型检查 + webview / `@cline/ui` 单元测试 → Windows 打包 → 核对安装包 / 版本号 / latest.json / 签名一致 → 发布。正式发布只允许来自已推送到 `desktop-zh-cn` 的提交。
 
 ## 6. GitHub Actions 云端全自动打包机制
 
-- **触发条件**：向仓库推送 `v*` 格式的 Git Tag（构建并发布 Release），或在 Actions 页面点击“Run workflow”（默认只构建并上传 Artifacts，勾选 `publish_release` 才发布 Release）。
+- **触发条件**：向仓库推送 `v*` 格式的 Git Tag（构建并发布 Release），或在 Actions 页面点击“Run workflow”（默认只构建并上传 Artifacts，勾选 `publish_release` 才发布 Release）。推送普通分支（包括 `security/**`）不会触发打包或发布。
+- **安全要求**：`version_tag` 必须是 `v1.2.3` 格式并与 `tauri.conf.json` 版本一致；外部输入一律经 `env` 传入脚本；第三方 Action 固定到提交 SHA；`GITHUB_TOKEN` 默认无权限，只有最后的发布 job 有 `contents: write`；签名私钥只注入 Tauri 构建那一步。修改工作流后用 `actionlint` 和 `zizmor` 检查。
 - **运行环境**：GitHub 官方托管的 Windows Server 虚拟机（`windows-latest`）。
 - **运行耗时**：约 15~20 分钟（无需用户电脑开机，完全在云端静默运行）。
 - **自动产出并上传到 GitHub Releases**：
@@ -141,10 +152,14 @@ gh workflow run release.yml --ref desktop-zh-cn
 ## 7. 常见问题排查 (Troubleshooting)
 
 1. **Commit 时被 Gitleaks 钩子拦截**：
-   - 原因：Cline 原仓库配置了本地 pre-commit 钩子，有时会对普通文本误报。
-   - 解决方案：在 `git commit` 时添加 `--no-verify` 参数（如 `git commit -m "..." --no-verify`）。
+   - 这是安全检查在起作用，**不要用 `--no-verify` 绕过**，也不要关闭规则。
+   - 先看报告（已脱敏）里的文件、行号和规则，逐条判断：
+     - **真实密钥**（我们自己的 Token、API Key、私钥、密码等）：立刻从暂存区移除（`git restore --staged <文件>`），改用环境变量 / GitHub Secrets，并提醒主人撤销或轮换该凭据。已经推送过的不要私自改写历史，先报告主人。
+     - **误报**（示例数据、测试占位符、公开客户端标识，或合并上游时带进来的、与上游官方文件完全一致的测试夹具，可用 `git diff --quiet desktop-vX.Y.Z -- <文件>` 确认未改动）：把报告里的 Fingerprint 加到 `.gitleaksignore`，上方写一行注释说明原因和确认日期，再正常提交。
+   - 机器上没有 gitleaks 时，钩子会直接失败：先安装 gitleaks（https://github.com/gitleaks/gitleaks#installing），不要跳过。
+   - 钩子后面的 `lint-staged`（apps/vscode）如果因依赖未安装而失败，先在仓库根目录 `bun install`，不要跳过整个钩子。
 2. **需要手动触发云端打包**：
    - 访问 `https://github.com/mzssma/cline-desktop-zh-cn/actions/workflows/release.yml`。
-   - 点击 **Run workflow** 按钮，可直接手动触发打包。
+   - 点击 **Run workflow** 按钮，可直接手动触发打包（默认只打包，不发布）。
 3. **本地开发预览（可选）**：
    - 如果需要在本地调试界面，运行 `cd apps/examples/desktop-app && bun run dev`。

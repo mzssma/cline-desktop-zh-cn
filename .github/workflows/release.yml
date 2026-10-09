@@ -20,26 +20,136 @@ concurrency:
   group: desktop-release-${{ github.ref }}
   cancel-in-progress: true
 
-permissions:
-  contents: write
+# 默认不给 GITHUB_TOKEN 任何权限，每个 job 只申请自己需要的最小权限。
+permissions: {}
 
 jobs:
-  build-and-release:
-    name: Build & Release Windows Desktop
+  # 1) 云端密钥扫描（Gitleaks，脱敏报告）。发现我们自己提交里的疑似密钥时直接失败，后续打包和发布都不会执行。
+  security-scan:
+    name: Security gate (Gitleaks)
+    permissions:
+      contents: read
+    uses: ./.github/workflows/security-scan.yml
+
+  # 2) 汉化完整性、类型检查与单元测试。不通过则不能发布（发布 job 依赖它）。
+  checks:
+    name: Localization, typecheck & tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version: "1.4.2"
+          no-cache: true
+
+      - name: Install project dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Build SDK and UI packages
+        run: bun run build:sdk
+
+      - name: Localization dictionary check
+        run: bun scripts/check-translations.ts
+
+      - name: Desktop typecheck
+        working-directory: apps/examples/desktop-app
+        run: bun run typecheck
+
+      - name: Desktop webview unit tests
+        working-directory: apps/examples/desktop-app
+        run: bunx vitest run webview --config vitest.config.ts
+
+      - name: "@cline/ui unit tests"
+        working-directory: sdk/packages/ui
+        run: bun run test
+
+  # 3) Windows 打包（安装版 + 免安装版）。只读权限；签名私钥只注入到 Tauri 构建这一步。
+  build:
+    name: Build Windows Desktop
+    needs: security-scan
     runs-on: windows-latest
     timeout-minutes: 90
+    permissions:
+      contents: read
+    outputs:
+      tag: ${{ steps.release_tag.outputs.tag }}
+      version: ${{ steps.release_tag.outputs.version }}
+      notes_file: ${{ steps.release_tag.outputs.notes_file }}
+      publish: ${{ steps.release_tag.outputs.publish }}
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           fetch-depth: 0
           fetch-tags: true
+          persist-credentials: false
+
+      # 所有外部输入都经 env 传入、不直接拼进脚本，并用正则严格校验，防止脚本注入。
+      - name: Determine and validate release tag
+        id: release_tag
+        shell: bash
+        env:
+          INPUT_VERSION_TAG: ${{ inputs.version_tag }}
+          INPUT_PUBLISH: ${{ inputs.publish_release }}
+          EVENT_NAME: ${{ github.event_name }}
+          REF_TYPE: ${{ github.ref_type }}
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          VERSION=$(node -p "require('./apps/examples/desktop-app/src-tauri/tauri.conf.json').version")
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::tauri.conf.json version is not in X.Y.Z format"
+            exit 1
+          fi
+          if [ -n "$INPUT_VERSION_TAG" ]; then
+            TAG="$INPUT_VERSION_TAG"
+          elif [ "$REF_TYPE" = "tag" ]; then
+            TAG="$REF_NAME"
+          else
+            TAG="v${VERSION}"
+          fi
+          if [[ ! "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::Release tag must look like v1.2.3 (got an invalid value)"
+            exit 1
+          fi
+          if [ "${TAG#v}" != "${VERSION}" ]; then
+            echo "::error::Tag ${TAG} does not match tauri.conf.json version ${VERSION}"
+            exit 1
+          fi
+          PUBLISH=false
+          if [ "$REF_TYPE" = "tag" ] || [ "$INPUT_PUBLISH" = "true" ]; then
+            PUBLISH=true
+            # 正式发布只允许来自已推送到 desktop-zh-cn 的提交，防止从临时/安全分支直接发版。
+            git fetch --no-tags --quiet origin desktop-zh-cn
+            if ! git merge-base --is-ancestor HEAD FETCH_HEAD; then
+              echo "::error::Publishing is only allowed for commits already on desktop-zh-cn. Merge to desktop-zh-cn first."
+              exit 1
+            fi
+          fi
+          {
+            echo "tag=${TAG}"
+            echo "version=${VERSION}"
+            echo "publish=${PUBLISH}"
+            if [ -f "RELEASE_NOTES_${TAG}.zh.md" ]; then
+              echo "notes_file=RELEASE_NOTES_${TAG}.zh.md"
+            fi
+          } >> "$GITHUB_OUTPUT"
+          echo "Release tag will be: ${TAG} (version ${VERSION}, publish=${PUBLISH})"
 
       - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
+        uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
         with:
           bun-version: "1.4.2"
+          no-cache: true
 
       - name: Seed Bun cache with Linux remote-helper runtimes
         shell: bash
@@ -61,15 +171,15 @@ jobs:
           echo "BUN_INSTALL_CACHE_DIR=${CACHE_DIR}" >> "$GITHUB_ENV"
 
       - name: Install UPX
-        run: choco install upx --no-progress -y
+        run: choco install upx --version 5.2.1 --no-progress -y
 
       - name: Setup Rust toolchain
-        uses: dtolnay/rust-toolchain@stable
+        uses: dtolnay/rust-toolchain@686976e191b89faba57d3206551f0f330d8cb249 # stable branch
         with:
           toolchain: stable
 
       - name: Install project dependencies
-        run: bun install
+        run: bun install --frozen-lockfile
 
       - name: Build SDK and UI packages
         run: bun run build:sdk
@@ -80,32 +190,8 @@ jobs:
         env:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           bunx tauri build --bundles nsis
-
-      - name: Determine Release Tag
-        id: release_tag
-        shell: bash
-        run: |
-          VERSION=$(node -p "require('./apps/examples/desktop-app/src-tauri/tauri.conf.json').version")
-          if [ -n "${{ github.event.inputs.version_tag }}" ]; then
-            TAG="${{ github.event.inputs.version_tag }}"
-          elif [[ "${{ github.ref }}" == refs/tags/* ]]; then
-            TAG="${GITHUB_REF#refs/tags/}"
-          else
-            TAG="v${VERSION}"
-          fi
-          if [ "${TAG#v}" != "${VERSION}" ]; then
-            echo "::error::Tag ${TAG} does not match tauri.conf.json version ${VERSION}"
-            exit 1
-          fi
-          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
-          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
-          if [ -f "RELEASE_NOTES_${TAG}.zh.md" ]; then
-            echo "notes_file=RELEASE_NOTES_${TAG}.zh.md" >> "$GITHUB_OUTPUT"
-          fi
-          echo "Release tag will be: ${TAG} (version ${VERSION})"
 
       - name: Prepare Release Artifacts
         id: artifacts
@@ -113,6 +199,7 @@ jobs:
         env:
           TAG: ${{ steps.release_tag.outputs.tag }}
           VERSION: ${{ steps.release_tag.outputs.version }}
+          REPO: ${{ github.repository }}
         run: |
           mkdir -p dist-release
           NSIS_DIR="apps/examples/desktop-app/src-tauri/target/release/bundle/nsis"
@@ -135,7 +222,7 @@ jobs:
           fi
 
           # Tauri v2 updater manifest served at releases/latest/download/latest.json
-          SETUP_NAME="$SETUP_NAME" REPO="${{ github.repository }}" node -e '
+          SETUP_NAME="$SETUP_NAME" node -e '
             const fs = require("fs");
             const { TAG, VERSION, SETUP_NAME, REPO } = process.env;
             const signature = fs.readFileSync(`dist-release/${SETUP_NAME}.sig`, "utf8").trim();
@@ -155,23 +242,62 @@ jobs:
           ls -la dist-release/
 
       - name: Upload build artifacts (for review)
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: cline-zh-cn-windows-${{ github.sha }}
           path: dist-release/*
           if-no-files-found: error
           retention-days: 14
 
-      - name: Create GitHub Release and Upload Assets
-        if: startsWith(github.ref, 'refs/tags/') || inputs.publish_release
-        uses: softprops/action-gh-release@v2
+  # 4) 发布 Release：只有推送 v* 标签或手动勾选 publish_release 时才运行，
+  #    且必须等密钥扫描、汉化检查/测试、打包全部成功。只有这个 job 拿 contents: write，且不执行仓库代码。
+  release:
+    name: Publish GitHub Release
+    needs: [security-scan, checks, build]
+    if: needs.build.outputs.publish == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout release notes
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
-          tag_name: ${{ steps.release_tag.outputs.tag }}
+          persist-credentials: false
+          sparse-checkout: |
+            RELEASE_NOTES_*.zh.md
+          sparse-checkout-cone-mode: false
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: cline-zh-cn-windows-${{ github.sha }}
+          path: dist-release
+
+      - name: Verify artifacts match the release version
+        env:
+          TAG: ${{ needs.build.outputs.tag }}
+          VERSION: ${{ needs.build.outputs.version }}
+        run: |
+          set -euo pipefail
+          SETUP="dist-release/Cline-zh-CN_${VERSION}_x64-setup.exe"
+          test -f "$SETUP" && test -f "${SETUP}.sig" && test -f dist-release/latest.json
+          test "$(jq -r .version dist-release/latest.json)" = "$VERSION"
+          jq -e --arg tag "$TAG" --arg v "$VERSION" \
+            '[.platforms[].url] | all(endswith("/download/" + $tag + "/Cline-zh-CN_" + $v + "_x64-setup.exe"))' \
+            dist-release/latest.json >/dev/null
+          test "$(jq -r '.platforms["windows-x86_64"].signature' dist-release/latest.json)" = "$(tr -d '\r\n' < "${SETUP}.sig")"
+          ls -la dist-release/
+
+      - name: Create GitHub Release and Upload Assets
+        uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2.6.2
+        with:
+          tag_name: ${{ needs.build.outputs.tag }}
           target_commitish: ${{ github.sha }}
-          name: "Cline 中文版 ${{ steps.release_tag.outputs.tag }}"
-          body_path: ${{ steps.release_tag.outputs.notes_file }}
+          name: "Cline 中文版 ${{ needs.build.outputs.tag }}"
+          body_path: ${{ needs.build.outputs.notes_file }}
           body: |
-            ### 🤖 Cline Desktop 简体中文汉化版 ${{ steps.release_tag.outputs.tag }}
+            ### 🤖 Cline Desktop 简体中文汉化版 ${{ needs.build.outputs.tag }}
 
             本版本基于 Cline Desktop 官方 Release 制作，已完成全部界面、菜单、设置及系统托盘的深度简体中文汉化。
 
