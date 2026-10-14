@@ -2,21 +2,21 @@
 
 ## 0.0.46
 
-- A new outline along the left edge of the conversation lists each prompt you sent. Hover a mark to preview the prompt, and click it to jump there
-- Plugins that fail to load or error during a session now show a status line in the chat naming the plugin and the error, instead of silently losing their tools
-- You can cancel a Cline Cloud sign-in while it is waiting for the browser
-- Session titles renamed on the web now update in the app
-- The Cloud setup card stays visible on smaller windows when signed out
-- Installing a skill without Git installed now says Git is required and how to fix it, instead of showing a raw clone error
-- Scheduled routines: queued runs now start instead of staying pending forever, a run whose model call fails (for example, a retired model) is marked failed with the error, and after downtime only the latest missed occurrence runs instead of every one back to back. The routine editor now lists current models instead of retired ones
-- With no model chosen, the Cline provider uses the first model in Cline's recommended list (Claude Sonnet 5.5)
-- Turning reasoning off now works on every provider. Models that can't turn it off keep their default, and level-only Gemini models no longer reject the request with a thinking-budget error
-- Screenshots and other images no longer inflate the token estimate, which made auto-compaction run long before the conversation was near its limit
-- Auto-compaction uses the selected model's context window when the catalog entry has none
-- Rule files that are symlinks now load
-- Skills in `.claude/skills` are now discovered
-- The editor tool no longer receives null in place of the text to replace from some models
-- Refreshed the model catalog. Adds the AI/ML API, LowRouter, and Prime Inference providers. The v0 provider now offers only its default model, `v0-1.5-md`, and OpenCode Go uses its new `https://opencode.ai/inference/go/v1` endpoint. The Cline free list adds Step 5 Preview. Default models change for 302.AI, CrossModel, Cortecs, DigitalOcean, NEAR AI Cloud, and Ofox (Claude Haiku 5.5), DevPass (LLM Gateway), LLM Gateway, and Meta (Muse Wonder 1.0), Aixy (GPT-6.1 Sol), CloudFerro Sherlock and Moark (GLM 5.3), Ambient, NanoGPT, Neuralwatt, and Novita AI
+- 对话左侧边缘新增大纲，列出你发送过的每条提示词。悬停标记可预览提示词，点击即可跳转到该处
+- 插件加载失败或在会话中出错时，聊天中会显示一行状态，注明插件名称和错误信息，不再悄无声息地丢失其工具
+- 等待浏览器完成 Cline Cloud 登录时，现在可以取消登录
+- 在网页端重命名的会话标题现在会同步更新到应用中
+- 未登录时，Cloud 设置卡片在较小窗口中也能保持可见
+- 未安装 Git 时安装技能（skill），现在会提示需要 Git 以及如何解决，而不是显示原始的克隆错误
+- 定时任务（routine）：排队中的运行现在会正常启动，不再一直停留在等待状态；模型调用失败（例如模型已下线）的运行会被标记为失败并附上错误信息；停机恢复后只会补跑最近一次错过的运行，而不是把错过的每一次接连全部补跑。任务编辑器现在列出的是当前可用模型，而不是已下线的模型
+- 未选择模型时，Cline 模型提供商会使用 Cline 推荐列表中的第一个模型（Claude Sonnet 5.5）
+- 关闭推理（reasoning）现在对所有模型提供商都生效。无法关闭推理的模型会保持默认设置；仅支持推理级别的 Gemini 模型不再因 thinking-budget 错误拒绝请求
+- 截图和其他图片不再虚增 token 估算。此前这会导致对话远未接近上限时就触发自动压缩
+- 当模型目录条目没有上下文窗口信息时，自动压缩会使用所选模型的上下文窗口
+- 以符号链接（symlink）形式存在的规则文件现在可以正常加载
+- 现在会发现 `.claude/skills` 中的技能
+- 编辑器工具不再从某些模型收到 null 来代替要替换的文本
+- 已刷新模型目录。新增 AI/ML API、LowRouter 与 Prime Inference 模型提供商。v0 提供商现在只提供其默认模型 `v0-1.5-md`；OpenCode Go 改用新端点 `https://opencode.ai/inference/go/v1`。Cline 免费列表新增 Step 5 Preview。以下提供商的默认模型有变更：302.AI、CrossModel、Cortecs、DigitalOcean、NEAR AI Cloud 与 Ofox（改为 Claude Haiku 5.5），DevPass（LLM Gateway）、LLM Gateway 与 Meta（改为 Muse Wonder 1.0），Aixy（改为 GPT-6.1 Sol），CloudFerro Sherlock 与 Moark（改为 GLM 5.3），以及 Ambient、NanoGPT、Neuralwatt 与 Novita AI
 
 ## 0.0.45
 

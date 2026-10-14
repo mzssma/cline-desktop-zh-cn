@@ -483,10 +483,12 @@ function ConfigFieldRow({
 	return (
 		<div className="grid min-h-18 grid-cols-[minmax(12rem,0.55fr)_minmax(16rem,0.45fr)] items-center gap-6 border-b py-4 max-[900px]:grid-cols-1 max-[900px]:gap-3">
 			<header>
-				<h3 className="text-lg font-semibold text-foreground">{field.label}</h3>
+				<h3 className="text-lg font-semibold text-foreground">
+					{t(field.label)}
+				</h3>
 				{field.description ? (
 					<p className="mt-1 text-base leading-relaxed text-muted-foreground">
-						{field.description}
+						{t(field.description)}
 					</p>
 				) : null}
 				{field.path === "apiKey" && providerKeyUrl ? (
@@ -495,14 +497,18 @@ function ConfigFieldRow({
 						onClick={() => void openExternalUrl(providerKeyUrl)}
 						type="button"
 					>
-						{provider.docLabel ? t(provider.docLabel) : t("Get a {provider} API key", { provider: provider.name })}
+						{provider.docLabel
+							? t(provider.docLabel)
+							: t("Get a {provider} API key", { provider: provider.name })}
 						<ExternalLink className="size-3.5" />
 					</button>
 				) : null}
 			</header>
 			{field.type === "boolean" ? (
 				<div className="flex items-center justify-end">
-					<span className="text-sm text-muted-foreground">{t(field.label)}</span>
+					<span className="text-sm text-muted-foreground">
+						{t(field.label)}
+					</span>
 					<Switch
 						aria-label={t(field.label)}
 						checked={Boolean(value)}

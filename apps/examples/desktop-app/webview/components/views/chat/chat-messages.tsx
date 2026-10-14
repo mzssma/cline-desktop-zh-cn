@@ -858,9 +858,13 @@ function ChatMessagesImpl({
 				>
 					<AlertDialogContent>
 						<AlertDialogHeader>
-							<AlertDialogTitle>{t("Revert to this checkpoint?")}</AlertDialogTitle>
+							<AlertDialogTitle>
+								{t("Revert to this checkpoint?")}
+							</AlertDialogTitle>
 							<AlertDialogDescription>
-								{t("Workspace files and conversation history after this point will be discarded. This cannot be undone.")}
+								{t(
+									"Workspace files and conversation history after this point will be discarded. This cannot be undone.",
+								)}
 							</AlertDialogDescription>
 						</AlertDialogHeader>
 						<AlertDialogFooter>
@@ -893,9 +897,13 @@ function ChatMessagesImpl({
 				>
 					<AlertDialogContent>
 						<AlertDialogHeader>
-							<AlertDialogTitle>{t("Edit and restart from here?")}</AlertDialogTitle>
+							<AlertDialogTitle>
+								{t("Edit and restart from here?")}
+							</AlertDialogTitle>
 							<AlertDialogDescription>
-								{t("This creates a new session and restores the workspace to its checkpoint before placing this message in the composer. Workspace and conversation changes after this point will be discarded.")}
+								{t(
+									"This creates a new session and restores the workspace to its checkpoint before placing this message in the composer. Workspace and conversation changes after this point will be discarded.",
+								)}
 							</AlertDialogDescription>
 						</AlertDialogHeader>
 						<AlertDialogFooter>

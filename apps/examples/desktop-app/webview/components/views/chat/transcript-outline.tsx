@@ -18,6 +18,7 @@ import {
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
 import type { ChatMessage } from "@/lib/chat-schema";
+import { t } from "@/lib/i18n";
 import { formatChatMessageContent } from "./message-content";
 import { isSystemSteeringMessage } from "./messages/group-messages";
 
@@ -67,7 +68,7 @@ export function TranscriptOutline({ messages }: { messages: ChatMessage[] }) {
 	return (
 		<nav
 			ref={outlineRef}
-			aria-label="Transcript outline"
+			aria-label={t("Transcript outline")}
 			className="absolute left-2 top-1/2 z-10 flex max-h-[calc(100%-3rem)] -translate-y-1/2 flex-col overflow-y-auto rounded-md bg-background/90 p-1"
 		>
 			{userMessages.map((message, index) => (
@@ -108,7 +109,7 @@ const TranscriptOutlineEntry = memo(function TranscriptOutlineEntry({
 	const preview = useMemo(
 		() =>
 			formatChatMessageContent("user", content).replace(/\s+/g, " ") ||
-			(hasImages ? "Image attachment" : "User message"),
+			(hasImages ? t("Image attachment") : t("User message")),
 		[content, hasImages],
 	);
 	return (
@@ -117,7 +118,10 @@ const TranscriptOutlineEntry = memo(function TranscriptOutlineEntry({
 				<button
 					ref={isCurrent ? currentButtonRef : undefined}
 					type="button"
-					aria-label={`Go to message ${index + 1}: ${preview.slice(0, 120)}`}
+					aria-label={t("Go to message {index}: {preview}", {
+						index: index + 1,
+						preview: preview.slice(0, 120),
+					})}
 					aria-current={isCurrent ? "location" : undefined}
 					className="group flex h-4 w-7 shrink-0 items-center justify-start rounded-sm px-1 outline-none focus-visible:ring-2 focus-visible:ring-ring"
 					onClick={() => onNavigate(messageId)}

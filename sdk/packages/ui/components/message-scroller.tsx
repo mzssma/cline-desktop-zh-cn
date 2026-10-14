@@ -6,6 +6,7 @@ import { MessageScroller as Primitive } from "@shadcn/react/message-scroller";
 import { clsx } from "clsx";
 import { ArrowDownIcon } from "lucide-react";
 import type { ComponentProps } from "react";
+import { uiText } from "./ui-text.js";
 
 export {
 	useMessageScroller,
@@ -105,7 +106,9 @@ export function MessageScrollerButton({
 				<>
 					<ArrowDownIcon aria-hidden="true" />
 					<span className="cline-message-scroller-button-label">
-						{direction === "end" ? "Scroll to end" : "Scroll to start"}
+						{direction === "end"
+							? uiText("Scroll to end")
+							: uiText("Scroll to start")}
 					</span>
 				</>
 			)}

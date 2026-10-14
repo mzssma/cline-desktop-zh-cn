@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { t } from "@/lib/i18n";
 import {
 	cancelClineOAuthLogin,
 	runProviderOAuthLogin,
@@ -47,7 +48,9 @@ export function useClineSignIn({
 			await cancelClineOAuthLogin();
 		} catch (error) {
 			setError(
-				`Could not cancel sign-in: ${error instanceof Error ? error.message : String(error)}`,
+				t("Could not cancel sign-in: {error}", {
+					error: error instanceof Error ? error.message : String(error),
+				}),
 			);
 		} finally {
 			setCancelling(false);
