@@ -1,5 +1,11 @@
 # Cline Desktop Changelog
 
+## 0.0.48
+
+- GPT-6 models (such as `gpt-6-sol` and `gpt-6.1-sol`) work on OpenAI and Azure OpenAI-compatible endpoints. Before, every request was rejected because Cline sent `max_tokens` instead of `max_completion_tokens`
+- The Cline provider's default model is Claude Sonnet 5.5 again, which is back at the top of Cline's recommended list
+- Refreshed the model catalog. Adds the CommandCode and Reflection providers. Default models change for 302.AI (Gemini 4 Argon), Eden AI and Prime Inference (Muse Spark Open), CoreWeave (Reflection Beam 1.0), NanoGPT, Pioneer (Nemotron 3.5 Super VL), and Scaleway (DeepSeek V4.1 Flash)
+
 ## 0.0.47
 
 - goal 等插件市场插件可以再次正常加载。在 0.0.46 中，由于打包后的应用没有包含插件所引用的 SDK 包，这些插件会报错 `Cannot find module '@cline/sdk'`
