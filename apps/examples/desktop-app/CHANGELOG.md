@@ -2,9 +2,9 @@
 
 ## 0.0.48
 
-- GPT-6 models (such as `gpt-6-sol` and `gpt-6.1-sol`) work on OpenAI and Azure OpenAI-compatible endpoints. Before, every request was rejected because Cline sent `max_tokens` instead of `max_completion_tokens`
-- The Cline provider's default model is Claude Sonnet 5.5 again, which is back at the top of Cline's recommended list
-- Refreshed the model catalog. Adds the CommandCode and Reflection providers. Default models change for 302.AI (Gemini 4 Argon), Eden AI and Prime Inference (Muse Spark Open), CoreWeave (Reflection Beam 1.0), NanoGPT, Pioneer (Nemotron 3.5 Super VL), and Scaleway (DeepSeek V4.1 Flash)
+- GPT-6 系列模型（如 `gpt-6-sol` 和 `gpt-6.1-sol`）现在可以在 OpenAI 及 Azure OpenAI 兼容端点上正常使用。此前由于 Cline 发送的是 `max_tokens` 而不是 `max_completion_tokens`，每个请求都会被拒绝
+- Cline 模型提供商的默认模型重新改回 Claude Sonnet 5.5，它再次回到 Cline 推荐列表的首位
+- 已刷新模型目录。新增 CommandCode 与 Reflection 模型提供商。以下提供商的默认模型有变更：302.AI（改为 Gemini 4 Argon），Eden AI 与 Prime Inference（改为 Muse Spark Open），CoreWeave（改为 Reflection Beam 1.0），NanoGPT、Pioneer（改为 Nemotron 3.5 Super VL），以及 Scaleway（改为 DeepSeek V4.1 Flash）
 
 ## 0.0.47
 
