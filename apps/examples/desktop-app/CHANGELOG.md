@@ -2,35 +2,35 @@
 
 ## 0.0.49
 
-- A new **Changes** button in the session header shows the session's line counts and opens a pane listing the files changed in the last turn or across the whole session, with a diff of each. When a turn finishes, a summary under it lists the files it changed; click it to open the pane on that turn
-- A **project files panel** (folder button in the session header) shows a file tree beside the conversation, with a read-only tabbed viewer, git status letters, and a marker on files the session changed. Files the agent edited get a File/Diff toggle. Works on local and SSH environments
-- An integrated **terminal panel** opens at the bottom of the window (toggle with Ctrl+backtick)
-- Pull request status moved from the bar above the composer into a header button. Its menu shows the PR title, merge status and checks (failing checks first), and lets you open the PR on GitHub, create a PR, copy the branch name, or refresh
-- A new **Local Models** settings page manages Ollama and LM Studio models: setup guidance, model details and storage, and a composer chip showing how much memory the loaded model uses
-- **Keybindings** are configurable in Settings (also reachable from the app and Help menus). Quit can require holding the shortcut, 1 second by default on macOS, so it's harder to quit by accident
-- Slash commands and `@file` mentions show as chips in the composer and in sent messages
-- If the Hub fails to start, the app now shows a startup screen with Retry and Export diagnostics, instead of failing every action with "desktop backend endpoint not ready"
-- General settings shows the Hub's status and has a Restart Hub button
-- Opening a task that's already running in another Cline app now attaches to that run instead of starting a second one that couldn't be stopped. Requests that were waiting on an app that closed mid-task now fail with a clear message instead of hanging
-- Sessions with a very large transcript (over about 8 MB) can be resumed again. Before, the transcript was sent to the Hub twice, which went over its message size limit
-- Long lines in the file and diff viewers wrap, and rows always span the full width when scrolled
-- New Cloud chats start on your local Cline or ClinePass model. If Cloud doesn't offer that model, ClinePass subscribers get a ClinePass model and everyone else gets Claude Sonnet 5.5
-- A pasted Cline API key now replaces an old browser sign-in instead of being ignored. Provider settings fields stack properly in the narrow side panel
-- The Sessions/Projects sort choice in the sidebar is remembered across restarts
-- On Linux desktops without a tray (stock GNOME on Fedora or Debian), closing the window quits the app instead of leaving it running with no way to quit
-- Internal messages meant only for the model no longer show in the transcript, and live session titles no longer show the raw `user_input` wrapper
-- Schedule status stays current and failed runs show the full error
-- Checking for changes no longer spawns thousands of git processes in workspaces with many untracked files
-- SSH environments behind a ProxyJump alias now connect
-- The update toast's Restart button sits under the message text
-- A turn whose connection drops after the model has streamed only reasoning is now retried instead of ending the run
-- Model requests retry at most 3 times instead of 5
-- Kimi K3 now gets `max` reasoning for Extra High and Max, instead of an `xhigh` setting it rejects
-- Gemini API keys (the `gemini` provider) no longer send native Google Search. Free-tier keys failed every turn with a 429 quota error on Gemini 3+, and on Gemini 2.x every Cline tool was dropped
-- Auto-compaction no longer runs for models with an unknown context limit, and it no longer runs again every few tool calls after the first compaction
-- `ask_question`: the model keeps going after you pick an option, empty answers are rejected, and an answer with only an attachment counts
-- `run_commands` with an empty command list now returns an error instead of a silent success. On PowerShell, the tool tells the model how quote escaping works and to confirm recursive deletes first
-- Refreshed the model catalog. Adds the Liquid Inference and Munito AI providers and drops CrofAI, iFlow and Llama. The Cline free list adds Reflection Beam, Nemotron 3.5 Lightning and Laguna S 2.1 and drops Mimo V2.6 Flash and Muse Spark 1.3 Contributor. ClinePass now defaults to Kimi K3.1 Pro and adds MiniMax M3.1 Flash and DeepSeek V4.1 Flash 1017. Default models change for 56 other providers, mostly to Kimi K3.1 Pro, MiniMax M3.1 Flash or DeepSeek V4.1 Flash 1017
+- 会话标题栏新增 **改动** 按钮，显示本会话的增删行数；点击后会打开一个面板，列出上一轮或整个会话中改动过的文件，并可查看每个文件的差异。每轮结束时，回复下方会显示一份本轮改动文件的摘要，点击即可在面板中打开该轮的改动
+- 新增 **项目文件面板**（会话标题栏中的文件夹按钮），在对话旁显示文件树，提供只读的多标签文件查看器、Git 状态字母，并标记本会话改动过的文件。智能体编辑过的文件可在「文件 / 差异」之间切换。本地环境和 SSH 环境均可使用
+- 新增集成 **终端面板**，在窗口底部打开（按 Ctrl+反引号 切换显示）
+- Pull Request 状态从输入框上方的状态栏移到了标题栏按钮中。其菜单会显示 PR 标题、合并状态和检查结果（未通过的检查排在最前），并可在 GitHub 上打开 PR、创建 PR、复制分支名或刷新状态
+- 新增 **本地模型** 设置页，用于管理 Ollama 和 LM Studio 模型：提供安装指引、模型详情和存储占用；输入框中还会新增一个标签，显示已加载模型占用了多少内存
+- 现在可以在设置中自定义 **快捷键**（也可以从应用菜单和帮助菜单进入）。「退出」可以设置为需要按住快捷键才会生效，macOS 上默认按住 1 秒，以免误触退出
+- 斜杠命令和 `@文件` 引用在输入框和已发送的消息中会显示为标签
+- 如果 Hub 启动失败，应用现在会显示一个启动页面，提供「重试」和「导出诊断信息」，而不是让每个操作都报错 “desktop backend endpoint not ready”
+- 通用设置中会显示 Hub 的状态，并提供「重启 Hub」按钮
+- 打开一个已在另一个 Cline 应用中运行的任务时，现在会接入该运行，而不是另起一个无法停止的新运行。若某个应用在任务中途关闭，原本在等待它的请求现在会给出明确的失败提示，而不是一直卡住
+- 对话记录很大（超过约 8 MB）的会话可以再次恢复。此前对话记录会被发送给 Hub 两次，超过了其消息大小上限
+- 文件查看器和差异查看器中的长行会自动换行，横向滚动时每一行也始终占满整个宽度
+- 新建的 Cloud 对话会使用你本地的 Cline 或 ClinePass 模型。如果 Cloud 不提供该模型，ClinePass 订阅用户会使用 ClinePass 模型，其他用户则使用 Claude Sonnet 5.5
+- 粘贴的 Cline API Key 现在会替换旧的浏览器登录，而不再被忽略。模型提供商设置中的字段在较窄的侧边面板中也能正确地上下排列
+- 侧边栏中「会话 / 项目」的排序选择在重启后会被记住
+- 在没有系统托盘的 Linux 桌面（如 Fedora 或 Debian 上的原生 GNOME）上，关闭窗口会直接退出应用，而不是在后台继续运行且无法退出
+- 仅供模型使用的内部消息不再显示在对话记录中，进行中的会话标题也不再显示原始的 `user_input` 包装
+- 定时任务状态会保持最新，运行失败时会显示完整的错误信息
+- 在有大量未跟踪文件的工作区中检查改动时，不再启动成千上万个 git 进程
+- 通过 ProxyJump 别名访问的 SSH 环境现在可以正常连接
+- 更新提示中的「重启」按钮现在位于提示文字下方
+- 当模型只输出了推理内容、连接就中断时，这一轮现在会自动重试，而不是直接结束运行
+- 模型请求最多重试 3 次（原为 5 次）
+- Kimi K3 在「超高」和「最高」档位下现在使用 `max` 推理级别，而不再发送它会拒绝的 `xhigh` 设置
+- 使用 Gemini API Key（`gemini` 提供商）时不再发送原生 Google 搜索。此前免费档 Key 在 Gemini 3+ 上每一轮都会因 429 配额错误失败，而在 Gemini 2.x 上所有 Cline 工具都会被丢弃
+- 对于上下文上限未知的模型，不再执行自动压缩；首次压缩后也不再每隔几次工具调用就重复压缩
+- `ask_question`：你选择某个选项后模型会继续执行，空回答会被拒绝，只带附件的回答也算作有效回答
+- `run_commands` 在命令列表为空时现在会返回错误，而不是悄悄地返回成功。在 PowerShell 中，该工具会告诉模型引号转义的规则，并要求在递归删除前先确认
+- 已刷新模型目录。新增 Liquid Inference 与 Munito AI 模型提供商，移除 CrofAI、iFlow 与 Llama。Cline 免费列表新增 Reflection Beam、Nemotron 3.5 Lightning 与 Laguna S 2.1，移除 Mimo V2.6 Flash 与 Muse Spark 1.3 Contributor。ClinePass 默认模型改为 Kimi K3.1 Pro，并新增 MiniMax M3.1 Flash 与 DeepSeek V4.1 Flash 1017。另有 56 个模型提供商的默认模型有变更，大多改为 Kimi K3.1 Pro、MiniMax M3.1 Flash 或 DeepSeek V4.1 Flash 1017
 
 ## 0.0.48
 
