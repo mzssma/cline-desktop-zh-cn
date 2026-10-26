@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/command";
 import { desktopClient } from "@/lib/desktop-client";
 import { t } from "@/lib/i18n";
+import { formatAccelerator, useKeybindings } from "@/lib/keybindings";
 
 type SessionSearchHit = {
 	sessionId: string;
@@ -39,6 +40,9 @@ export function SessionCommandBar({
 	onOpenChange: (open: boolean) => void;
 	onOpenSession: (sessionId: string) => void | Promise<void>;
 }) {
+	const keybindings = useKeybindings();
+	const searchKey = keybindings["command-bar"].key;
+	const searchHint = searchKey ? formatAccelerator(searchKey) : null;
 	const [query, setQuery] = useState("");
 	const [hits, setHits] = useState<SessionSearchHit[]>([]);
 	const [searching, setSearching] = useState(false);
@@ -196,9 +200,11 @@ export function SessionCommandBar({
 			</CommandList>
 			<div className="flex items-center justify-between border-t px-3 py-2 text-[11px] text-muted-foreground">
 				<span>{t("Navigate with ↑↓ and open with ↵")}</span>
-				<kbd className="rounded border bg-muted px-1.5 py-0.5 font-sans">
-					Cmd/Ctrl+P
-				</kbd>
+				{searchHint ? (
+					<kbd className="rounded border bg-muted px-1.5 py-0.5 font-sans">
+						{searchHint}
+					</kbd>
+				) : null}
 			</div>
 		</CommandDialog>
 	);

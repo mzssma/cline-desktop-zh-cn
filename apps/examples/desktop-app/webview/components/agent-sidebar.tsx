@@ -10,15 +10,18 @@ import {
 	ArrowLeft,
 	ArrowRight,
 	Blocks,
+	Bug,
 	ChevronDown,
 	CircleUserRound,
 	Clock3,
 	Cloud,
+	Cpu,
 	Filter,
 	FolderTree,
 	GitFork,
 	Import,
 	Info,
+	Keyboard,
 	Loader2,
 	Mic,
 	Network,
@@ -35,6 +38,7 @@ import {
 	Trash2,
 } from "lucide-react";
 import {
+	Fragment,
 	type ReactNode,
 	useCallback,
 	useEffect,
@@ -83,6 +87,10 @@ import { normalizeTitle } from "@/components/utils";
 import {
 	CUSTOMIZATION_SECTION_LABELS,
 	CUSTOMIZATION_SECTIONS,
+	isProviderSection,
+	PROVIDER_SECTION_LABELS,
+	PROVIDER_SECTIONS,
+	readProviderSectionInUse,
 	SETTINGS_SECTIONS,
 	type SettingsSection,
 } from "@/components/views/settings/sections";
@@ -99,6 +107,7 @@ import {
 	productNameForVersion,
 } from "@/lib/app-channel";
 import { desktopClient } from "@/lib/desktop-client";
+import { formatAccelerator, useKeybindings } from "@/lib/keybindings";
 import {
 	ALL_SESSION_SOURCES,
 	filterSessionsBySource,
@@ -109,14 +118,17 @@ import {
 	groupScheduledThreads,
 	groupThreadsByProject,
 	INITIAL_VISIBLE_THREAD_COUNT,
+	readSidebarSortModeFromWindow,
 	type SidebarListRow,
 	type SidebarScheduleGroup,
+	type SidebarSortMode,
 	scheduleGroupKey,
 	scheduleRunLabel,
 	workspaceDisplayName,
+	writeSidebarSortModeToWindow,
 } from "@/lib/sidebar-session-organization";
 import { cn } from "@/lib/utils";
-import { t } from "@/lib/i18n";
+import { t, tc } from "@/lib/i18n";
 import { TASK_WORKTREE_DELETE_WARNING } from "@/lib/work-in-selection";
 import { isTaskWorktreePath } from "@/lib/workspace-paths";
 
@@ -125,7 +137,6 @@ type AppView = "chat" | "sessions" | "settings";
 
 const filterOptions = ["All", "Running"] as const;
 type FilterOption = (typeof filterOptions)[number];
-type SidebarSortMode = "time" | "project";
 type SessionCategory = "pinned" | "scheduled" | "tasks";
 type DesktopProcessContext = {
 	appVersion?: unknown;
@@ -155,12 +166,15 @@ function hubPort(url: string | null): string | null {
 const SETTINGS_SECTION_ICONS = {
 	General: SlidersHorizontal,
 	Providers: Plug,
+	"Local Models": Cpu,
 	Voice: Mic,
+	Keybindings: Keyboard,
 	Channels: Radio,
 	Schedules: Clock3,
 	Import: Import,
 	Remote: Network,
 	Account: CircleUserRound,
+	Debug: Bug,
 	About: Info,
 	Customize: Blocks,
 	Marketplace: Store,
@@ -231,6 +245,53 @@ function SettingsSectionNavigation({
 		);
 	};
 
+	const renderProvidersGroup = () => {
+		const open = isProviderSection(activeSection);
+		return (
+			<Fragment key="providers">
+				<Button
+					aria-label={t("Provider")}
+					className={cn(
+						"min-w-0 justify-start",
+						open && "bg-surface-hover-lighter text-sidebar-foreground",
+					)}
+					onClick={() => onSelect(readProviderSectionInUse())}
+					title={t("Provider")}
+					type="button"
+					variant="sidebarItem"
+				>
+					<Plug className="size-4 shrink-0" />
+					<span className="truncate">{t("Provider")}</span>
+				</Button>
+				{open
+					? PROVIDER_SECTIONS.map((section) => (
+							<Button
+								aria-current={activeSection === section ? "page" : undefined}
+								aria-label={tc(
+									"provider-section",
+									PROVIDER_SECTION_LABELS[section],
+								)}
+								className={cn(
+									"min-w-0 justify-start pl-8!",
+									activeSection === section &&
+										"bg-surface-hover text-sidebar-foreground",
+								)}
+								key={section}
+								onClick={() => onSelect(section)}
+								title={tc("provider-section", PROVIDER_SECTION_LABELS[section])}
+								type="button"
+								variant="sidebarItem"
+							>
+								<span className="truncate">
+									{tc("provider-section", PROVIDER_SECTION_LABELS[section])}
+								</span>
+							</Button>
+						))
+					: null}
+			</Fragment>
+		);
+	};
+
 	return (
 		<nav
 			aria-label={t("Settings sections")}
@@ -251,7 +312,12 @@ function SettingsSectionNavigation({
 			    reachable. */}
 			{SETTINGS_SECTIONS.filter(
 				(section) => collapsed || section !== "Schedules",
-			).map(renderSectionButton)}
+			).map((section) => {
+				if (collapsed || !isProviderSection(section)) {
+					return renderSectionButton(section);
+				}
+				return section === "Account" ? renderProvidersGroup() : null;
+			})}
 			{collapsed ? (
 				<>
 					<div className="my-2 h-px w-6 shrink-0 bg-sidebar-border" />
@@ -284,7 +350,7 @@ export function AgentSidebar({
 	onHome: () => void;
 	onNavigateBack?: () => void;
 	onNavigateForward?: () => void;
-	/** Opens the global session search command bar (also bound to Cmd/Ctrl+P). */
+	/** Opens the global session search command bar. */
 	onOpenSearch?: () => void;
 	onSettingsSectionChange: (section: SettingsSection) => void;
 	setView: (view: AppView) => void;
@@ -293,6 +359,9 @@ export function AgentSidebar({
 	activeSessionId?: string | null;
 	sessionHistory: UseSessionHistoryResult;
 }) {
+	const keybindings = useKeybindings();
+	const searchKey = keybindings["command-bar"].key;
+	const searchHint = searchKey ? formatAccelerator(searchKey) : null;
 	const { isMobile, setOpen, setOpenMobile, state } = useSidebar();
 	const isCollapsed = !isMobile && state === "collapsed";
 	const { user, activeOrganization } = useAccount();
@@ -321,6 +390,11 @@ export function AgentSidebar({
 	const [filter, setFilter] = useState<FilterOption>("All");
 	const [sourceFilter, setSourceFilter] = useState(ALL_SESSION_SOURCES);
 	const [sortMode, setSortMode] = useState<SidebarSortMode>("time");
+	// Read after mount: the page is pre-rendered with the default, so reading
+	// localStorage during the first render would mismatch the server HTML.
+	useEffect(() => {
+		setSortMode(readSidebarSortModeFromWindow());
+	}, []);
 	const [showMoreCount, setShowMoreCount] = useState(
 		INITIAL_VISIBLE_THREAD_COUNT,
 	);
@@ -678,9 +752,11 @@ export function AgentSidebar({
 		<Button
 			aria-label={`Sort sessions: ${sortMode === "time" ? "Time" : "Project"}`}
 			className="m-0! inline-flex size-8 items-center justify-center rounded-md p-0! text-muted-foreground hover:bg-surface-hover hover:text-sidebar-foreground"
-			onClick={() =>
-				setSortMode((current) => (current === "time" ? "project" : "time"))
-			}
+			onClick={() => {
+				const next = sortMode === "time" ? "project" : "time";
+				setSortMode(next);
+				writeSidebarSortModeToWindow(next);
+			}}
 			size="icon"
 			title={
 				sortMode === "time"
@@ -866,7 +942,9 @@ export function AgentSidebar({
 									{productNameForVersion(appVersion)}
 								</p>
 								<p className="mt-0.5 text-xs text-muted-foreground">
-									{appVersion ? `${t("Version")} ${appVersion}` : t("Version unavailable")}
+									{appVersion
+										? `${t("Version")} ${appVersion}`
+										: t("Version unavailable")}
 								</p>
 								<div className="mt-3 border-border border-t pt-3">
 									<div className="flex items-center gap-2 text-xs">
@@ -908,7 +986,13 @@ export function AgentSidebar({
 								aria-label={t("Search sessions")}
 								className="size-8 shrink-0 justify-center px-0"
 								onClick={onOpenSearch}
-								title={t("Search sessions (Cmd/Ctrl+P)")}
+								title={
+									searchHint
+										? t("Search sessions ({shortcut})", {
+												shortcut: searchHint,
+											})
+										: t("Search sessions")
+								}
 								type="button"
 								variant="sidebarItem"
 							>
@@ -1142,7 +1226,7 @@ export function AgentSidebar({
 														projectVisibleCounts[project.id] ??
 														INITIAL_VISIBLE_THREAD_COUNT;
 													const projectRows = groupScheduledThreads(
- 														project.threads,
+														project.threads,
 													);
 													return (
 														<ProjectSection
@@ -1595,7 +1679,10 @@ function ThreadItem({
 							}
 							pinnedIndicator={
 								thread.pinned ? (
-									<Pin aria-label={t("Pinned")} className="size-3 fill-current" />
+									<Pin
+										aria-label={t("Pinned")}
+										className="size-3 fill-current"
+									/>
 								) : null
 							}
 							action={
@@ -1658,7 +1745,10 @@ export function getSessionOverviewItems(
 	const workspacePath = thread.workspacePath || thread.codebase;
 	const items: Array<[string, string | null | undefined, string?]> = [
 		[t("Schedule"), thread.scheduleName],
-		[t("Run"), thread.scheduleRunNumber ? String(thread.scheduleRunNumber) : null],
+		[
+			t("Run"),
+			thread.scheduleRunNumber ? String(thread.scheduleRunNumber) : null,
+		],
 		[
 			thread.origin === "cloud" ? t("Repository") : t("Workspace"),
 			thread.origin === "cloud"

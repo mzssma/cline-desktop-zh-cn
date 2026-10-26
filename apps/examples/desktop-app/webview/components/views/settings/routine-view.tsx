@@ -145,13 +145,10 @@ interface RoutineOverviewResponse {
 	lastExecutions: RoutineExecution[];
 }
 
-const ROUTINE_OVERVIEW_CACHE_TTL_MS = 30_000;
+const ROUTINE_OVERVIEW_POLL_INTERVAL_MS = 15_000;
 
-let routineOverviewCache:
-	| (RoutineOverviewResponse & {
-			fetchedAt: number;
-	  })
-	| null = null;
+// Preserve the last snapshot for navigation, but always revalidate on mount.
+let routineOverviewCache: RoutineOverviewResponse | null = null;
 
 async function fetchRoutineOverview(): Promise<RoutineOverviewResponse> {
 	const response = await desktopClient.invoke<RoutineOverviewResponse>(
@@ -308,10 +305,11 @@ function formatScheduleDays(days: string[]): string {
 		return t("Weekdays");
 	}
 	return normalized
-		.map(
-			(value) =>
-				t(WEEKDAY_OPTIONS.find((option) => option.value === value)?.label ??
-				value),
+		.map((value) =>
+			t(
+				WEEKDAY_OPTIONS.find((option) => option.value === value)?.label ??
+					value,
+			),
 		)
 		.join(", ");
 }
@@ -518,6 +516,8 @@ export function RoutineSchedulesContent({
 	);
 	const [isLoading, setIsLoading] = useState(() => !routineOverviewCache);
 	const [errorMessage, setErrorMessage] = useState<string | null>(null);
+	const overviewRequestSequence = useRef(0);
+	const overviewRefreshPending = useRef(false);
 	// Sets rather than single ids: several rows can have in-flight actions at
 	// once, and one action finishing must not clear another row's busy state.
 	const [busyScheduleIds, setBusyScheduleIds] = useState<ReadonlySet<string>>(
@@ -733,28 +733,20 @@ export function RoutineSchedulesContent({
 	]);
 
 	const refreshSchedules = useCallback(
-		async (options?: { force?: boolean; showLoading?: boolean }) => {
-			const now = Date.now();
-			if (
-				!options?.force &&
-				routineOverviewCache &&
-				now - routineOverviewCache.fetchedAt < ROUTINE_OVERVIEW_CACHE_TTL_MS
-			) {
-				setSchedules(routineOverviewCache.schedules);
-				setActiveExecutions(routineOverviewCache.activeExecutions);
-				setUpcomingRuns(routineOverviewCache.upcomingRuns);
-				setLastExecutions(routineOverviewCache.lastExecutions);
-				setErrorMessage(null);
-				setIsLoading(false);
-				return;
-			}
-
+		async (options?: { showLoading?: boolean }) => {
 			if (options?.showLoading !== false) {
 				setIsLoading(true);
 			}
+			const requestId = ++overviewRequestSequence.current;
+			overviewRefreshPending.current = true;
 			setErrorMessage(null);
 			try {
 				const response = await fetchRoutineOverview();
+				if (
+					!mountedRef.current ||
+					requestId !== overviewRequestSequence.current
+				)
+					return response;
 				const schedules = response.schedules;
 				const activeExecutions = response.activeExecutions;
 				const upcomingRuns = response.upcomingRuns;
@@ -768,24 +760,67 @@ export function RoutineSchedulesContent({
 					activeExecutions,
 					upcomingRuns,
 					lastExecutions,
-					fetchedAt: now,
 				};
 				return response;
 			} catch (error) {
+				if (
+					!mountedRef.current ||
+					requestId !== overviewRequestSequence.current
+				)
+					return;
 				const message = error instanceof Error ? error.message : String(error);
 				setErrorMessage(message);
 			} finally {
-				setIsLoading(false);
+				if (
+					mountedRef.current &&
+					requestId === overviewRequestSequence.current
+				) {
+					overviewRefreshPending.current = false;
+					setIsLoading(false);
+				}
 			}
 		},
 		[],
 	);
 
 	useEffect(() => {
+		const refresh = () => {
+			void refreshSchedules({ showLoading: false });
+		};
+		const refreshVisible = () => {
+			// Background refreshes must not supersede a slow request on every
+			// poll, otherwise neither its response nor its error can be shown.
+			if (
+				document.visibilityState === "visible" &&
+				!overviewRefreshPending.current
+			) {
+				refresh();
+			}
+		};
 		const timeoutId = window.setTimeout(() => {
-			void refreshSchedules();
+			refresh();
 		}, 0);
-		return () => window.clearTimeout(timeoutId);
+		// Completion events deliver errors promptly, including failures before
+		// session creation. Polling also picks up queued/running transitions
+		// and changes missed during a transport disconnect.
+		const unsubscribers = [
+			"schedule.execution_completed",
+			"schedule.execution_failed",
+		].map((event) => desktopClient.subscribe(event, refresh));
+		const intervalId = window.setInterval(
+			refreshVisible,
+			ROUTINE_OVERVIEW_POLL_INTERVAL_MS,
+		);
+		window.addEventListener("focus", refreshVisible);
+		document.addEventListener("visibilitychange", refreshVisible);
+		return () => {
+			overviewRequestSequence.current += 1;
+			window.clearTimeout(timeoutId);
+			window.clearInterval(intervalId);
+			for (const unsubscribe of unsubscribers) unsubscribe();
+			window.removeEventListener("focus", refreshVisible);
+			document.removeEventListener("visibilitychange", refreshVisible);
+		};
 	}, [refreshSchedules]);
 
 	const upsertScheduleEnabled = async (
@@ -806,7 +841,7 @@ export function RoutineSchedulesContent({
 					schedule_id: schedule.scheduleId,
 				});
 			}
-			await refreshSchedules({ force: true, showLoading: false });
+			await refreshSchedules({ showLoading: false });
 		} catch (error) {
 			const message = error instanceof Error ? error.message : String(error);
 			setErrorMessage(message);
@@ -836,7 +871,7 @@ export function RoutineSchedulesContent({
 					description: `"${schedule.name}" ${t("did not queue a run — the schedule may be disabled or deleted.")}`,
 					variant: "destructive",
 				});
-				await refreshSchedules({ force: true, showLoading: false });
+				await refreshSchedules({ showLoading: false });
 				return;
 			}
 			toast({
@@ -860,7 +895,6 @@ export function RoutineSchedulesContent({
 				Date.now() < deadline
 			) {
 				const overview = await refreshSchedules({
-					force: true,
 					showLoading: false,
 				});
 				const executions = [
@@ -902,7 +936,7 @@ export function RoutineSchedulesContent({
 				schedule_id: scheduleId,
 			});
 			setSchedulePendingDelete(null);
-			await refreshSchedules({ force: true, showLoading: false });
+			await refreshSchedules({ showLoading: false });
 		} catch (error) {
 			const message = error instanceof Error ? error.message : String(error);
 			setErrorMessage(message);
@@ -1094,7 +1128,7 @@ export function RoutineSchedulesContent({
 				enabled: createForm.enabled,
 				tags: tags ?? [],
 			});
-			await refreshSchedules({ force: true, showLoading: false });
+			await refreshSchedules({ showLoading: false });
 			setIsCreateOpen(false);
 			setEditingSchedule(null);
 		} catch (error) {
@@ -1178,7 +1212,9 @@ export function RoutineSchedulesContent({
 	return (
 		<PageFrame>
 			<PageHeader
-				description={t("Run agents on cron schedules for recurring automations like daily summaries and code reviews.")}
+				description={t(
+					"Run agents on cron schedules for recurring automations like daily summaries and code reviews.",
+				)}
 				title={t("Schedules")}
 				meta={<CommandBadge>cline schedule</CommandBadge>}
 				actions={
@@ -1186,6 +1222,7 @@ export function RoutineSchedulesContent({
 						<Button
 							variant="outline"
 							size="sm"
+							aria-label={t("Refresh schedules")}
 							onClick={() => void refreshSchedules()}
 							disabled={isLoading}
 						>
@@ -1211,7 +1248,9 @@ export function RoutineSchedulesContent({
 				<PageEmptyState>{t("Loading schedules...")}</PageEmptyState>
 			) : sortedSchedules.length === 0 ? (
 				<PageEmptyState>
-					{t("No schedules yet. Start from a suggestion below, or create your own with New Schedule.")}
+					{t(
+						"No schedules yet. Start from a suggestion below, or create your own with New Schedule.",
+					)}
 				</PageEmptyState>
 			) : (
 				<div className="flex flex-col gap-3">
@@ -1383,15 +1422,21 @@ export function RoutineSchedulesContent({
 										{schedule.scheduleId}
 									</p>
 									<p>
-										<span className="text-muted-foreground/70">{t("Prompt:")}</span>{" "}
+										<span className="text-muted-foreground/70">
+											{t("Prompt:")}
+										</span>{" "}
 										{schedule.prompt}
 									</p>
 									<p>
-										<span className="text-muted-foreground/70">{t("Model:")}</span>{" "}
+										<span className="text-muted-foreground/70">
+											{t("Model:")}
+										</span>{" "}
 										{formatScheduleModel(schedule)}
 									</p>
 									<p>
-										<span className="text-muted-foreground/70">{t("Last run:")}</span>{" "}
+										<span className="text-muted-foreground/70">
+											{t("Last run:")}
+										</span>{" "}
 										{formatDateTime(schedule.lastRunAt)}
 									</p>
 									<p>
@@ -1409,7 +1454,7 @@ export function RoutineSchedulesContent({
 										</p>
 									)}
 									{lastExecution?.errorMessage && (
-										<p className="text-destructive">
+										<p className="whitespace-pre-wrap break-words text-destructive">
 											<span className="text-muted-foreground/70">
 												{t("Last error:")}
 											</span>{" "}
@@ -1417,19 +1462,25 @@ export function RoutineSchedulesContent({
 										</p>
 									)}
 									<p>
-										<span className="text-muted-foreground/70">{t("Next run:")}</span>{" "}
+										<span className="text-muted-foreground/70">
+											{t("Next run:")}
+										</span>{" "}
 										{formatDateTime(schedule.nextRunAt || upcoming?.nextRunAt)}
 									</p>
 									{activeExecution && (
 										<p>
-											<span className="text-muted-foreground/70">{t("Active:")}</span>{" "}
+											<span className="text-muted-foreground/70">
+												{t("Active:")}
+											</span>{" "}
 											{activeExecution.executionId} {t("since")}{" "}
 											{formatDateTime(activeExecution.startedAt)}
 										</p>
 									)}
 									{schedule.tags && schedule.tags.length > 0 && (
 										<p>
-											<span className="text-muted-foreground/70">{t("Tags:")}</span>{" "}
+											<span className="text-muted-foreground/70">
+												{t("Tags:")}
+											</span>{" "}
 											{schedule.tags.join(", ")}
 										</p>
 									)}
@@ -1464,7 +1515,9 @@ export function RoutineSchedulesContent({
 												{t(template.title)}
 											</h3>
 											<span className="shrink-0 rounded-md border border-border px-1.5 py-0.5 text-[10px] text-muted-foreground">
-												{template.scheduleType === "daily" ? t("Daily") : t("Weekly")}
+												{template.scheduleType === "daily"
+													? t("Daily")
+													: t("Weekly")}
 											</span>
 										</div>
 										<p className="mt-1 text-xs leading-5 text-muted-foreground">
@@ -1497,7 +1550,9 @@ export function RoutineSchedulesContent({
 						<div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto">
 							<div className="grid grid-cols-1 gap-1.5 text-xs sm:grid-cols-2">
 								<p>
-									<span className="text-muted-foreground/70">{t("Schedule:")}</span>{" "}
+									<span className="text-muted-foreground/70">
+										{t("Schedule:")}
+									</span>{" "}
 									{formatScheduleTrigger(viewingSchedule)}
 								</p>
 								<p>
@@ -1505,19 +1560,27 @@ export function RoutineSchedulesContent({
 									{viewingSchedule.mode}
 								</p>
 								<p>
-									<span className="text-muted-foreground/70">{t("Model:")}</span>{" "}
+									<span className="text-muted-foreground/70">
+										{t("Model:")}
+									</span>{" "}
 									{formatScheduleModel(viewingSchedule)}
 								</p>
 								<p>
-									<span className="text-muted-foreground/70">{t("Enabled:")}</span>{" "}
+									<span className="text-muted-foreground/70">
+										{t("Enabled:")}
+									</span>{" "}
 									{viewingSchedule.enabled ? t("yes") : t("no")}
 								</p>
 								<p>
-									<span className="text-muted-foreground/70">{t("Last run:")}</span>{" "}
+									<span className="text-muted-foreground/70">
+										{t("Last run:")}
+									</span>{" "}
 									{formatDateTime(viewingSchedule.lastRunAt)}
 								</p>
 								<p>
-									<span className="text-muted-foreground/70">{t("Next run:")}</span>{" "}
+									<span className="text-muted-foreground/70">
+										{t("Next run:")}
+									</span>{" "}
 									{formatDateTime(viewingSchedule.nextRunAt)}
 								</p>
 							</div>
@@ -1572,7 +1635,7 @@ export function RoutineSchedulesContent({
 														{execution.status || t("Unknown result")}
 													</span>
 													{execution.errorMessage && (
-														<span className="block truncate text-xs text-destructive">
+														<span className="block whitespace-pre-wrap break-words text-xs text-destructive">
 															{execution.errorMessage}
 														</span>
 													)}
@@ -1618,7 +1681,9 @@ export function RoutineSchedulesContent({
 						<AlertDialogDescription>
 							{schedulePendingDelete
 								? `"${schedulePendingDelete.name}" ${t("will be deleted and future scheduled runs will be removed.")}`
-								: t("This will delete this routine and remove future scheduled runs.")}
+								: t(
+										"This will delete this routine and remove future scheduled runs.",
+									)}
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>
@@ -1692,12 +1757,16 @@ export function RoutineSchedulesContent({
 									<p className="text-xs text-muted-foreground">
 										{t("Current cron expression:")}{" "}
 										<code>{editingSchedule.cronPattern}</code>.{" "}
-										{t("Changing the timing controls replaces this expression.")}
+										{t(
+											"Changing the timing controls replaces this expression.",
+										)}
 									</p>
 								)}
 							<div className="flex flex-wrap items-end gap-3 rounded-xl border border-border p-3">
 								<div className="min-w-32 flex-1 space-y-2">
-									<Label htmlFor="routine-schedule-type">{t("Frequency")}</Label>
+									<Label htmlFor="routine-schedule-type">
+										{t("Frequency")}
+									</Label>
 									<Select
 										onValueChange={(value) =>
 											setCreateForm((prev) => ({

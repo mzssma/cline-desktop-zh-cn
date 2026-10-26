@@ -1,6 +1,6 @@
 "use client";
 
-import { Bug, ExternalLink, Loader2, RefreshCw, Sparkles } from "lucide-react";
+import { Bug, ExternalLink, Loader2, Rss, Sparkles } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -50,7 +50,7 @@ function useAppVersion(): string | null {
 	return appVersion;
 }
 
-function UpdateRow() {
+function UpdateAction() {
 	const status = useAppUpdateStatus();
 	const [checking, setChecking] = useState(false);
 	const [checkResult, setCheckResult] = useState<
@@ -62,23 +62,22 @@ function UpdateRow() {
 		checking || status.state === "checking" || status.state === "downloading";
 	const description =
 		status.state === "ready"
-			? t("Version {version} is downloaded and will be used the next time Cline starts.", { version: status.version ?? "" })
+			? t(
+					"Version {version} is downloaded and will be used the next time Cline starts.",
+					{ version: status.version ?? "" },
+				)
 			: status.state === "downloading"
 				? t("Downloading version {version}…", { version: status.version ?? "" })
 				: status.state === "error" && status.error
 					? t("The last check failed: {error}", { error: status.error })
 					: checkResult === "up-to-date"
-						? t("You're up to date. Cline also checks on its own shortly after launch and every two hours.")
+						? t("You're up to date.")
 						: checkResult === "unavailable"
 							? t("Update checks are only available in the desktop app.")
-							: t("Cline checks for updates shortly after launch and every two hours, and installs them when it restarts.");
+							: null;
 
 	return (
-		<div className="flex items-center justify-between gap-5 border-b py-4 max-[720px]:flex-col max-[720px]:items-stretch">
-			<div className="flex flex-col gap-1">
-				<p className="text-base font-semibold text-foreground">{t("Updates")}</p>
-				<p className="text-sm text-muted-foreground">{description}</p>
-			</div>
+		<div className="flex max-w-sm flex-col items-end gap-2">
 			{status.state === "ready" ? (
 				<Button
 					className="shrink-0"
@@ -113,11 +112,16 @@ function UpdateRow() {
 					{busy ? (
 						<Loader2 className="size-3 animate-spin" />
 					) : (
-						<RefreshCw className="size-3" />
+						<Rss className="size-3" />
 					)}
 					{t("Check for updates")}
 				</Button>
 			)}
+			{description ? (
+				<output className="text-right text-xs text-muted-foreground">
+					{description}
+				</output>
+			) : null}
 		</div>
 	);
 }
@@ -191,7 +195,9 @@ export function AboutContent({
 			.catch(() => {
 				if (!cancelled) {
 					setChangelogError(
-						t("Release notes aren't available in this build. The full changelog is on GitHub."),
+						t(
+							"Release notes aren't available in this build. The full changelog is on GitHub.",
+						),
 					);
 				}
 			});
@@ -203,6 +209,7 @@ export function AboutContent({
 	return (
 		<PageFrame>
 			<PageHeader
+				actions={<UpdateAction />}
 				meta={
 					<span className="flex items-center gap-2">
 						{appVersion ? (
@@ -220,7 +227,6 @@ export function AboutContent({
 				title={productNameForVersion(appVersion)}
 			/>
 			<section className="max-w-344">
-				<UpdateRow />
 				{whatsNew ? (
 					<div className="flex items-center justify-between gap-5 border-b py-4 max-[720px]:flex-col max-[720px]:items-stretch">
 						<div className="flex flex-col gap-1">

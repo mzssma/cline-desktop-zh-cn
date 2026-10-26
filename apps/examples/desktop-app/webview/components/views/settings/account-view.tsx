@@ -8,6 +8,7 @@ import type {
 	ClineAccountPaymentTransaction,
 	ClineAccountUsageTransaction,
 	ClineAccountUser,
+	UserCurrentPlan,
 } from "@cline/core";
 import {
 	AlertCircle,
@@ -20,6 +21,7 @@ import {
 	Plus,
 	Receipt,
 	RefreshCw,
+	Sparkles,
 	User,
 	UserCircleIcon,
 } from "lucide-react";
@@ -29,10 +31,15 @@ import { useClineSignIn } from "@/hooks/use-cline-sign-in";
 import { useOAuthUserCode } from "@/hooks/use-oauth-user-code";
 import { isClineAccountNotAuthenticatedResult } from "@/lib/cline-account-state";
 import { desktopClient, openExternalUrl } from "@/lib/desktop-client";
-import { invalidateProviderCatalogCache } from "@/lib/provider-model-catalog";
+import { buildModelPickerData } from "@/lib/featured-models";
+import {
+	invalidateProviderCatalogCache,
+	loadProviderModels,
+} from "@/lib/provider-model-catalog";
 import { cn } from "@/lib/utils";
-import { t } from "@/lib/i18n";
+import { t, tc } from "@/lib/i18n";
 import { PageFrame, PageHeader } from "../page-layout";
+import { InUseBadge } from "./in-use-badge";
 
 const DASHBOARD_URL = "https://app.cline.bot/dashboard";
 const USAGE_DASHBOARD_URL = "https://app.cline.bot/dashboard/usage";
@@ -42,6 +49,8 @@ const ORGANIZATION_CREDITS_URL =
 	"https://app.cline.bot/dashboard/organization?tab=credits&redirect=true";
 const CREATE_ORGANIZATION_URL = "https://app.cline.bot/onboarding?step=1";
 const CREATE_ACCOUNT_URL = "https://app.cline.bot";
+const CLINE_PASS_URL =
+	"https://app.cline.bot/dashboard/subscription?personal=true";
 
 function normalizeAccountViewError(error: unknown): Error {
 	const message = error instanceof Error ? error.message : String(error);
@@ -147,6 +156,24 @@ async function fetchPaymentTransactions(): Promise<
 	);
 }
 
+/** The models a ClinePass subscription includes, or null without one. */
+async function fetchClinePassModels(): Promise<string[] | null> {
+	const plan = await desktopClient.invoke<UserCurrentPlan | undefined>(
+		"cline_account",
+		{ action: "clineAccount", operation: "fetchCurrentUserPlan" },
+	);
+	const entitlements = plan?.plan?.entitlements as
+		| { cline_pass?: { enabled?: boolean } }
+		| undefined;
+	if (!entitlements?.cline_pass?.enabled) {
+		return null;
+	}
+	const models = await loadProviderModels("cline-pass").catch(() => []);
+	return buildModelPickerData("cline-pass", models)
+		.options.filter((option) => option.section === "subscribed")
+		.map((option) => option.label.replace(/^cline-pass\//, ""));
+}
+
 async function switchActiveAccount(
 	organizationId: string | null,
 ): Promise<void> {
@@ -175,6 +202,8 @@ export function AccountView() {
 	const [organizations, setOrganizations] = useState<
 		ClineAccountOrganization[]
 	>([]);
+	const [clinePassModels, setClinePassModels] = useState<string[] | null>(null);
+	const clinePassGenerationRef = useRef(0);
 	const [overviewLoading, setOverviewLoading] = useState(true);
 	const [overviewError, setOverviewError] = useState<string | null>(null);
 	// Signed out is an expected state carried by a typed sidecar result (or a
@@ -209,6 +238,8 @@ export function AccountView() {
 		setBalance(null);
 		setOrganizationBalance(null);
 		setOrganizations([]);
+		clinePassGenerationRef.current += 1;
+		setClinePassModels(null);
 		setUsageTransactions([]);
 		setUsageLoaded(false);
 		setUsageError(null);
@@ -231,6 +262,16 @@ export function AccountView() {
 				setSignedOut(true);
 				return;
 			}
+			// The subscription card is optional, so it neither delays nor breaks the page.
+			const generation = ++clinePassGenerationRef.current;
+			void fetchClinePassModels().then(
+				(models) => {
+					if (clinePassGenerationRef.current === generation) {
+						setClinePassModels(models);
+					}
+				},
+				() => {},
+			);
 			const [balanceData, orgsData] = await Promise.all([
 				fetchAccountBalance(),
 				fetchAccountOrganizations(),
@@ -575,7 +616,15 @@ export function AccountView() {
 	return (
 		<PageFrame contentClassName="max-w-3xl">
 			<PageHeader
-				title={t("Account")}
+				description={
+					user
+						? undefined
+						: t(
+								"The latest models from Anthropic, OpenAI, Google, and more with one account. Pay as you go, or subscribe with ClinePass.",
+							)
+				}
+				meta={<InUseBadge section="Account" />}
+				title={t("Cline Account")}
 				actions={
 					user ? (
 						<button
@@ -663,6 +712,56 @@ export function AccountView() {
 								</div>
 							</div>
 
+							{clinePassModels ? (
+								<div className="rounded-lg border border-border p-5">
+									<div className="mb-4 flex items-center justify-between">
+										<div className="flex items-center gap-3">
+											<Sparkles className="h-5 w-5 text-primary" />
+											<h3 className="text-sm font-semibold text-foreground">
+												ClinePass
+											</h3>
+											<span className="rounded-full bg-primary/20 px-2 py-0.5 text-xs font-medium text-primary">
+												{tc("subscription", "Active")}
+											</span>
+										</div>
+										<button
+											type="button"
+											onClick={() => void openExternalUrl(CLINE_PASS_URL)}
+											className="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium text-muted-foreground hover:bg-surface-hover hover:text-foreground transition-colors"
+										>
+											{t("Manage")}
+											<ExternalLink className="h-3.5 w-3.5" />
+										</button>
+									</div>
+									{clinePassModels.length > 0 ? (
+										<>
+											<p className="mb-2 text-xs font-medium text-muted-foreground">
+												{t("Included models")}
+											</p>
+											<div className="flex flex-wrap gap-1.5">
+												{clinePassModels.map((model) => (
+													<span
+														className="rounded-md border border-border px-2 py-0.5 text-xs text-foreground"
+														key={model}
+													>
+														{model}
+													</span>
+												))}
+											</div>
+										</>
+									) : null}
+									<p className="mt-3 text-xs text-muted-foreground">
+										{activeOrganization
+											? t(
+													"Organization accounts can't use ClinePass. Switch to your personal account below to use it.",
+												)
+											: t(
+													"Choose the ClinePass provider to use these. Other models use your credits.",
+												)}
+									</p>
+								</div>
+							) : null}
+
 							{/* Balance Card */}
 							{displayedBalance !== null && (
 								<div className="rounded-lg border border-border p-5">
@@ -673,7 +772,7 @@ export function AccountView() {
 												{activeOrganization
 													? t("{name} Balance", {
 															name: activeOrganization.name,
-													  })
+														})
 													: t("Credits Balance")}
 											</h3>
 										</div>
@@ -762,10 +861,10 @@ export function AccountView() {
 						{activeOrganization
 							? t("Recent API usage and token consumption for {name}.", {
 									name: activeOrganization.name,
-							  })
+								})
 							: t(
 									"Recent API usage and token consumption across all providers.",
-							  )}
+								)}
 					</p>
 					{usageLoading && renderLoading()}
 					{usageError && renderError(usageError, loadUsage)}

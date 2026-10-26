@@ -43,6 +43,23 @@ export function t(
 	return translation;
 }
 
+/**
+ * 带语境的翻译：同一英文在不同界面含义不同（如磁盘「Free」与价格「Free」）时，
+ * 先查「语境|原文」词条，查不到再回退到普通词条。测试环境下仍返回英文原文。
+ */
+export function tc(
+	context: string,
+	text: string,
+	params?: Record<string, string | number>,
+): string {
+	if (!text) return "";
+	const key = `${context}|${text}`;
+	if (currentLocale === "zh-CN" && dictionary[key] !== undefined) {
+		return t(dictionary[key], params);
+	}
+	return t(text, params);
+}
+
 export default t;
 
 // 让共享组件库 @cline/ui（审批卡片、追问卡片、排队消息、上下文用量、PR 状态栏等）
