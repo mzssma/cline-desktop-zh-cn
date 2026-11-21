@@ -1,4 +1,5 @@
 import { CLINE_ENVIRONMENTS } from "@cline/shared/browser";
+import { t } from "@/lib/i18n";
 
 const CLOUD_SESSION_ERROR_PREFIX = "CLOUD_SESSION_ERROR:";
 
@@ -66,4 +67,21 @@ export function parseCloudSessionError(
 /** Strips the machine-readable cloud error envelope for display. */
 export function humanizeCloudSessionError(value: string): string {
 	return parseCloudSessionError(value)?.message ?? value;
+}
+
+/** Adds handoff-specific reassurance for transport failures. */
+export function humanizeCloudHandoffError(value: string): string {
+	const message = humanizeCloudSessionError(value).trim();
+	const normalized = message.toLowerCase();
+	if (
+		normalized === "fetch failed" ||
+		normalized === "failed to fetch" ||
+		normalized === "network request failed" ||
+		normalized === "load failed"
+	) {
+		return t(
+			"A network request failed during cloud handoff. Your local conversation is still available.",
+		);
+	}
+	return t(message);
 }

@@ -47,7 +47,6 @@ import { Input } from "@/components/ui/input";
 import {
 	basenamePath,
 	formatCostUsd,
-	formatRelativeTime,
 	type SessionThread,
 	sessionActivityTimestamp,
 	type UseSessionHistoryResult,
@@ -489,11 +488,6 @@ export function SessionsView({ activeSessionId, history }: SessionsViewProps) {
 								? history.pendingAction?.action
 								: null;
 							const workspace = session?.workspaceRoot || session?.cwd || "";
-							const updated = formatRelativeTime(
-								session?.lastActivityAt ||
-									session?.endedAt ||
-									session?.startedAt,
-							);
 							return (
 								<div
 									className={cn(
@@ -571,7 +565,7 @@ export function SessionsView({ activeSessionId, history }: SessionsViewProps) {
 												{formatCostUsd(thread.totalCostUsd) ?? "-"}
 											</span>
 											<span className="text-muted-foreground">
-												{updated || thread.time}
+												{thread.time}
 											</span>
 										</form>
 									) : (
@@ -655,7 +649,7 @@ export function SessionsView({ activeSessionId, history }: SessionsViewProps) {
 												{formatCostUsd(thread.totalCostUsd) ?? "-"}
 											</span>
 											<span className="truncate text-muted-foreground">
-												{updated || thread.time}
+												{thread.time}
 											</span>
 										</div>
 									)}
