@@ -2,20 +2,20 @@
 
 ## 0.0.50
 
-- The thinking picker offers **Max** reasoning effort, for models whose top level is max
-- A manual `/compact` can be stopped. Before, it could sit on "Thinking…" with no Stop button when the summarizer stalled
-- With no saved model, the Cline provider now starts on the first free model instead of Claude Sonnet 5.5. Saved selections are untouched
-- The Account view has a Privacy settings link to the Cline web app's data-use preferences
-- Settings → About has a **Third-party notices** entry with the licenses for the open source software included in Cline
-- On macOS, Check for Updates from the menu runs once instead of twice
-- Refreshed colours and typography across the app
-- `read_files` results are no longer cut to 8k characters on the way to the model. A read now arrives in full, up to the tool's own limit of 2000 lines or about 48k characters
-- Reflection Beam no longer fails every turn with `400 Missing required parameter: 'messages[n].reasoning_content'` after a compaction or a model switch
-- Compaction no longer falls back to the basic summary on models the catalog doesn't describe. The summarizer was sending `reasoning_effort: "none"`, which some endpoints reject
-- Turning reasoning off now reaches custom models that have saved Model Configuration overrides. Before, gpt-5.6 and gpt-6 chat-completions endpoints rejected every tool call
-- On the native OpenAI provider, the reasoning level is fitted to what each model supports, so `max` and Extra High are no longer rejected by GPT-5.x and o-series models
-- LiteLLM: the legacy `max_tokens` field is no longer used as the input budget when the model reports `max_output_tokens`
-- Refreshed the model catalog. Adds 94 providers from models.dev and drops Lilac and Tempr. The Cline recommended list adds Muse Ember. The Cline free list drops Reflection Beam, Laguna S 2.1 and Solar Mini 4. ClinePass drops DeepSeek V4.1 Flash, Mimo V2.6 Flash, Mimo V2.6 Pro, MiniMax M3, Qwen3.7 Plus and Qwen3.7 Max. Default models change for 67 other providers, mostly to Kimi K3.1 Pro, Gemini 4 Neon (including the `gemini` and `vertex` providers) or DeepSeek V4.1 Flash 1017
+- 思考深度选择器新增 **最高** 档位，供最高推理级别为 max 的模型使用
+- 手动执行的 `/compact` 现在可以停止。此前若摘要过程卡住，界面会一直停在「思考中…」，且没有「停止」按钮
+- 未保存过模型时，Cline 模型提供商现在会默认使用免费列表中的第一个模型，而不再使用 Claude Sonnet 5.5。已保存的选择不受影响
+- 账户页面新增指向 Cline 网页端数据使用偏好的「隐私设置」链接
+- 设置 → 关于 中新增 **第三方声明** 入口，可查看 Cline 所包含开源软件的许可证
+- 在 macOS 上，从菜单点击「检查更新」只会运行一次，而不再触发两次
+- 刷新了应用中的配色和字体
+- `read_files` 的结果在送给模型时不再被截断为 8k 字符。一次读取现在会完整送达，上限仍是该工具自身的 2000 行或约 48k 字符
+- 在压缩或切换模型之后，Reflection Beam 不再每一轮都因 `400 Missing required parameter: 'messages[n].reasoning_content'` 失败
+- 对于模型目录中没有描述的模型，压缩不再退回到基础摘要。此前摘要器会发送 `reasoning_effort: "none"`，部分接口会因此拒绝请求
+- 关闭推理现在也会作用于已保存「模型配置」覆盖项的自定义模型。此前 gpt-5.6 和 gpt-6 的 chat-completions 接口会拒绝每一次工具调用
+- 在原生 OpenAI 模型提供商上，推理级别会按每个模型实际支持的范围调整，因此 GPT-5.x 和 o 系列模型不再拒绝 `max` 和「超高」档位
+- LiteLLM：当模型报告了 `max_output_tokens` 时，不再把旧的 `max_tokens` 字段当作输入预算
+- 已刷新模型目录。从 models.dev 新增 94 个模型提供商，并移除 Lilac 与 Tempr。Cline 推荐列表新增 Muse Ember。Cline 免费列表移除 Reflection Beam、Laguna S 2.1 与 Solar Mini 4。ClinePass 移除 DeepSeek V4.1 Flash、Mimo V2.6 Flash、Mimo V2.6 Pro、MiniMax M3、Qwen3.7 Plus 与 Qwen3.7 Max。另有 67 个模型提供商的默认模型有变更，大多改为 Kimi K3.1 Pro、Gemini 4 Neon（包括 `gemini` 和 `vertex` 提供商）或 DeepSeek V4.1 Flash 1017
 
 ## 0.0.49
 
