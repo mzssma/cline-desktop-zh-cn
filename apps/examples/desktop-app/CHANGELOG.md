@@ -2,9 +2,9 @@
 
 ## 0.0.51
 
-- Refreshed the model catalog. The OpenAI provider no longer lists ids the upstream catalog marks deprecated, including `gpt-4o`, `gpt-4.1`, `gpt-5`, `gpt-5-mini`, `gpt-5.1`, `gpt-5.3-codex`, `o3` and `o3-pro`. `gpt-5.3-codex-spark` is no longer listed for ChatGPT subscriptions. Adds the Concentrate and Prima Labs providers
-- The third-party notices in Settings → About now cover software that was missing from the list
-- Internal telemetry cleanup
+- 已刷新模型目录。OpenAI 模型提供商不再列出上游目录标记为已弃用的模型，包括 `gpt-4o`、`gpt-4.1`、`gpt-5`、`gpt-5-mini`、`gpt-5.1`、`gpt-5.3-codex`、`o3` 和 `o3-pro`。ChatGPT 订阅不再列出 `gpt-5.3-codex-spark`。新增 Concentrate 与 Prima Labs 两个模型提供商
+- 设置 → 关于 中的「第三方声明」现在会包含此前名单中遗漏的软件
+- 清理了内部遥测
 
 ## 0.0.50
 
